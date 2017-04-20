@@ -26,9 +26,8 @@ public class Game {
     private final Map map;
     private GamePhase currentPhase;
 
-    public Game(List<Player> players, Map map) {
+    public Game(Map map) {
         this.currentPhase = GamePhase.LOADING;
-        this.players.addAll(players);
         this.map = map;
         gameRegistry.add(this);
     }
@@ -79,5 +78,13 @@ public class Game {
 
     public List<Player> getTeamRed() {
         return teamRed;
+    }
+
+    public GamePhase getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public boolean isFull() {
+        return players.size() == References.TEAM_SIZE;
     }
 }

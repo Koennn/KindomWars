@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KingdomWars:jar">
+    <output-path>$USER_HOME$/Desktop/Server/plugins</output-path>
+    <root id="archive" name="KingdomWars.jar">
+      <element id="module-output" name="KingdomWars" />
+    </root>
+  </artifact>
+</component>
