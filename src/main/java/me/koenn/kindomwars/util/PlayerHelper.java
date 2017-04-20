@@ -13,10 +13,29 @@ import org.bukkit.entity.Player;
 public final class PlayerHelper {
 
     public static Game getGame(Player player) {
-        
+        for (Game game : Game.gameRegistry) {
+            for (Player gamePlayer : game.getPlayers()) {
+                if (gamePlayer.getUniqueId().equals(player.getUniqueId())) {
+                    return game;
+                }
+            }
+        }
+        return null;
     }
 
     public static Team getTeam(Player player) {
+        Game game = getGame(player);
+        if (game == null) {
+            return null;
+        }
+        return game.getTeamBlue().contains(player) ? Team.BLUE : Team.RED;
+    }
 
+    public static boolean canDamage(Player player1, Player player2) {
+        return getTeam(player1) != getTeam(player2);
+    }
+
+    public static boolean isInGame(Player player) {
+        return getGame(player) != null;
     }
 }
