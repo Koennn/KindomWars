@@ -4,6 +4,7 @@ import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.References;
 import me.koenn.kindomwars.util.Timer;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -40,16 +41,16 @@ public class Game {
 
         for (Player player : this.teamBlue) {
             player.teleport(this.map.getBlueSpawn());
+            player.setBedSpawnLocation(this.map.getBlueSpawn(), true);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&1Blue"));
         }
         for (Player player : this.teamRed) {
             player.teleport(this.map.getRedSpawn());
+            player.setBedSpawnLocation(this.map.getRedSpawn(), true);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&cRed"));
         }
 
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);
-
-        this.currentPhase = GamePhase.STARTED;
     }
 
     private void start() {
@@ -84,6 +85,10 @@ public class Game {
 
     public GamePhase getCurrentPhase() {
         return currentPhase;
+    }
+
+    public Map getMap() {
+        return map;
     }
 
     public boolean isFull() {

@@ -19,6 +19,6 @@ public final class References {
     public static final String JOIN_MESSAGE = "&7You joined a game, please wait until it starts.";
     public static final String YOUR_TEAM = GAME_PREFIX + "&2You are on team %team%!";
 
-    public static final int GAME_START_DELAY = 10;
+    public static final int GAME_START_DELAY = 30;
     public static final int TEAM_SIZE = 10;
 }

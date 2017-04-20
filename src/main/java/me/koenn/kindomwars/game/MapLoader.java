@@ -19,10 +19,14 @@ public final class MapLoader {
         JSONManager manager = new JSONManager(KingdomWars.getInstance(), file);
         JSONObject blueSpawn = (JSONObject) manager.getFromBody("blueSpawn");
         JSONObject redSpawn = (JSONObject) manager.getFromBody("redSpawn");
+        Bukkit.getLogger().info(blueSpawn.toJSONString());
+        Bukkit.getLogger().info(redSpawn.toJSONString());
         Location blue = new Location(Bukkit.getWorld((String) blueSpawn.get("world")), (double) blueSpawn.get("x"), (double) blueSpawn.get("y"), (double) blueSpawn.get("z"));
         Location red = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) redSpawn.get("x"), (double) redSpawn.get("y"), (double) redSpawn.get("z"));
+        int blueDoor = Math.toIntExact((long) blueSpawn.get("door"));
+        int redDoor = Math.toIntExact((long) redSpawn.get("door"));
         String name = (String) manager.getFromBody("name");
 
-        Map.maps.add(new Map(name, blue, red));
+        Map.maps.add(new Map(name, blue, red, blueDoor, redDoor));
     }
 }

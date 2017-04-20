@@ -27,6 +27,7 @@ public class SignListener implements Listener {
         }
 
         Block clicked = event.getClickedBlock();
+        Bukkit.getLogger().info(String.valueOf(clicked));
         if (clicked == null) {
             return;
         }
@@ -35,6 +36,7 @@ public class SignListener implements Listener {
         }
 
         Sign sign = (Sign) clicked.getState();
+        Bukkit.getLogger().info(String.valueOf(sign));
         if (!sign.getLine(0).contains(References.SIGN_PREFIX)) {
             return;
         }
