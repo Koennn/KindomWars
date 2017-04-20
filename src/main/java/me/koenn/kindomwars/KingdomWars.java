@@ -1,10 +1,14 @@
 package me.koenn.kindomwars;
 
+import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.game.GameCreator;
+import me.koenn.kindomwars.game.MapLoader;
 import me.koenn.kindomwars.listeners.DamageListener;
 import me.koenn.kindomwars.listeners.SignListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 /**
  * <p>
@@ -35,6 +39,13 @@ public final class KingdomWars extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new DamageListener(), this);
         Bukkit.getPluginManager().registerEvents(new SignListener(), this);
+
+        this.getCommand("forcestart").setExecutor(new ForceStartCommand());
+
+        if (new File("testmap.json").exists()) {
+            this.getLogger().info("Loading testmap.json");
+            MapLoader.loadMap("testmap");
+        }
     }
 
     @Override

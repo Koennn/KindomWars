@@ -1,5 +1,8 @@
 package me.koenn.kindomwars.game;
 
+import me.koenn.kindomwars.util.Messager;
+import me.koenn.kindomwars.util.References;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -32,14 +35,18 @@ public class GameCreator {
                 return game;
             }
         }
-        Game game = new Game(null);
+        Bukkit.getLogger().info(Map.getRandomMap().getName());
+        Game game = new Game(Map.getRandomMap());
         this.activeGames.add(game);
         return game;
     }
 
     public static void join(Player player) {
+        Bukkit.getLogger().info("Joining " + player.getName());
         Game game = instance.getFreeGame();
+        Bukkit.getLogger().info("Game " + game);
         game.getPlayers().add(player);
+        Messager.playerMessage(player, References.JOIN_MESSAGE);
 
         if (game.isFull()) {
             game.load();

@@ -1,6 +1,12 @@
 package me.koenn.kindomwars.game;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 /**
  * <p>
@@ -11,10 +17,14 @@ import org.bukkit.Location;
  */
 public class Map {
 
+    public static List<Map> maps = new ArrayList<>();
+
+    private final String name;
     private final Location blueSpawn;
     private final Location redSpawn;
 
-    public Map(Location blueSpawn, Location redSpawn) {
+    public Map(String name, Location blueSpawn, Location redSpawn) {
+        this.name = name;
         this.blueSpawn = blueSpawn;
         this.redSpawn = redSpawn;
     }
@@ -25,5 +35,14 @@ public class Map {
 
     public Location getRedSpawn() {
         return redSpawn;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public static Map getRandomMap() {
+        Bukkit.getLogger().info(Arrays.toString(maps.toArray()));
+        return maps.get(new Random().nextInt(maps.size()));
     }
 }

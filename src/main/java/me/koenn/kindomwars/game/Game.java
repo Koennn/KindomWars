@@ -40,9 +40,11 @@ public class Game {
 
         for (Player player : this.teamBlue) {
             player.teleport(this.map.getBlueSpawn());
+            Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&1Blue"));
         }
         for (Player player : this.teamRed) {
             player.teleport(this.map.getRedSpawn());
+            Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&cRed"));
         }
 
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);

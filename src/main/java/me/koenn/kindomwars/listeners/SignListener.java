@@ -3,6 +3,7 @@ package me.koenn.kindomwars.listeners;
 import me.koenn.kindomwars.game.GameCreator;
 import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -21,7 +22,7 @@ public class SignListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!PlayerHelper.isInGame(event.getPlayer())) {
+        if (PlayerHelper.isInGame(event.getPlayer())) {
             return;
         }
 
@@ -29,7 +30,7 @@ public class SignListener implements Listener {
         if (clicked == null) {
             return;
         }
-        if (!clicked.getType().equals(Material.SIGN)) {
+        if (!clicked.getType().equals(Material.WALL_SIGN)) {
             return;
         }
 
