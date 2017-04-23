@@ -4,6 +4,7 @@ import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.commands.MapStaffCommand;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.MapLoader;
+import me.koenn.kindomwars.game.classes.ClassLoader;
 import me.koenn.kindomwars.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,11 +37,13 @@ public final class KingdomWars extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
         Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
 
+        ClassLoader.loadClasses();
+
         this.getCommand("forcestart").setExecutor(new ForceStartCommand());
         this.getCommand("mapstaff").setExecutor(new MapStaffCommand());
 
         for (File file : this.getDataFolder().listFiles()) {
-            if (file != null) {
+            if (file != null && file.getName().endsWith("map.json")) {
                 MapLoader.loadMap(file.getName());
             }
         }

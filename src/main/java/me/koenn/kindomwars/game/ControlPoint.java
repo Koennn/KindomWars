@@ -39,8 +39,6 @@ public class ControlPoint {
         max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
         Bukkit.getLogger().info(owningTeam.name() + " " + Arrays.toString(corners));
         Bukkit.getLogger().info(min.toString());
-        //new Location(corners[0].getWorld(), min.getX(), min.getY(), min.getZ()).getBlock().setType(owningTeam == Team.BLUE ? Material.LAPIS_BLOCK : Material.REDSTONE_BLOCK);
-        //new Location(corners[0].getWorld(), max.getX(), max.getY(), max.getZ()).getBlock().setType(owningTeam == Team.BLUE ? Material.LAPIS_ORE : Material.REDSTONE_ORE);
     }
 
     public void showProgressToPlayers(Game game, int progress) {
