@@ -3,7 +3,6 @@ package me.koenn.kindomwars.listeners;
 import me.koenn.kindomwars.game.GameCreator;
 import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -27,7 +26,6 @@ public class SignListener implements Listener {
         }
 
         Block clicked = event.getClickedBlock();
-        Bukkit.getLogger().info(String.valueOf(clicked));
         if (clicked == null) {
             return;
         }
@@ -36,7 +34,6 @@ public class SignListener implements Listener {
         }
 
         Sign sign = (Sign) clicked.getState();
-        Bukkit.getLogger().info(String.valueOf(sign));
         if (!sign.getLine(0).contains(References.SIGN_PREFIX)) {
             return;
         }

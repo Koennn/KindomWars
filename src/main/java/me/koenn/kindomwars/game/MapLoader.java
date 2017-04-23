@@ -4,6 +4,7 @@ import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.JSONManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
@@ -17,16 +18,35 @@ public final class MapLoader {
 
     public static void loadMap(String file) {
         JSONManager manager = new JSONManager(KingdomWars.getInstance(), file);
-        JSONObject blueSpawn = (JSONObject) manager.getFromBody("blueSpawn");
-        JSONObject redSpawn = (JSONObject) manager.getFromBody("redSpawn");
-        Bukkit.getLogger().info(blueSpawn.toJSONString());
-        Bukkit.getLogger().info(redSpawn.toJSONString());
-        Location blue = new Location(Bukkit.getWorld((String) blueSpawn.get("world")), (double) blueSpawn.get("x"), (double) blueSpawn.get("y"), (double) blueSpawn.get("z"));
-        Location red = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) redSpawn.get("x"), (double) redSpawn.get("y"), (double) redSpawn.get("z"));
-        int blueDoor = Math.toIntExact((long) blueSpawn.get("door"));
-        int redDoor = Math.toIntExact((long) redSpawn.get("door"));
         String name = (String) manager.getFromBody("name");
 
-        Map.maps.add(new Map(name, blue, red, blueDoor, redDoor));
+        JSONObject blueSpawn = (JSONObject) manager.getFromBody("blueSpawn");
+        JSONObject redSpawn = (JSONObject) manager.getFromBody("redSpawn");
+
+        Bukkit.getLogger().info(blueSpawn.toJSONString());
+        Bukkit.getLogger().info(redSpawn.toJSONString());
+
+        Location blue = new Location(Bukkit.getWorld((String) blueSpawn.get("world")), (double) blueSpawn.get("x") + 0.5, (double) blueSpawn.get("y") + 0.5, (double) blueSpawn.get("z") + 0.5);
+        Location red = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) redSpawn.get("x") + 0.5, (double) redSpawn.get("y") + 0.5, (double) redSpawn.get("z") + 0.5);
+
+        double blueDoorX = (double) blueSpawn.get("doorx") + 0.5;
+        double redDoorX = (double) redSpawn.get("doorx") + 0.5;
+        double blueDoorZ = (double) blueSpawn.get("doorz") + 0.5;
+        double redDoorZ = (double) redSpawn.get("doorz") + 0.5;
+
+        JSONArray redPoint = (JSONArray) redSpawn.get("capturePoint");
+        JSONArray bluePoint = (JSONArray) blueSpawn.get("capturePoint");
+        Location[] redPointCorners = new Location[4];
+        Location[] bluePointCorners = new Location[4];
+
+        for (int i = 0; i < redPoint.size(); i++) {
+            JSONObject redCorner = (JSONObject) redPoint.get(i);
+            redPointCorners[i] = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) redCorner.get("x") + 0.5, (double) redCorner.get("y") + 0.5, (double) redCorner.get("z") + 0.5);
+
+            JSONObject blueCorner = (JSONObject) bluePoint.get(i);
+            bluePointCorners[i] = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) blueCorner.get("x") + 0.5, (double) blueCorner.get("y") + 0.5, (double) blueCorner.get("z") + 0.5);
+        }
+
+        Map.maps.add(new Map(name, blue, red, (int) blueDoorX, (int) blueDoorZ, (int) redDoorX, (int) redDoorZ, redPointCorners, bluePointCorners));
     }
 }

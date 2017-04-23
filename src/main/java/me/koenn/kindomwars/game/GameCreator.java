@@ -17,16 +17,22 @@ import java.util.List;
  */
 public class GameCreator {
 
-    private static GameCreator instance;
-
-    public static GameCreator getInstance() {
-        return instance;
-    }
+    private static GameCreator instance = new GameCreator();
 
     private final List<Game> activeGames = new ArrayList<>();
 
-    public GameCreator() {
+    private GameCreator() {
         instance = this;
+    }
+
+    public static void join(Player player) {
+        Game game = instance.getFreeGame();
+        game.getPlayers().add(player);
+        Messager.playerMessage(player, References.JOIN_MESSAGE);
+
+        if (game.isFull()) {
+            game.load();
+        }
     }
 
     private Game getFreeGame() {
@@ -39,17 +45,5 @@ public class GameCreator {
         Game game = new Game(Map.getRandomMap());
         this.activeGames.add(game);
         return game;
-    }
-
-    public static void join(Player player) {
-        Bukkit.getLogger().info("Joining " + player.getName());
-        Game game = instance.getFreeGame();
-        Bukkit.getLogger().info("Game " + game);
-        game.getPlayers().add(player);
-        Messager.playerMessage(player, References.JOIN_MESSAGE);
-
-        if (game.isFull()) {
-            game.load();
-        }
     }
 }

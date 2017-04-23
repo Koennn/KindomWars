@@ -34,8 +34,9 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        int border = (PlayerHelper.getTeam(player) == Team.BLUE ? game.getMap().getBlueXBorder() : game.getMap().getRedXBorder());
-        if (Math.round(event.getTo().getX()) == border) {
+        int xBorder = (PlayerHelper.getTeam(player) == Team.BLUE ? game.getMap().getBlueXBorder() : game.getMap().getRedXBorder());
+        int zBorder = (PlayerHelper.getTeam(player) == Team.BLUE ? game.getMap().getBlueZBorder() : game.getMap().getRedZBorder());
+        if (Math.round(event.getTo().getX()) == xBorder || Math.round(event.getTo().getZ()) == zBorder) {
             event.setTo(event.getFrom());
         }
     }

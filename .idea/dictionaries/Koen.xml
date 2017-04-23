@@ -4,7 +4,11 @@
       <w>bdoor</w>
       <w>damager</w>
       <w>dont</w>
+      <w>doorx</w>
+      <w>doorz</w>
       <w>forcestart</w>
+      <w>mapstaff</w>
+      <w>respawned</w>
       <w>testmap</w>
     </words>
   </dictionary>

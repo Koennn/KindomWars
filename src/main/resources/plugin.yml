@@ -8,3 +8,5 @@ description: In Kingdom Wars there are 2 teams of 10. Blue team are the Good guy
 commands:
   forcestart:
     usage: /forcestart
+  mapstaff:
+      usage: /mapstaff

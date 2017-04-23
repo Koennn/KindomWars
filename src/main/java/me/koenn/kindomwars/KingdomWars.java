@@ -1,11 +1,10 @@
 package me.koenn.kindomwars;
 
 import me.koenn.kindomwars.commands.ForceStartCommand;
-import me.koenn.kindomwars.game.GameCreator;
+import me.koenn.kindomwars.commands.MapStaffCommand;
+import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.MapLoader;
-import me.koenn.kindomwars.listeners.DamageListener;
-import me.koenn.kindomwars.listeners.PlayerMoveListener;
-import me.koenn.kindomwars.listeners.SignListener;
+import me.koenn.kindomwars.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,14 +20,9 @@ import java.io.File;
 public final class KingdomWars extends JavaPlugin {
 
     private static KingdomWars instance;
-    private static GameCreator gameCreator;
 
     public static KingdomWars getInstance() {
         return instance;
-    }
-
-    public static GameCreator getGameCreator() {
-        return gameCreator;
     }
 
     @Override
@@ -36,17 +30,19 @@ public final class KingdomWars extends JavaPlugin {
         this.getLogger().info("All credits for this plugin go to Koenn");
         instance = this;
 
-        gameCreator = new GameCreator();
-
         Bukkit.getPluginManager().registerEvents(new DamageListener(), this);
         Bukkit.getPluginManager().registerEvents(new SignListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), this);
+        Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
+        Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
 
         this.getCommand("forcestart").setExecutor(new ForceStartCommand());
+        this.getCommand("mapstaff").setExecutor(new MapStaffCommand());
 
-        if (new File("testmap.json").exists()) {
-            this.getLogger().info("Loading testmap.json");
-            MapLoader.loadMap("testmap");
+        for (File file : this.getDataFolder().listFiles()) {
+            if (file != null) {
+                MapLoader.loadMap(file.getName());
+            }
         }
 
         this.getLogger().info("Load successful!");
@@ -55,5 +51,6 @@ public final class KingdomWars extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
+        Game.gameRegistry.forEach(Game::cancel);
     }
 }

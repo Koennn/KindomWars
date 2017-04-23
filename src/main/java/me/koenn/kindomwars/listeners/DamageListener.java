@@ -1,15 +1,22 @@
 package me.koenn.kindomwars.listeners;
 
+import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.GamePhase;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
+import me.koenn.kindomwars.util.Team;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+
+import java.util.HashMap;
 
 /**
  * <p>
@@ -19,6 +26,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
  * Written by Koen Willemse, April 2017
  */
 public class DamageListener implements Listener {
+
+    private final HashMap<Player, Integer> respawnCooldown = new HashMap<>();
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
@@ -57,11 +66,41 @@ public class DamageListener implements Listener {
 
         Player killer = event.getEntity().getKiller();
         Player killed = event.getEntity();
+        Game game = PlayerHelper.getGame(killed);
 
-        if (!PlayerHelper.isInGame(killer) || !PlayerHelper.isInGame(killed)) {
+        if (!PlayerHelper.isInGame(killer) || !PlayerHelper.isInGame(killed) || game == null) {
             return;
         }
 
         Messager.playerMessage(killer, References.KILL);
+        Messager.playerMessage(killed, References.DEATH);
+        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
+        killed.setGameMode(GameMode.SPECTATOR);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+            respawnCooldown.put(killed, 0);
+            killed.setGameMode(GameMode.SURVIVAL);
+            killed.teleport(PlayerHelper.getTeam(killed) == Team.BLUE ? game.getMap().getBlueSpawn() : game.getMap().getRedSpawn());
+            Messager.playerMessage(killed, References.RESPAWN);
+        }, References.RESPAWN_COOLDOWN * 20);
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getPlayer() == null) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        Game game = PlayerHelper.getGame(player);
+
+        if (!PlayerHelper.isInGame(player) || game == null) {
+            return;
+        }
+
+        if (respawnCooldown.get(player) != 0) {
+            player.setGameMode(GameMode.SPECTATOR);
+            event.setRespawnLocation(player.getKiller().getEyeLocation());
+            Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.teleport(player.getKiller()), 40);
+        }
     }
 }
