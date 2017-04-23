@@ -25,5 +25,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.yaml:snakeyaml:1.15" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.md-5:bungeecord-chat:1.8-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: de.slikey:EffectLib:5.4" level="project" />
+    <orderEntry type="library" name="KoennCore" level="project" />
   </component>
 </module>

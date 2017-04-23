@@ -2,6 +2,7 @@ package me.koenn.kindomwars;
 
 import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.commands.MapStaffCommand;
+import me.koenn.kindomwars.commands.SelectClassCommand;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.MapLoader;
 import me.koenn.kindomwars.game.classes.ClassLoader;
@@ -41,6 +42,7 @@ public final class KingdomWars extends JavaPlugin {
 
         this.getCommand("forcestart").setExecutor(new ForceStartCommand());
         this.getCommand("mapstaff").setExecutor(new MapStaffCommand());
+        this.getCommand("class").setExecutor(new SelectClassCommand());
 
         for (File file : this.getDataFolder().listFiles()) {
             if (file != null && file.getName().endsWith("map.json")) {

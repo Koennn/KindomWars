@@ -51,7 +51,7 @@ public final class ClassLoader {
                 for (int i = 0; i < classKits.size(); i++) {
                     kitArray[i] = classKits.get(i);
                 }
-                classes.add(new Class(className, kitArray));
+                classes.add(new Class(className, kitArray, ItemHelper.stringToItem((String) jsonManager.getFromBody("icon")), (String) jsonManager.getFromBody("description")));
                 Bukkit.getLogger().info("Successfully loaded class file " + classFile.getName());
             }
         }

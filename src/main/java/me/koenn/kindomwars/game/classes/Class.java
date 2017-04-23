@@ -1,5 +1,7 @@
 package me.koenn.kindomwars.game.classes;
 
+import org.bukkit.inventory.ItemStack;
+
 import java.util.Arrays;
 
 /**
@@ -13,10 +15,14 @@ public class Class {
 
     private final String name;
     private final Kit[] kits;
+    private final ItemStack icon;
+    private final String description;
 
-    protected Class(String name, Kit[] kits) {
+    protected Class(String name, Kit[] kits, ItemStack icon, String description) {
         this.name = name;
         this.kits = kits;
+        this.icon = icon;
+        this.description = description;
     }
 
     public String getName() {
@@ -25,6 +31,14 @@ public class Class {
 
     public Kit[] getKits() {
         return kits;
+    }
+
+    public ItemStack getIcon() {
+        return icon;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     @Override
