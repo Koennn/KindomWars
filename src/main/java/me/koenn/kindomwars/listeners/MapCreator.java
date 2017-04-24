@@ -1,7 +1,7 @@
 package me.koenn.kindomwars.listeners;
 
+import me.koenn.core.data.JSONManager;
 import me.koenn.kindomwars.KingdomWars;
-import me.koenn.kindomwars.util.JSONManager;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.References;
 import org.bukkit.Bukkit;
@@ -66,7 +66,7 @@ public class MapCreator implements Listener {
                 manager.setInBody("blueSpawn", tmpMapFiles.get(player).get("blueSpawn"));
                 manager.setInBody("redSpawn", tmpMapFiles.get(player).get("redSpawn"));
                 manager.saveBodyToFile();
-                Messager.playerMessage(player, References.SAVE_SUCCESFULL);
+                Messager.playerMessage(player, References.SAVE_SUCCESSFUL);
             } else {
                 ToolMode next = getNextMode(mode);
                 ArrayList<String> lore = new ArrayList<>();

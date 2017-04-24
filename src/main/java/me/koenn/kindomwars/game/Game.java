@@ -1,10 +1,10 @@
 package me.koenn.kindomwars.game;
 
+import me.koenn.core.misc.Timer;
 import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.References;
 import me.koenn.kindomwars.util.Team;
-import me.koenn.kindomwars.util.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;

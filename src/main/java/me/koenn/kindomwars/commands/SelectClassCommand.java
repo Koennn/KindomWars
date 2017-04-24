@@ -1,12 +1,10 @@
 package me.koenn.kindomwars.commands;
 
+import me.koenn.core.command.Command;
 import me.koenn.core.gui.Gui;
+import me.koenn.core.player.CPlayer;
 import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.game.classes.ClassGui;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  * <p>
@@ -15,11 +13,15 @@ import org.bukkit.entity.Player;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public class SelectClassCommand implements CommandExecutor {
+public class SelectClassCommand extends Command {
+
+    public SelectClassCommand() {
+        super("class", "/class");
+    }
 
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        ClassGui gui = new ClassGui((Player) commandSender);
+    public boolean execute(CPlayer cPlayer, String[] strings) {
+        ClassGui gui = new ClassGui(cPlayer.getPlayer(), true);
         Gui.registerGui(gui, KingdomWars.getInstance());
         gui.open();
         return true;

@@ -1,10 +1,9 @@
 package me.koenn.kindomwars.commands;
 
+import me.koenn.core.command.Command;
+import me.koenn.core.player.CPlayer;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.util.PlayerHelper;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -14,15 +13,15 @@ import org.bukkit.entity.Player;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public class ForceStartCommand implements CommandExecutor {
+public class ForceStartCommand extends Command {
+
+    public ForceStartCommand() {
+        super("forcestart", "/forcestart");
+    }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            return false;
-        }
-
-        Player player = (Player) sender;
+    public boolean execute(CPlayer cPlayer, String[] strings) {
+        Player player = cPlayer.getPlayer();
         Game game = PlayerHelper.getGame(player);
         if (game == null) {
             return false;

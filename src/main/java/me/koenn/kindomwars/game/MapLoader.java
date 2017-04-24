@@ -1,7 +1,7 @@
 package me.koenn.kindomwars.game;
 
+import me.koenn.core.data.JSONManager;
 import me.koenn.kindomwars.KingdomWars;
-import me.koenn.kindomwars.util.JSONManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.json.simple.JSONArray;
