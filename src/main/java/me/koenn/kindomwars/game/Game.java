@@ -10,7 +10,9 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * <p>
@@ -26,7 +28,10 @@ public class Game {
     private final List<Player> players = new ArrayList<>();
     private final List<Player> teamBlue = new ArrayList<>();
     private final List<Player> teamRed = new ArrayList<>();
+    private final List<Player>[] teams = new List[2];
+    private final Random random = new Random(System.nanoTime());
     private final Map map;
+    private final TeamBalancer[] balancedTeams = new TeamBalancer[2];
     private GamePhase currentPhase;
     private int bluePointPercentage = 0;
     private int redPointPercentage = 0;
@@ -36,10 +41,13 @@ public class Game {
         this.currentPhase = GamePhase.LOADING;
         this.map = map;
         gameRegistry.add(this);
+        teams[0] = teamBlue;
+        teams[1] = teamRed;
     }
 
     public void load() {
         this.currentPhase = GamePhase.STARTING;
+        Collections.shuffle(this.players);
         this.balanceTeams();
 
         Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
@@ -49,12 +57,14 @@ public class Game {
             player.setBedSpawnLocation(this.map.getBlueSpawn(), true);
             player.setGameMode(GameMode.SURVIVAL);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&1Blue"));
+            Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[0].getBalancedTeam().get(player).getName()));
         }
         for (Player player : this.teamRed) {
             player.teleport(this.map.getRedSpawn());
             player.setBedSpawnLocation(this.map.getRedSpawn(), true);
             player.setGameMode(GameMode.SURVIVAL);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&cRed"));
+            Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[1].getBalancedTeam().get(player).getName()));
         }
 
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);
@@ -111,6 +121,13 @@ public class Game {
             } else {
                 this.teamRed.add(this.players.get(i));
             }
+        }
+
+        for (int i = 0; i < 2; i++) {
+            Collections.shuffle(teams[i], random);
+            TeamBalancer balancer = new TeamBalancer(teams[i]);
+            balancer.balance();
+            balancedTeams[i] = balancer;
         }
     }
 

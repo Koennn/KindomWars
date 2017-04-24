@@ -1,6 +1,9 @@
 package me.koenn.kindomwars.util;
 
+import me.koenn.core.player.CPlayerRegistry;
 import me.koenn.kindomwars.game.Game;
+import me.koenn.kindomwars.game.classes.Class;
+import me.koenn.kindomwars.game.classes.ClassLoader;
 import org.bukkit.entity.Player;
 
 /**
@@ -37,5 +40,13 @@ public final class PlayerHelper {
 
     public static boolean isInGame(Player player) {
         return getGame(player) != null;
+    }
+
+    public static Class getMostPreferredClass(Player player) {
+        return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("most-preferred-class"));
+    }
+
+    public static Class getLeastPreferredClass(Player player) {
+        return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("least-preferred-class"));
     }
 }

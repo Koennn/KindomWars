@@ -62,4 +62,13 @@ public final class ClassLoader {
     public static List<Class> getClasses() {
         return classes;
     }
+
+    public static Class getClass(String name) {
+        for (Class cl : classes) {
+            if (cl.getName().equals(name)) {
+                return cl;
+            }
+        }
+        return null;
+    }
 }

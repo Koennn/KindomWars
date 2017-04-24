@@ -20,6 +20,7 @@ public final class References {
     public static final String YOUR_TEAM = GAME_PREFIX + "&2You are on team %team%!";
     public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 5 seconds.";
     public static final String RESPAWN = GAME_PREFIX + "&2You respawned! Try not to die this time.";
+    public static final String CLASS = GAME_PREFIX + "&2You are in the &2&l%class% &2class!";
 
     public static final String MODE_CHANGE = GAME_PREFIX + "&7Changed mode to %mode%";
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
