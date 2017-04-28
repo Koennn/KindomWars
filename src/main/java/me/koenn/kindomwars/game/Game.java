@@ -3,6 +3,7 @@ package me.koenn.kindomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.Messager;
+import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
 import me.koenn.kindomwars.util.Team;
 import org.bukkit.Bukkit;
@@ -58,6 +59,9 @@ public class Game {
             player.setGameMode(GameMode.SURVIVAL);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&1Blue"));
             Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[0].getBalancedTeam().get(player).getName()));
+
+            player.getInventory().clear();
+            PlayerHelper.giveKit(player, this.balancedTeams[0].getBalancedTeam().get(player).getKits()[0]);
         }
         for (Player player : this.teamRed) {
             player.teleport(this.map.getRedSpawn());
@@ -65,6 +69,9 @@ public class Game {
             player.setGameMode(GameMode.SURVIVAL);
             Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&cRed"));
             Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[1].getBalancedTeam().get(player).getName()));
+
+            player.getInventory().clear();
+            PlayerHelper.giveKit(player, this.balancedTeams[1].getBalancedTeam().get(player).getKits()[0]);
         }
 
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);

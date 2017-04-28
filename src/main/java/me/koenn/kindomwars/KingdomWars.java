@@ -6,6 +6,7 @@ import me.koenn.core.command.CommandAPI;
 import me.koenn.core.pluginmanager.PluginManager;
 import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.commands.SelectClassCommand;
+import me.koenn.kindomwars.commands.TestParticleCommand;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.MapLoader;
 import me.koenn.kindomwars.game.classes.ClassLoader;
@@ -54,6 +55,7 @@ public final class KingdomWars extends JavaPlugin {
 
         CommandAPI.registerCommand(new ForceStartCommand(), this);
         CommandAPI.registerCommand(new SelectClassCommand(), this);
+        CommandAPI.registerCommand(new TestParticleCommand(), this);
 
         for (File file : this.getDataFolder().listFiles()) {
             if (file != null && file.getName().endsWith("map.json")) {

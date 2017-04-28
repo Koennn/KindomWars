@@ -13,3 +13,5 @@ commands:
       usage: /mapstaff
   class:
       usage: /class
+  testparticle:
+        usage: /testparticle

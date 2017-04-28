@@ -4,7 +4,9 @@ import me.koenn.core.player.CPlayerRegistry;
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.classes.Class;
 import me.koenn.kindomwars.game.classes.ClassLoader;
+import me.koenn.kindomwars.game.classes.Kit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * <p>
@@ -48,5 +50,11 @@ public final class PlayerHelper {
 
     public static Class getLeastPreferredClass(Player player) {
         return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("least-preferred-class"));
+    }
+
+    public static void giveKit(Player player, Kit kit) {
+        for (ItemStack item : kit.getItems()) {
+            player.getInventory().addItem(item);
+        }
     }
 }

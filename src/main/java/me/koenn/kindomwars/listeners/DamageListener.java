@@ -68,7 +68,18 @@ public class DamageListener implements Listener {
         Player killed = event.getEntity();
         Game game = PlayerHelper.getGame(killed);
 
-        if (!PlayerHelper.isInGame(killer) || !PlayerHelper.isInGame(killed) || game == null) {
+        if (!PlayerHelper.isInGame(killed) || game == null) {
+            return;
+        }
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+            respawnCooldown.put(killed, 0);
+            killed.setGameMode(GameMode.SURVIVAL);
+            killed.teleport(PlayerHelper.getTeam(killed) == Team.BLUE ? game.getMap().getBlueSpawn() : game.getMap().getRedSpawn());
+            Messager.playerMessage(killed, References.RESPAWN);
+        }, References.RESPAWN_COOLDOWN * 20);
+
+        if (!PlayerHelper.isInGame(killer)) {
             return;
         }
 
@@ -76,12 +87,6 @@ public class DamageListener implements Listener {
         Messager.playerMessage(killed, References.DEATH);
         respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
         killed.setGameMode(GameMode.SPECTATOR);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-            respawnCooldown.put(killed, 0);
-            killed.setGameMode(GameMode.SURVIVAL);
-            killed.teleport(PlayerHelper.getTeam(killed) == Team.BLUE ? game.getMap().getBlueSpawn() : game.getMap().getRedSpawn());
-            Messager.playerMessage(killed, References.RESPAWN);
-        }, References.RESPAWN_COOLDOWN * 20);
     }
 
     @EventHandler
@@ -100,7 +105,9 @@ public class DamageListener implements Listener {
         if (respawnCooldown.get(player) != 0) {
             player.setGameMode(GameMode.SPECTATOR);
             event.setRespawnLocation(player.getKiller().getEyeLocation());
-            Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.teleport(player.getKiller()), 40);
+            if (player.getKiller() != null) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.teleport(player.getKiller()), 40);
+            }
         }
     }
 }

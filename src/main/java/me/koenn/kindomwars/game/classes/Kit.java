@@ -27,4 +27,8 @@ public class Kit {
     public String toString() {
         return "Kit{" + Arrays.toString(items.toArray()) + "}";
     }
+
+    public List<ItemStack> getItems() {
+        return items;
+    }
 }
