@@ -1,15 +1,12 @@
 package me.koenn.kindomwars.game;
 
+import me.koenn.core.misc.ProgressBar;
 import me.koenn.kindomwars.util.ActionBar;
 import me.koenn.kindomwars.util.PlayerHelper;
-import me.koenn.kindomwars.util.References;
 import me.koenn.kindomwars.util.Team;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-
-import java.util.Arrays;
 
 /**
  * <p>
@@ -22,6 +19,7 @@ public class ControlPoint {
 
     public final Location[] corners;
     public final Team owningTeam;
+    public int captureProgress = 0;
     private Vector min = new Vector(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private Vector max = new Vector(0.0, 0.0, 0.0);
 
@@ -37,44 +35,39 @@ public class ControlPoint {
         }
         min = Vector.getMinimum(edges[0].toVector(), edges[1].toVector());
         max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
-        Bukkit.getLogger().info(owningTeam.name() + " " + Arrays.toString(corners));
-        Bukkit.getLogger().info(min.toString());
     }
 
-    public void showProgressToPlayers(Game game, int progress) {
+    public void showProgressToPlayers(Game game) {
+        ProgressBar progressBar = new ProgressBar(60);
+        String progressString = progressBar.get(this.captureProgress);
         for (Player player : game.getPlayers()) {
             if (isInRange(player)) {
-                new ActionBar(References.CAPTURE_PROGRESS.replace("%progress%", String.valueOf(progress))).setStay(1).send(player);
+                new ActionBar(progressString).setStay(1).send(player);
             }
         }
-    }
-
-    public boolean captureNeutral(Game game) {
-        int red = 0, blue = 0;
-        for (Player player : game.getPlayers()) {
-            if (isInRange(player)) {
-                if (PlayerHelper.getTeam(player) == Team.RED) {
-                    red++;
-                } else {
-                    blue++;
-                }
-            }
-        }
-        return red == blue;
     }
 
     public Team getCurrentlyCapturing(Game game) {
-        int red = 0, blue = 0;
+        int owningTeam = 0, opposingTeam = 0;
         for (Player player : game.getPlayers()) {
             if (isInRange(player)) {
-                if (PlayerHelper.getTeam(player) == Team.RED) {
-                    red++;
+                if (PlayerHelper.getTeam(player) == this.owningTeam) {
+                    owningTeam++;
                 } else {
-                    blue++;
+                    opposingTeam++;
                 }
             }
         }
-        return red > blue ? Team.RED : Team.BLUE;
+        return opposingTeam > owningTeam ? this.owningTeam.getOpponent() : this.owningTeam;
+    }
+
+    public boolean isEmpty(Game game) {
+        for (Player player : game.getPlayers()) {
+            if (isInRange(player)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isInRange(Player player) {
@@ -86,8 +79,19 @@ public class ControlPoint {
         return location.getY() > y - 1 && location.getY() < y + 1;
     }
 
-    public void unload() {
-        /*min.getBlock().setType(Material.AIR);
-        max.getBlock().setType(Material.AIR);*/
+    public void updateCaptureProgress(Team capturing) {
+        if (capturing == this.owningTeam) {
+            if (this.captureProgress > 0) {
+                this.captureProgress--;
+            }
+        } else {
+            if (this.captureProgress < 100) {
+                this.captureProgress++;
+            }
+        }
+    }
+
+    public void reset() {
+        this.captureProgress = 0;
     }
 }

@@ -9,5 +9,19 @@ package me.koenn.kindomwars.util;
  */
 public enum Team {
 
-    BLUE, RED
+    BLUE(0), RED(1);
+
+    int index;
+
+    Team(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public Team getOpponent() {
+        return this == RED ? BLUE : RED;
+    }
 }

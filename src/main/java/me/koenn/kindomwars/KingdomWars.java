@@ -8,8 +8,12 @@ import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.commands.SelectClassCommand;
 import me.koenn.kindomwars.commands.TestParticleCommand;
 import me.koenn.kindomwars.game.Game;
+import me.koenn.kindomwars.game.Map;
 import me.koenn.kindomwars.game.MapLoader;
 import me.koenn.kindomwars.game.classes.ClassLoader;
+import me.koenn.kindomwars.grenade.GrenadeHelper;
+import me.koenn.kindomwars.grenade.GrenadeItem;
+import me.koenn.kindomwars.grenade.GrenadeListener;
 import me.koenn.kindomwars.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -50,6 +54,7 @@ public final class KingdomWars extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
         Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
         Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
+        Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
 
         ClassLoader.loadClasses();
 
@@ -57,11 +62,7 @@ public final class KingdomWars extends JavaPlugin {
         CommandAPI.registerCommand(new SelectClassCommand(), this);
         CommandAPI.registerCommand(new TestParticleCommand(), this);
 
-        for (File file : this.getDataFolder().listFiles()) {
-            if (file != null && file.getName().endsWith("map.json")) {
-                MapLoader.loadMap(file.getName());
-            }
-        }
+        this.reloadMaps();
 
         CGiveAPI.registerCItem(new CItem() {
             @Override
@@ -82,8 +83,18 @@ public final class KingdomWars extends JavaPlugin {
                 return "mapstaff";
             }
         }, this);
+        CGiveAPI.registerCItem(new GrenadeItem(GrenadeHelper.Type.FRAG.toString()), this);
 
         this.getLogger().info("Load successful!");
+    }
+
+    public void reloadMaps() {
+        Map.maps.clear();
+        for (File file : this.getDataFolder().listFiles()) {
+            if (file != null && file.getName().endsWith("map.json")) {
+                MapLoader.loadMap(file.getName());
+            }
+        }
     }
 
     @Override

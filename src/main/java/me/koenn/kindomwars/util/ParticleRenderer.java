@@ -19,7 +19,7 @@ public final class ParticleRenderer {
 
     public static void renderLine(Location pos1, Location pos2, boolean red) {
         LineEffect lineEffect = new LineEffect(new EffectManager(KingdomWars.getInstance()));
-        lineEffect.particle = red ? ParticleEffect.FLAME : ParticleEffect.DRIP_WATER;
+        lineEffect.particle = red ? ParticleEffect.DRIP_LAVA : ParticleEffect.DRIP_WATER;
         lineEffect.setDynamicOrigin(new DynamicLocation(pos1));
         lineEffect.setDynamicTarget(new DynamicLocation(pos2));
         lineEffect.iterations = 1;

@@ -1,7 +1,9 @@
 package me.koenn.kindomwars.listeners;
 
-import me.koenn.core.data.JSONManager;
+import me.koenn.core.gui.Gui;
 import me.koenn.kindomwars.KingdomWars;
+import me.koenn.kindomwars.keyboard.KeyboardGui;
+import me.koenn.kindomwars.util.MapSaveGui;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.References;
 import org.bukkit.Bukkit;
@@ -19,8 +21,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,7 +33,12 @@ import java.util.HashMap;
  */
 public class MapCreator implements Listener {
 
+    public static MapCreator instance;
     private final HashMap<Player, JSONObject> tmpMapFiles = new HashMap<>();
+
+    public MapCreator() {
+        instance = this;
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -54,19 +59,13 @@ public class MapCreator implements Listener {
         ToolMode mode = getToolMode(player.getItemInHand());
         if (player.isSneaking() && event.getClickedBlock() == null) {
             if (event.getAction() == Action.LEFT_CLICK_AIR) {
-                File file = new File(KingdomWars.getInstance().getDataFolder(), "map.json");
-                try {
-                    file.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                JSONManager manager = new JSONManager(KingdomWars.getInstance(), "map.json");
-                manager.setInBody("name", "map");
-                manager.setInBody("blueSpawn", tmpMapFiles.get(player).get("blueSpawn"));
-                manager.setInBody("redSpawn", tmpMapFiles.get(player).get("redSpawn"));
-                manager.saveBodyToFile();
-                Messager.playerMessage(player, References.SAVE_SUCCESSFUL);
+                KeyboardGui gui = new KeyboardGui(player, "Map Name", input -> {
+                    MapSaveGui saveGui = new MapSaveGui(player, input, tmpMapFiles.get(player));
+                    Gui.registerGui(saveGui, KingdomWars.getInstance());
+                    saveGui.open();
+                });
+                Gui.registerGui(gui, KingdomWars.getInstance());
+                gui.open();
             } else {
                 ToolMode next = getNextMode(mode);
                 ArrayList<String> lore = new ArrayList<>();
@@ -172,6 +171,10 @@ public class MapCreator implements Listener {
     private void writeDoorCoords(Location coords, JSONObject spawnJson, boolean x) {
         spawnJson.put("doorx", x ? coords.getX() : 10000.0);
         spawnJson.put("doorz", x ? 10000.0 : coords.getZ());
+    }
+
+    public void resetPlayerMapFile(Player player) {
+        tmpMapFiles.remove(player);
     }
 
     private enum ToolMode {

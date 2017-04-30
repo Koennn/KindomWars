@@ -33,7 +33,7 @@ public final class PlayerHelper {
         if (game == null) {
             return null;
         }
-        return game.getTeamBlue().contains(player) ? Team.BLUE : Team.RED;
+        return game.getTeam(Team.BLUE).contains(player) ? Team.BLUE : Team.RED;
     }
 
     public static boolean canDamage(Player player1, Player player2) {

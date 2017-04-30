@@ -3,11 +3,9 @@ package me.koenn.kindomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.Messager;
-import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
 import me.koenn.kindomwars.util.Team;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -25,54 +23,34 @@ import java.util.Random;
 public class Game {
 
     public static final List<Game> gameRegistry = new ArrayList<>();
+    public static final Random random = new Random(System.nanoTime());
 
+    public final TeamInfo[] teams = new TeamInfo[2];
     private final List<Player> players = new ArrayList<>();
-    private final List<Player> teamBlue = new ArrayList<>();
-    private final List<Player> teamRed = new ArrayList<>();
-    private final List<Player>[] teams = new List[2];
-    private final Random random = new Random(System.nanoTime());
+    private final List<Player>[] rawTeams = new List[2];
     private final Map map;
-    private final TeamBalancer[] balancedTeams = new TeamBalancer[2];
     private GamePhase currentPhase;
-    private int bluePointPercentage = 0;
-    private int redPointPercentage = 0;
     private int gameTask;
 
     public Game(Map map) {
         this.currentPhase = GamePhase.LOADING;
         this.map = map;
         gameRegistry.add(this);
-        teams[0] = teamBlue;
-        teams[1] = teamRed;
+
+        for (int i = 0; i < 2; i++) {
+            this.rawTeams[i] = new ArrayList<>();
+        }
     }
 
     public void load() {
         this.currentPhase = GamePhase.STARTING;
         Collections.shuffle(this.players);
         this.balanceTeams();
+        this.map.load(this);
 
         Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
 
-        for (Player player : this.teamBlue) {
-            player.teleport(this.map.getBlueSpawn());
-            player.setBedSpawnLocation(this.map.getBlueSpawn(), true);
-            player.setGameMode(GameMode.SURVIVAL);
-            Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&1Blue"));
-            Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[0].getBalancedTeam().get(player).getName()));
-
-            player.getInventory().clear();
-            PlayerHelper.giveKit(player, this.balancedTeams[0].getBalancedTeam().get(player).getKits()[0]);
-        }
-        for (Player player : this.teamRed) {
-            player.teleport(this.map.getRedSpawn());
-            player.setBedSpawnLocation(this.map.getRedSpawn(), true);
-            player.setGameMode(GameMode.SURVIVAL);
-            Messager.playerMessage(player, References.YOUR_TEAM.replace("%team%", "&l&cRed"));
-            Messager.playerMessage(player, References.CLASS.replace("%class%", balancedTeams[1].getBalancedTeam().get(player).getName()));
-
-            player.getInventory().clear();
-            PlayerHelper.giveKit(player, this.balancedTeams[1].getBalancedTeam().get(player).getKits()[0]);
-        }
+        GameHelper.loadPlayers(this);
 
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);
     }
@@ -81,79 +59,56 @@ public class Game {
         this.currentPhase = GamePhase.STARTED;
         this.map.startRendering();
 
-        this.gameTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), () -> {
-            if (!this.map.getRedControlPoint().captureNeutral(this)) {
-                Team team = this.map.getRedControlPoint().getCurrentlyCapturing(this);
-                switch (team) {
-                    case BLUE:
-                        if (redPointPercentage < 100) {
-                            redPointPercentage++;
-                        }
-                        break;
-                    case RED:
-                        if (redPointPercentage > 0) {
-                            redPointPercentage--;
-                        }
-                        break;
-                }
-                this.map.getRedControlPoint().showProgressToPlayers(this, redPointPercentage);
-            }
-            if (!this.map.getBlueControlPoint().captureNeutral(this)) {
-                Team team = this.map.getBlueControlPoint().getCurrentlyCapturing(this);
-                switch (team) {
-                    case BLUE:
-                        if (bluePointPercentage > 0) {
-                            bluePointPercentage--;
-                        }
-                        break;
-                    case RED:
-                        if (bluePointPercentage < 100) {
-                            bluePointPercentage++;
-                        }
-                        break;
-                }
-                this.map.getBlueControlPoint().showProgressToPlayers(this, bluePointPercentage);
-            }
-        }, 0, 10);
+        this.gameTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this::update, 0, References.UPDATE_RATE);
 
         Messager.gameMessage(this, References.GAME_STARTED);
     }
 
-    private void balanceTeams() {
-        this.teamBlue.clear();
-        this.teamRed.clear();
-        for (int i = 0; i < this.players.size(); i++) {
-            if (i % 2 == 0) {
-                this.teamBlue.add(this.players.get(i));
-            } else {
-                this.teamRed.add(this.players.get(i));
+    private void update() {
+        for (ControlPoint point : this.map.getControlPoints()) {
+            if (point.isEmpty(this)) {
+                continue;
             }
+
+            point.showProgressToPlayers(this);
+
+            final int captureProgress = point.captureProgress;
+            if (captureProgress == 100) {
+                //TODO: Capture
+            }
+
+            Team capturing = point.getCurrentlyCapturing(this);
+            point.updateCaptureProgress(capturing);
+        }
+    }
+
+    private void balanceTeams() {
+        for (int i = 0; i < 2; i++) {
+            this.rawTeams[i] = new ArrayList<>();
+        }
+
+        for (int i = 0; i < this.players.size(); i++) {
+            this.rawTeams[i % 2 == 0 ? 0 : 1].add(this.players.get(i));
         }
 
         for (int i = 0; i < 2; i++) {
-            Collections.shuffle(teams[i], random);
-            TeamBalancer balancer = new TeamBalancer(teams[i]);
+            Collections.shuffle(rawTeams[i], random);
+            TeamBalancer balancer = new TeamBalancer(rawTeams[i], i == 1 ? Team.BLUE : Team.RED);
             balancer.balance();
-            balancedTeams[i] = balancer;
+            teams[i] = balancer.getTeamInfo();
         }
     }
 
     public void cancel() {
-        //this.map.unload();
+        Bukkit.getScheduler().cancelTask(this.gameTask);
+        this.map.stopRendering();
+        this.map.reset();
         this.players.clear();
         gameRegistry.remove(this);
     }
 
     public List<Player> getPlayers() {
         return players;
-    }
-
-    public List<Player> getTeamBlue() {
-        return teamBlue;
-    }
-
-    public List<Player> getTeamRed() {
-        return teamRed;
     }
 
     public GamePhase getCurrentPhase() {
@@ -166,5 +121,9 @@ public class Game {
 
     public boolean isFull() {
         return players.size() == References.TEAM_SIZE;
+    }
+
+    public List<Player> getTeam(Team team) {
+        return this.teams[team.getIndex()].getPlayers();
     }
 }

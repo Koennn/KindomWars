@@ -30,7 +30,7 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        if (game.getCurrentPhase().equals(GamePhase.STARTED)) {
+        if (!game.getCurrentPhase().equals(GamePhase.STARTING)) {
             return;
         }
 

@@ -3,6 +3,7 @@ package me.koenn.kindomwars.game;
 import me.koenn.kindomwars.game.classes.Class;
 import me.koenn.kindomwars.game.classes.ClassLoader;
 import me.koenn.kindomwars.util.PlayerHelper;
+import me.koenn.kindomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -20,25 +21,31 @@ import java.util.List;
 public class TeamBalancer {
 
     private final HashMap<Player, Class> balancedTeam = new HashMap<>();
-    private final List<Player> team;
+    private final List<Player> players;
     private final int classSize;
+    private final Team team;
     private int cycles = 0;
 
-    public TeamBalancer(List<Player> team) {
+    public TeamBalancer(List<Player> players, Team team) {
         this.team = team;
-        this.classSize = (team.size() - 1) / 4;
+        this.players = players;
+        this.classSize = (players.size() - 1) / 4;
     }
 
     public void balance() {
-        Bukkit.getLogger().info("Starting teambalance...");
-        Collections.shuffle(this.team);
+        Bukkit.getLogger().info(String.format("Starting teambalance with %s players...", players.size()));
+        Collections.shuffle(this.players);
 
-        for (Player player : this.team) {
+        for (Player player : this.players) {
             this.balancedTeam.put(player, PlayerHelper.getMostPreferredClass(player));
         }
 
         if (checkDone()) {
-            Bukkit.getLogger().info("Perfect teambalance found!");
+            if (classSize == 0) {
+                Bukkit.getLogger().info("Not enough players, aborting balance!");
+            } else {
+                Bukkit.getLogger().info("Perfect teambalance found!");
+            }
             return;
         }
 
@@ -125,7 +132,7 @@ public class TeamBalancer {
         return null;
     }
 
-    public HashMap<Player, Class> getBalancedTeam() {
-        return balancedTeam;
+    public TeamInfo getTeamInfo() {
+        return new TeamInfo(this.team, this.balancedTeam);
     }
 }

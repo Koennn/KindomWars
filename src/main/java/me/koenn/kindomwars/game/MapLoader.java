@@ -47,6 +47,8 @@ public final class MapLoader {
             bluePointCorners[i] = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) blueCorner.get("x") + 0.5, (double) blueCorner.get("y") + 0.5, (double) blueCorner.get("z") + 0.5);
         }
 
-        Map.maps.add(new Map(name, blue, red, (int) blueDoorX, (int) blueDoorZ, (int) redDoorX, (int) redDoorZ, redPointCorners, bluePointCorners));
+        JSONObject properties = (JSONObject) manager.getFromBody("properties");
+
+        Map.maps.add(new Map(name, blue, red, (int) blueDoorX, (int) blueDoorZ, (int) redDoorX, (int) redDoorZ, redPointCorners, bluePointCorners, properties));
     }
 }
