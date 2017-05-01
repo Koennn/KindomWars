@@ -80,12 +80,6 @@ public class TeamBalancer {
                 return cl;
             }
         }
-        for (Class cl : ClassLoader.getClasses()) {
-            int size = getClassSize(cl);
-            if (size == classSize) {
-                return cl;
-            }
-        }
         return null;
     }
 
