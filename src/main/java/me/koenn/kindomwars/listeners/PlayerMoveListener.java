@@ -2,8 +2,8 @@ package me.koenn.kindomwars.listeners;
 
 import me.koenn.kindomwars.game.Game;
 import me.koenn.kindomwars.game.GamePhase;
+import me.koenn.kindomwars.util.Door;
 import me.koenn.kindomwars.util.PlayerHelper;
-import me.koenn.kindomwars.util.Team;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,9 +34,9 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        int xBorder = (PlayerHelper.getTeam(player) == Team.BLUE ? game.getMap().getBlueXBorder() : game.getMap().getRedXBorder());
-        int zBorder = (PlayerHelper.getTeam(player) == Team.BLUE ? game.getMap().getBlueZBorder() : game.getMap().getRedZBorder());
-        if (Math.round(event.getTo().getX()) == xBorder || Math.round(event.getTo().getZ()) == zBorder) {
+        Door door = game.getMap().getDoor(PlayerHelper.getTeam(player));
+        double currentLocation = door.getType() == Door.DoorType.X ? Math.round(event.getTo().getX()) : Math.round(event.getTo().getZ());
+        if (currentLocation == Math.round(door.getLocation())) {
             event.setTo(event.getFrom());
         }
     }

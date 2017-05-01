@@ -4,13 +4,15 @@ import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.CloudEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
+import me.koenn.core.registry.Registry;
 import me.koenn.kindomwars.KingdomWars;
+import me.koenn.kindomwars.util.Door;
 import me.koenn.kindomwars.util.ParticleRenderer;
 import me.koenn.kindomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-import java.util.*;
+import java.util.HashMap;
 
 /**
  * <p>
@@ -21,39 +23,38 @@ import java.util.*;
  */
 public class Map {
 
-    public static List<Map> maps = new ArrayList<>();
+    public static Registry<Map> maps = new Registry<>(Map::getName);
 
     private final String name;
-    private final Location blueSpawn;
-    private final Location redSpawn;
-    private final int blueXBorder;
-    private final int blueZBorder;
-    private final int redXBorder;
-    private final int redZBorder;
-    private final Location[] redCapturePointCorners;
-    private final Location[] blueCapturePointCorners;
+    private final Location[] spawns = new Location[2];
+    private final Door[] doors = new Door[2];
+    private final Location[][] controlPointCorners = new Location[2][];
     private final ControlPoint[] controlPoints = new ControlPoint[2];
     private final HashMap<String, Object> properties;
     private int renderTask;
 
-    public Map(String name, Location blueSpawn, Location redSpawn, int blueXBorder, int blueZBorder, int redXBorder, int redZBorder, Location[] redCapturePointCorners, Location[] blueCapturePointCorners, HashMap<String, Object> properties) {
+    public Map(String name, Location blueSpawn, Location redSpawn, double blueXDoor, double blueZDoor, double redXDoor, double redZDoor, Location[] redControlPoint, Location[] blueControlPoint, HashMap<String, Object> properties) {
         this.name = name;
-        this.blueSpawn = blueSpawn;
-        this.redSpawn = redSpawn;
-        this.blueXBorder = blueXBorder;
-        this.blueZBorder = blueZBorder;
-        this.redXBorder = redXBorder;
-        this.redZBorder = redZBorder;
-        this.redCapturePointCorners = redCapturePointCorners;
-        this.blueCapturePointCorners = blueCapturePointCorners;
-        this.controlPoints[Team.BLUE.getIndex()] = new ControlPoint(blueCapturePointCorners, Team.BLUE);
-        this.controlPoints[Team.RED.getIndex()] = new ControlPoint(redCapturePointCorners, Team.RED);
+
+        this.spawns[Team.BLUE.getIndex()] = blueSpawn;
+        this.spawns[Team.RED.getIndex()] = redSpawn;
+
+        boolean blueZ = blueXDoor == Double.MAX_VALUE;
+        this.doors[Team.BLUE.getIndex()] = new Door(blueZ ? blueZDoor : blueXDoor, blueZ ? Door.DoorType.Z : Door.DoorType.X);
+        boolean redZ = redXDoor == Double.MAX_VALUE;
+        this.doors[Team.RED.getIndex()] = new Door(redZ ? redZDoor : redXDoor, redZ ? Door.DoorType.Z : Door.DoorType.X);
+
+        this.controlPointCorners[Team.BLUE.getIndex()] = blueControlPoint;
+        this.controlPointCorners[Team.RED.getIndex()] = redControlPoint;
+
+        this.controlPoints[Team.BLUE.getIndex()] = new ControlPoint(blueControlPoint, Team.BLUE);
+        this.controlPoints[Team.RED.getIndex()] = new ControlPoint(redControlPoint, Team.RED);
+
         this.properties = properties;
     }
 
     public static Map getRandomMap() {
-        Bukkit.getLogger().info(Arrays.toString(maps.toArray()));
-        return maps.get(new Random().nextInt(maps.size()));
+        return maps.getRandom();
     }
 
     public void reset() {
@@ -84,7 +85,8 @@ public class Map {
     }
 
     public void renderCapture(Team team) {
-        for (Location location : team == Team.RED ? redCapturePointCorners : blueCapturePointCorners) {
+        //TODO: Idk if this looks good enough...
+        for (Location location : this.controlPointCorners[team.getIndex()]) {
             CloudEffect effect = new CloudEffect(new EffectManager(KingdomWars.getInstance()));
             DynamicLocation dynamicLocation = new DynamicLocation(location);
             effect.cloudParticle = ParticleEffect.CLOUD;
@@ -98,15 +100,13 @@ public class Map {
 
     public void startRendering() {
         this.renderTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), () -> {
-            ParticleRenderer.renderLine(redCapturePointCorners[0], redCapturePointCorners[1], true);
-            ParticleRenderer.renderLine(redCapturePointCorners[1], redCapturePointCorners[2], true);
-            ParticleRenderer.renderLine(redCapturePointCorners[2], redCapturePointCorners[3], true);
-            ParticleRenderer.renderLine(redCapturePointCorners[3], redCapturePointCorners[0], true);
-
-            ParticleRenderer.renderLine(blueCapturePointCorners[0], blueCapturePointCorners[1], false);
-            ParticleRenderer.renderLine(blueCapturePointCorners[1], blueCapturePointCorners[2], false);
-            ParticleRenderer.renderLine(blueCapturePointCorners[2], blueCapturePointCorners[3], false);
-            ParticleRenderer.renderLine(blueCapturePointCorners[3], blueCapturePointCorners[0], false);
+            for (int i = 0; i < 1; i++) {
+                boolean red = i == Team.RED.getIndex();
+                ParticleRenderer.renderLine(this.controlPointCorners[i][0], this.controlPointCorners[i][1], red);
+                ParticleRenderer.renderLine(this.controlPointCorners[i][1], this.controlPointCorners[i][2], red);
+                ParticleRenderer.renderLine(this.controlPointCorners[i][2], this.controlPointCorners[i][3], red);
+                ParticleRenderer.renderLine(this.controlPointCorners[i][3], this.controlPointCorners[i][0], red);
+            }
         }, 0, 2);
     }
 
@@ -114,43 +114,27 @@ public class Map {
         Bukkit.getScheduler().cancelTask(this.renderTask);
     }
 
-    public Location getBlueSpawn() {
-        return blueSpawn;
+    public Location getSpawn(Team team) {
+        return this.spawns[team.getIndex()];
     }
 
-    public Location getRedSpawn() {
-        return redSpawn;
+    public Door getDoor(Team team) {
+        return this.doors[team.getIndex()];
     }
 
-    public int getBlueXBorder() {
-        return blueXBorder;
-    }
-
-    public int getRedXBorder() {
-        return redXBorder;
-    }
-
-    public int getBlueZBorder() {
-        return blueZBorder;
-    }
-
-    public int getRedZBorder() {
-        return redZBorder;
+    public Location[] getControlpointCorners(Team team) {
+        return this.controlPointCorners[team.getIndex()];
     }
 
     public ControlPoint[] getControlPoints() {
-        return controlPoints;
+        return this.controlPoints;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Object getProperty(String name) {
         return this.properties.get(name);
-    }
-
-    public Location getSpawn(Team team) {
-        return team == Team.RED ? redSpawn : blueSpawn;
     }
 }

@@ -49,6 +49,6 @@ public final class MapLoader {
 
         JSONObject properties = (JSONObject) manager.getFromBody("properties");
 
-        Map.maps.add(new Map(name, blue, red, (int) blueDoorX, (int) blueDoorZ, (int) redDoorX, (int) redDoorZ, redPointCorners, bluePointCorners, properties));
+        Map.maps.register(new Map(name, blue, red, blueDoorX, blueDoorZ, redDoorX, redDoorZ, redPointCorners, bluePointCorners, properties));
     }
 }

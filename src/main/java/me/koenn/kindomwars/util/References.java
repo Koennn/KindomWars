@@ -33,7 +33,7 @@ public final class References {
 
     public static final String SAVED_PREFERENCE = GAME_PREFIX + "&7Successfully saved your preference!";
 
-    public static final int GAME_START_DELAY = 2;
+    public static final int GAME_START_DELAY = 10;
     public static final int TEAM_SIZE = 10;
     public static final int RESPAWN_COOLDOWN = 10;
     public static final int UPDATE_RATE = 2;

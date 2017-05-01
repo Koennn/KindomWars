@@ -6,7 +6,6 @@ import me.koenn.kindomwars.game.GamePhase;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.References;
-import me.koenn.kindomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -75,7 +74,7 @@ public class DamageListener implements Listener {
         Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
             respawnCooldown.put(killed, 0);
             killed.setGameMode(GameMode.SURVIVAL);
-            killed.teleport(PlayerHelper.getTeam(killed) == Team.BLUE ? game.getMap().getBlueSpawn() : game.getMap().getRedSpawn());
+            killed.teleport(game.getMap().getSpawn(PlayerHelper.getTeam(killed)));
             Messager.playerMessage(killed, References.RESPAWN);
         }, References.RESPAWN_COOLDOWN * 20);
 
