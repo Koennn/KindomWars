@@ -1,8 +1,8 @@
 package me.koenn.kindomwars.listeners;
 
 import me.koenn.core.gui.Gui;
+import me.koenn.core.keyboard.KeyboardGui;
 import me.koenn.kindomwars.KingdomWars;
-import me.koenn.kindomwars.keyboard.KeyboardGui;
 import me.koenn.kindomwars.util.MapSaveGui;
 import me.koenn.kindomwars.util.Messager;
 import me.koenn.kindomwars.util.References;

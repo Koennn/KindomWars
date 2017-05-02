@@ -8,6 +8,7 @@ import me.koenn.kindomwars.commands.ForceStartCommand;
 import me.koenn.kindomwars.commands.SelectClassCommand;
 import me.koenn.kindomwars.commands.TestParticleCommand;
 import me.koenn.kindomwars.game.Game;
+import me.koenn.kindomwars.game.Map;
 import me.koenn.kindomwars.game.MapLoader;
 import me.koenn.kindomwars.game.classes.ClassLoader;
 import me.koenn.kindomwars.grenade.GrenadeHelper;
@@ -88,8 +89,7 @@ public final class KingdomWars extends JavaPlugin {
     }
 
     public void reloadMaps() {
-        //TODO: Registry.clear()?
-        //Map.maps.clear();
+        Map.maps.clear();
         for (File file : this.getDataFolder().listFiles()) {
             if (file != null && file.getName().endsWith("map.json")) {
                 MapLoader.loadMap(file.getName());

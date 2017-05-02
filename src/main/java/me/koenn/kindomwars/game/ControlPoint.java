@@ -1,7 +1,8 @@
 package me.koenn.kindomwars.game;
 
+import me.koenn.core.misc.ActionBar;
 import me.koenn.core.misc.ProgressBar;
-import me.koenn.kindomwars.util.ActionBar;
+import me.koenn.kindomwars.KingdomWars;
 import me.koenn.kindomwars.util.PlayerHelper;
 import me.koenn.kindomwars.util.Team;
 import org.bukkit.Location;
@@ -42,7 +43,7 @@ public class ControlPoint {
         String progressString = progressBar.get(this.captureProgress);
         for (Player player : game.getPlayers()) {
             if (isInRange(player)) {
-                new ActionBar(progressString).setStay(1).send(player);
+                new ActionBar(progressString, KingdomWars.getInstance()).setStay(1).send(player);
             }
         }
     }

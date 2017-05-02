@@ -1,8 +1,8 @@
 package me.koenn.kindomwars.game.classes;
 
 import me.koenn.core.data.JSONManager;
+import me.koenn.core.misc.ItemHelper;
 import me.koenn.kindomwars.KingdomWars;
-import me.koenn.kindomwars.util.ItemHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONArray;

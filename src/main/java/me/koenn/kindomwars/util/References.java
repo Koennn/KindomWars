@@ -29,8 +29,6 @@ public final class References {
     public static final String SAVE_SUCCESSFUL = GAME_PREFIX + "&7Successfully saved your map!";
     public static final String SAVE_ERROR = GAME_PREFIX + "&4It looks like you made a mistake while setting the areas, please try again!";
 
-    public static final String CAPTURE_PROGRESS = "&2Capture progress: %progress%%";
-
     public static final String SAVED_PREFERENCE = GAME_PREFIX + "&7Successfully saved your preference!";
 
     public static final int GAME_START_DELAY = 10;

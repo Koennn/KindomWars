@@ -1,7 +1,7 @@
 package me.koenn.kindomwars.grenade;
 
 import me.koenn.core.cgive.CItem;
-import me.koenn.kindomwars.util.ItemHelper;
+import me.koenn.core.misc.ItemHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

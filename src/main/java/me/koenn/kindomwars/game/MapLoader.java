@@ -23,9 +23,6 @@ public final class MapLoader {
         JSONObject blueSpawn = (JSONObject) manager.getFromBody("blueSpawn");
         JSONObject redSpawn = (JSONObject) manager.getFromBody("redSpawn");
 
-        Bukkit.getLogger().info(blueSpawn.toJSONString());
-        Bukkit.getLogger().info(redSpawn.toJSONString());
-
         Location blue = new Location(Bukkit.getWorld((String) blueSpawn.get("world")), (double) blueSpawn.get("x") + 0.5, (double) blueSpawn.get("y") + 0.5, (double) blueSpawn.get("z") + 0.5);
         Location red = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) redSpawn.get("x") + 0.5, (double) redSpawn.get("y") + 0.5, (double) redSpawn.get("z") + 0.5);
 
