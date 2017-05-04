@@ -3,6 +3,7 @@
     <output-path>D:/Server/plugins</output-path>
     <root id="archive" name="KingdomWars.jar">
       <element id="module-output" name="KingdomWars" />
+      <element id="extracted-dir" path="G:/Libraries/jnbt-1.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

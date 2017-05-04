@@ -6,18 +6,23 @@
       <w>bdoor</w>
       <w>candyland</w>
       <w>damager</w>
+      <w>deployable</w>
+      <w>deployables</w>
+      <w>depoyable</w>
       <w>dont</w>
       <w>doorx</w>
       <w>doorz</w>
       <w>eclass</w>
       <w>forcestart</w>
       <w>gamemodes</w>
+      <w>kingdomwars</w>
       <w>kwclass</w>
       <w>mapstaff</w>
       <w>minigames</w>
       <w>respawned</w>
       <w>teambalance</w>
       <w>testmap</w>
+      <w>zags</w>
     </words>
   </dictionary>
 </component>
