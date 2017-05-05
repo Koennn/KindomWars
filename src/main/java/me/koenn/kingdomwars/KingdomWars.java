@@ -12,9 +12,8 @@ import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.Map;
 import me.koenn.kingdomwars.game.MapLoader;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
-import me.koenn.kingdomwars.grenade.GrenadeHelper;
-import me.koenn.kingdomwars.grenade.GrenadeItem;
 import me.koenn.kingdomwars.grenade.GrenadeListener;
+import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,6 +65,7 @@ public final class KingdomWars extends JavaPlugin {
         this.reloadMaps();
 
         DeployableLoader.load();
+        GrenadeLoader.registerGrenades();
 
         CGiveAPI.registerCItem(new CItem() {
             @Override
@@ -86,7 +86,6 @@ public final class KingdomWars extends JavaPlugin {
                 return "mapstaff";
             }
         }, this);
-        CGiveAPI.registerCItem(new GrenadeItem(GrenadeHelper.Type.FRAG.toString()), this);
 
         this.getLogger().info("Load successful!");
     }
@@ -102,7 +101,7 @@ public final class KingdomWars extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getScheduler().cancelTasks(this);
         Game.gameRegistry.forEach(Game::cancel);
+        Bukkit.getScheduler().cancelTasks(this);
     }
 }

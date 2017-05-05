@@ -1,7 +1,6 @@
 package me.koenn.kingdomwars.grenade;
 
-import me.koenn.kingdomwars.grenade.grenades.FragGrenade;
-import org.bukkit.Bukkit;
+import me.koenn.kingdomwars.util.NBTUtil;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
@@ -10,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jnbt.CompoundTag;
+import org.jnbt.StringTag;
 
 /**
  * <p>
@@ -29,9 +30,8 @@ public class GrenadeListener implements Listener {
         Player player = (Player) event.getEntity().getShooter();
         ItemStack snowball = player.getItemInHand();
 
-        BaseGrenade grenade = new FragGrenade();
-        BaseGrenade.grenadeRegistry.register(grenade);
-        Bukkit.getLogger().info(grenade.getType());
+        CompoundTag grenadeInfo = GrenadeHelper.getGrenade(snowball);
+        BaseGrenade grenade = new BaseGrenade(NBTUtil.getChildTag(grenadeInfo.getValue(), "name", StringTag.class).getValue(), grenadeInfo);
 
         grenade.setProjectile((Snowball) event.getEntity());
         grenade.start();

@@ -1,9 +1,8 @@
 package me.koenn.kingdomwars.grenade;
 
-import me.koenn.core.misc.FancyString;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
+import org.jnbt.CompoundTag;
 
 /**
  * <p>
@@ -14,18 +13,8 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class GrenadeHelper {
 
-    public static BaseGrenade getGrenade(ItemStack item) {
+    public static CompoundTag getGrenade(ItemStack item) {
         String name = ChatColor.stripColor(item.getItemMeta().getDisplayName()).toLowerCase().replace(" grenade", "");
-        Bukkit.getLogger().info(name);
-        return BaseGrenade.grenadeRegistry.get(name);
-    }
-
-    public enum Type {
-        FRAG;
-
-        @Override
-        public String toString() {
-            return new FancyString(this.name()).toString();
-        }
+        return GrenadeLoader.grenadeRegistry.get(name);
     }
 }

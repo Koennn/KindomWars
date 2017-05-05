@@ -1,6 +1,7 @@
 package me.koenn.kingdomwars.grenade;
 
 import me.koenn.core.cgive.CItem;
+import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.ItemHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -20,7 +21,7 @@ public class GrenadeItem implements CItem {
     private final String type;
 
     public GrenadeItem(String type) {
-        this.type = type;
+        this.type = new FancyString(type).toString();
     }
 
     @Override
@@ -30,6 +31,6 @@ public class GrenadeItem implements CItem {
 
     @Override
     public String getName() {
-        return this.type.toLowerCase().replace(" ", "_");
+        return this.type.toLowerCase().replace(" ", "_") + "_grenade";
     }
 }

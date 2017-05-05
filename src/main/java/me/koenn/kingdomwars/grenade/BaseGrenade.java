@@ -1,8 +1,8 @@
 package me.koenn.kingdomwars.grenade;
 
-import me.koenn.core.registry.Registry;
-import org.bukkit.Location;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Snowball;
+import org.jnbt.CompoundTag;
 
 /**
  * <p>
@@ -11,37 +11,25 @@ import org.bukkit.entity.Snowball;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public abstract class BaseGrenade {
+public class BaseGrenade {
 
-    public static final Registry<BaseGrenade> grenadeRegistry = new Registry<>(BaseGrenade::getType);
+    public final String type;
+    public final CompoundTag grenadeInfo;
+    public Snowball projectile;
+    public int task;
 
-    private final String type;
-    private GrenadeExecutor executor;
-    private Location landLocation;
-    private Snowball projectile;
-
-    protected BaseGrenade(String type) {
+    protected BaseGrenade(String type, CompoundTag grenadeInfo) {
         this.type = type;
+        this.grenadeInfo = grenadeInfo;
     }
 
     public void start() {
-        this.executor.start();
+        GrenadeLoader.startGrenadeScript(this);
     }
 
-    public void setExecutor(GrenadeExecutor executor) {
-        this.executor = executor;
-    }
-
-    public Location getLandLocation() {
-        return landLocation;
-    }
-
-    public void setLandLocation(Location landLocation) {
-        this.landLocation = landLocation;
-    }
-
-    public Snowball getProjectile() {
-        return projectile;
+    @SuppressWarnings("unused")
+    public void remove() {
+        Bukkit.getScheduler().cancelTask(this.task);
     }
 
     public void setProjectile(Snowball projectile) {

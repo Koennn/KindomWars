@@ -28,24 +28,24 @@ public class TestParticleCommand extends Command {
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
-        DynamicLocation location = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
-        DynamicLocation location2 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
-        DynamicLocation location3 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
-        DynamicLocation location4 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
-        DynamicLocation location5 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
-        DynamicLocation location6 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 0.5, 72.0, 0.5));
+        DynamicLocation location = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
+        DynamicLocation location2 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
+        DynamicLocation location3 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
+        DynamicLocation location4 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
+        DynamicLocation location5 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
+        DynamicLocation location6 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 0.5, 72.0, 0.5));
 
-        DynamicLocation corner1 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 26.5, 90.0, 26.5));
-        DynamicLocation corner2 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), -26.5, 90.0, -26.5));
-        DynamicLocation corner3 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), 28.5, 90.0, 28.5));
-        DynamicLocation corner4 = new DynamicLocation(new Location(Bukkit.getWorld("bluebase"), -28.5, 90.0, -28.5));
+        DynamicLocation corner1 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 28.5, 90.0, -28.5));
+        DynamicLocation corner2 = new DynamicLocation(new Location(Bukkit.getWorld("world"), -28.5, 90.0, -28.5));
+        DynamicLocation corner3 = new DynamicLocation(new Location(Bukkit.getWorld("world"), -28.5, 90.0, 28.5));
+        DynamicLocation corner4 = new DynamicLocation(new Location(Bukkit.getWorld("world"), 28.5, 90.0, 28.5));
 
         SphereEffect sphere = new SphereEffect(new EffectManager(KingdomWars.getInstance()));
         sphere.setDynamicTarget(location);
         sphere.setDynamicOrigin(location);
         sphere.color = Color.AQUA;
         sphere.radius = 1.2F;
-        sphere.particles = 40;
+        sphere.particles = 60;
         sphere.infinite();
         sphere.start();
 
@@ -53,11 +53,11 @@ public class TestParticleCommand extends Command {
         effect.setDynamicOrigin(location2);
         effect.setDynamicTarget(location2);
         effect.particle = ParticleEffect.SPELL_WITCH;
-        effect.size = 6.0F;
+        effect.size = 3.0F;
         effect.xFactor = 2F;
         effect.yFactor = 2F;
         effect.zFactor = 2F;
-        effect.particlesPerIteration = 100;
+        effect.particlesPerIteration = 300;
         effect.infinite();
         effect.start();
 
