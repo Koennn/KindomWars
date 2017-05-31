@@ -102,4 +102,9 @@ public class ControlPoint {
         this.captureProgress = 0;
         Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> this.frozen = false, 25);
     }
+
+    public void forceReset() {
+        this.captureProgress = 0;
+        this.frozen = false;
+    }
 }

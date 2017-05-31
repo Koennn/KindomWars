@@ -18,12 +18,14 @@ import java.io.FileReader;
  */
 public class JSReader {
 
+    private static ScriptEngine objectLoader;
+
     public static ScriptEngine read(String script, Class... load) {
         ClassLoader cl = KingdomWars.getInstance().getClass().getClassLoader();
         Thread.currentThread().setContextClassLoader(cl);
         try {
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-            engine.eval("load('timer.js');\n" + script);
+            engine.eval(script);
 
             for (Class toLoad : load) {
                 engine.put(toLoad.getSimpleName().replace("[]", ""), getClassVar(toLoad.getName()));
@@ -36,8 +38,11 @@ public class JSReader {
     }
 
     private static Object getClassVar(String path) throws ScriptException, NoSuchMethodException, FileNotFoundException {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-        engine.eval(new FileReader("objects.js"));
-        return ((Invocable) engine).invokeFunction("getObject", path);
+        if (objectLoader == null) {
+            objectLoader = new ScriptEngineManager().getEngineByName("nashorn");
+            objectLoader.eval(new FileReader("objects.js"));
+        }
+
+        return ((Invocable) objectLoader).invokeFunction("getObject", path);
     }
 }

@@ -1,6 +1,7 @@
 package me.koenn.kingdomwars.grenade;
 
 import me.koenn.core.cgive.CGiveAPI;
+import me.koenn.core.misc.Timer;
 import me.koenn.core.registry.Registry;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.js.JSReader;
@@ -10,7 +11,6 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jnbt.CompoundTag;
 import org.jnbt.NBTInputStream;
 import org.jnbt.StringTag;
@@ -51,7 +51,7 @@ public class GrenadeLoader {
 
     public static void startGrenadeScript(BaseGrenade grenade) {
         ScriptEngine script = JSReader.read(NBTUtil.getChildTag(grenade.grenadeInfo.getValue(), "script", StringTag.class).getValue(),
-                Entity.class, Location.class, World.class, Effect.class, BaseGrenade.class, BukkitScheduler.class, KingdomWars.class, Runnable.class
+                Entity.class, Location.class, World.class, Effect.class, BaseGrenade.class, Timer.class, KingdomWars.class, Runnable.class
         );
 
         try {

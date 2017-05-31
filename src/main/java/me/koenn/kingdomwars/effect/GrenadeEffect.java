@@ -6,6 +6,8 @@ import de.slikey.effectlib.EffectType;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import de.slikey.effectlib.util.RandomUtils;
+import me.koenn.core.misc.Timer;
+import me.koenn.kingdomwars.KingdomWars;
 import org.bukkit.Location;
 
 /**
@@ -30,6 +32,10 @@ public class GrenadeEffect extends Effect {
 
         this.setDynamicOrigin(location);
         this.setDynamicTarget(location);
+
+        new Timer(40, KingdomWars.getInstance()).start(() -> {
+            //Code here executes after 40 ticks.
+        });
     }
 
     @Override

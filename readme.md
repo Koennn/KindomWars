@@ -9,6 +9,6 @@ In Kingdom Wars there are 2 teams. Both teams have a color, Red vs Blue. Each on
 
 `---> defenders, given diamond gear to defend from the enemy skirmishers. Defenders are supposed to track down skirmishers and stop them from blowing up the defenses. Defenders have powerful weapons, but often wear heavy armor, which makes them slow targets.`
 
-`---> attackers, given decent armor and some powerful offensive weapons. Attackers are supposed to go to the enemy base after the walls and defenses are blown up. Their main job is capturing objectives and killing the enemy leader.`
+`---> attackers, given decent armor and some powerful offensive weapons. Attackers are supposed to go to the enemy base after the walls and defenses are blown up. Their deployableInfo job is capturing objectives and killing the enemy leader.`
 
 `---> 1 leader, given special armor and a good amount of gear. And a lightning staff with a cooldown of 5 sec. The leader is supposed to lead the team. A leader can mark a player/area to command their team to focus it. They can use their lightning staff both as an offensive or defensive weapon.`

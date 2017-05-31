@@ -1,6 +1,5 @@
 package me.koenn.kingdomwars.listeners;
 
-import me.koenn.core.misc.ReflectionHelper;
 import me.koenn.kingdomwars.deployables.Deployable;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.util.PlayerHelper;
@@ -9,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jnbt.CompoundTag;
 
 /**
  * <p>
@@ -31,12 +31,12 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         ItemStack item = event.getItemInHand();
-        Class<? extends Deployable> deployableClass = DeployableLoader.getDeployableClass(item);
-        if (deployableClass == null) {
+        CompoundTag tag = DeployableLoader.getDeployableInfo(item);
+        if (tag == null) {
             return;
         }
 
-        Deployable deployable = (Deployable) ReflectionHelper.newInstance(deployableClass, new Object[]{event.getBlockPlaced().getLocation()});
-        deployable.getExecutor().construct(event.getPlayer());
+        Deployable deployable = new Deployable(event.getBlockPlaced().getLocation(), tag);
+        deployable.construct(event.getPlayer());
     }
 }

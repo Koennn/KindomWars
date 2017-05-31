@@ -1,10 +1,11 @@
 name: KindomWars
-version: ${project.version}
 main: me.koenn.kingdomwars.KingdomWars
+version: 1.0-BETA
+deployableInfo: me.koenn.kingdomwars.KingdomWars
 prefix: KingdomWars
 authors: [Koenn]
 description: In Kingdom Wars there are 2 teams of 10. Blue team are the Good guys and the Red team are the Evil guys. Each one has a castle and a dungeon to the castle. It is similar to Capture the flag. Both teams try to get the opposite faction's treasure, which is hidden in the dungeons and protected by a parkour challenge.
-depend: [KoennCore]
+depend: [KoennCore, FakeBlockAPI]
 
 commands:
   forcestart:

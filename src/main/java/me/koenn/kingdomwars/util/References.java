@@ -1,5 +1,14 @@
 package me.koenn.kingdomwars.util;
 
+import me.koenn.core.cgive.CItem;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+
 /**
  * <p>
  * Copyright (C) Koenn - All Rights Reserved
@@ -15,7 +24,6 @@ public final class References {
     public static final String GAME_STARTED = GAME_PREFIX + "&2The game has started!";
     public static final String DONT_SHOOT_ALLY = GAME_PREFIX + "&cPlease don't attempt to hurt your allies.";
     public static final String KILL = "&2+1 Kill!";
-    public static final String SIGN_PREFIX = "[KingdomWars]";
     public static final String JOIN_MESSAGE = "&7You joined a game, please wait until it starts.";
     public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 5 seconds.";
     public static final String RESPAWN = GAME_PREFIX + "&2You respawned! Try not to die this time.";
@@ -35,8 +43,39 @@ public final class References {
 
     public static final String SAVED_PREFERENCE = GAME_PREFIX + "&7Successfully saved your preference!";
 
+    public static final String SIGN_PREFIX = "KingdomWars";
+    public static final String SIGN_0 = "&1[KingdomWars]";
+    public static final String SIGN_1 = "&3%mapname%";
+    public static final String SIGN_2 = "";
+    public static final String SIGN_3 = "%color%%pcount%/%maxp%";
+    public static final String LAST_SPOT = "&4&lONE SPOT LEFT!";
+    public static final String FULL = "&4&lGAME FULL!";
+
+    public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your turret will not work!";
+    public static final String TURRET_COMPLETE = "&a&lTurret construction complete!";
+
     public static final int GAME_START_DELAY = 10;
     public static final int TEAM_SIZE = 10;
     public static final int RESPAWN_COOLDOWN = 10;
     public static final int UPDATE_RATE = 2;
+
+    public static final CItem MAPSTAFF = new CItem() {
+        @Override
+        public ItemStack getItem() {
+            ItemStack item = new ItemStack(Material.WOOD_HOE);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(ChatColor.WHITE + "Map Creation Tool");
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            ArrayList<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GOLD + "Mode: Spawn");
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+            return item;
+        }
+
+        @Override
+        public String getName() {
+            return "mapstaff";
+        }
+    };
 }

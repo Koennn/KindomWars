@@ -57,9 +57,13 @@ public class Map {
         return maps.getRandom();
     }
 
+    public static Map getMap(String name) {
+        return maps.get(name);
+    }
+
     public void reset() {
         for (ControlPoint controlPoint : this.controlPoints) {
-            controlPoint.reset();
+            controlPoint.forceReset();
         }
     }
 

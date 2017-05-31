@@ -6,8 +6,10 @@ import me.koenn.kingdomwars.util.References;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
@@ -21,7 +23,8 @@ public class SignListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (PlayerHelper.isInGame(event.getPlayer())) {
+        Player player = event.getPlayer();
+        if (PlayerHelper.isInGame(player)) {
             return;
         }
 
@@ -29,7 +32,7 @@ public class SignListener implements Listener {
         if (clicked == null) {
             return;
         }
-        if (!clicked.getType().equals(Material.WALL_SIGN)) {
+        if (!clicked.getType().equals(Material.WALL_SIGN) && !clicked.getType().equals(Material.SIGN_POST)) {
             return;
         }
 
@@ -38,6 +41,17 @@ public class SignListener implements Listener {
             return;
         }
 
-        GameCreator.join(event.getPlayer());
+        GameCreator.instance.signClick(sign, player);
+    }
+
+    @EventHandler
+    public void onSignChange(SignChangeEvent event) {
+        Sign sign = (Sign) event.getBlock().getState();
+        if (!event.getLine(0).contains("[KingdomWars]") || !event.getPlayer().isOp()) {
+            return;
+        }
+
+        GameCreator.instance.registerSign(sign, event.getLine(1));
+        event.setCancelled(true);
     }
 }

@@ -23,7 +23,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="craftbukkit-1.8.8" level="project" />
-    <orderEntry type="library" name="KoennCore" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="KoennCore" level="project" />
     <orderEntry type="library" name="FakeBlockAPI" level="project" />
     <orderEntry type="library" name="jnbt-1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT" level="project" />

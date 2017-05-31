@@ -1,7 +1,6 @@
 package me.koenn.kingdomwars;
 
 import me.koenn.core.cgive.CGiveAPI;
-import me.koenn.core.cgive.CItem;
 import me.koenn.core.command.CommandAPI;
 import me.koenn.core.pluginmanager.PluginManager;
 import me.koenn.kingdomwars.commands.ForceStartCommand;
@@ -9,22 +8,18 @@ import me.koenn.kingdomwars.commands.SelectClassCommand;
 import me.koenn.kingdomwars.commands.TestParticleCommand;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.game.Map;
 import me.koenn.kingdomwars.game.MapLoader;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.grenade.GrenadeListener;
 import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
+import me.koenn.kingdomwars.util.References;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * <p>
@@ -46,46 +41,48 @@ public final class KingdomWars extends JavaPlugin {
         this.getLogger().info("All credits for this plugin go to Koenn");
         instance = this;
 
-        PluginManager.registerPlugin(this);
+        try {
+            this.getLogger().info("Registering plugin to KoennCore...");
+            PluginManager.registerPlugin(this);
 
-        Bukkit.getPluginManager().registerEvents(new DamageListener(), this);
-        Bukkit.getPluginManager().registerEvents(new SignListener(), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), this);
-        Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
-        Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
-        Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
-        Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
+            this.getLogger().info("Registering Bukkit event listeners...");
+            Bukkit.getPluginManager().registerEvents(new DamageListener(), this);
+            Bukkit.getPluginManager().registerEvents(new SignListener(), this);
+            Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), this);
+            Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
+            Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
+            Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
+            Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
 
-        ClassLoader.loadClasses();
+            this.getLogger().info("Registering commands...");
+            CommandAPI.registerCommand(new ForceStartCommand(), this);
+            CommandAPI.registerCommand(new SelectClassCommand(), this);
+            CommandAPI.registerCommand(new TestParticleCommand(), this);
 
-        CommandAPI.registerCommand(new ForceStartCommand(), this);
-        CommandAPI.registerCommand(new SelectClassCommand(), this);
-        CommandAPI.registerCommand(new TestParticleCommand(), this);
+            this.getLogger().info("Registering custom items...");
+            CGiveAPI.registerCItem(References.MAPSTAFF, this);
 
-        this.reloadMaps();
+            this.getLogger().info("Loading maps...");
+            this.reloadMaps();
 
-        DeployableLoader.load();
-        GrenadeLoader.registerGrenades();
+            this.getLogger().info("Loading deployables...");
+            DeployableLoader.load();
 
-        CGiveAPI.registerCItem(new CItem() {
-            @Override
-            public ItemStack getItem() {
-                ItemStack item = new ItemStack(Material.WOOD_HOE);
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName(ChatColor.WHITE + "Map Creation Tool");
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                ArrayList<String> lore = new ArrayList<>();
-                lore.add(ChatColor.GOLD + "Mode: Spawn");
-                meta.setLore(lore);
-                item.setItemMeta(meta);
-                return item;
-            }
+            this.getLogger().info("Loading grenades...");
+            GrenadeLoader.registerGrenades();
 
-            @Override
-            public String getName() {
-                return "mapstaff";
-            }
-        }, this);
+            this.getLogger().info("Loading classes...");
+            ClassLoader.loadClasses();
+
+            this.getLogger().info("Loading signs...");
+            GameCreator.instance.loadSigns();
+        } catch (Exception ex) {
+            this.getLogger().severe("An error occurred while initializing: " + ex);
+            ex.printStackTrace();
+            this.getLogger().severe("Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         this.getLogger().info("Load successful!");
     }
@@ -101,7 +98,22 @@ public final class KingdomWars extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Game.gameRegistry.forEach(Game::cancel);
-        Bukkit.getScheduler().cancelTasks(this);
+        try {
+            this.getLogger().info("Saving signs...");
+            GameCreator.instance.saveSigns();
+
+            this.getLogger().info("Cancelling and resetting active games...");
+            Game.gameRegistry.forEach(Game::cancel);
+            Game.gameRegistry.clear();
+
+            this.getLogger().info("Cancelling all repeating tasks...");
+            Bukkit.getScheduler().cancelTasks(this);
+        } catch (Exception ex) {
+            this.getLogger().severe("An error occurred while disabling: " + ex);
+            ex.printStackTrace();
+            return;
+        }
+
+        this.getLogger().info("Successfully disabled!");
     }
 }

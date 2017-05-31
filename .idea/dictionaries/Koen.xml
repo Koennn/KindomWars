@@ -5,6 +5,7 @@
       <w>barnemouth</w>
       <w>bdoor</w>
       <w>candyland</w>
+      <w>citem</w>
       <w>damager</w>
       <w>deployable</w>
       <w>deployables</w>
@@ -13,13 +14,19 @@
       <w>doorx</w>
       <w>doorz</w>
       <w>eclass</w>
+      <w>fakeblock</w>
       <w>forcestart</w>
       <w>gamemodes</w>
       <w>kingdomwars</w>
       <w>kwclass</w>
+      <w>mapname</w>
       <w>mapstaff</w>
+      <w>maxp</w>
+      <w>maxplayers</w>
       <w>minigames</w>
       <w>nashorn</w>
+      <w>pcount</w>
+      <w>playercount</w>
       <w>respawned</w>
       <w>teambalance</w>
       <w>testmap</w>

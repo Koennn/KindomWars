@@ -10,13 +10,13 @@ var start = function(entity, grenadeObj) {
 var tick = function() {
     var location = grenade.getLocation();
     var world = grenade.getWorld();
-    world.playEffect(location, Effect.SMOKE, 1, 25);
+    world.playEffect(location, Effect.SMOKE, 1, 10);
 }
 
 var explode = function() {
     var location = grenade.getLocation();
     var world = grenade.getWorld();
-    world.createExplosion(location.getX(), location.getY(), location.getZ(), 4, false, false);
+    world.createExplosion(location.getX(), location.getY(), location.getZ(), 3, true, false);
     grenade.remove();
     baseGrenade.remove();
 }

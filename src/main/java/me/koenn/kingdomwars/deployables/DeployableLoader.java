@@ -2,21 +2,26 @@ package me.koenn.kingdomwars.deployables;
 
 import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.cgive.CItem;
+import me.koenn.core.misc.ActionBar;
 import me.koenn.core.misc.ItemHelper;
+import me.koenn.core.misc.Timer;
 import me.koenn.core.registry.Registry;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.util.NBTUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import me.koenn.kingdomwars.js.JSReader;
+import me.koenn.kingdomwars.util.*;
+import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jnbt.CompoundTag;
 import org.jnbt.NBTInputStream;
 import org.jnbt.ShortTag;
 import org.jnbt.StringTag;
 
+import javax.script.ScriptEngine;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 /**
  * <p>
@@ -46,16 +51,11 @@ public final class DeployableLoader {
         }
     }
 
-    public static Class<? extends Deployable> getDeployableClass(ItemStack item) {
+    public static CompoundTag getDeployableInfo(ItemStack item) {
         for (CompoundTag deployableTag : deployables.getRegisteredObjects()) {
             CompoundTag properties = NBTUtil.getChildTag(deployableTag.getValue(), "properties", CompoundTag.class);
             if (item.isSimilar(getDeployableItem(properties))) {
-                String className = NBTUtil.getChildTag(properties.getValue(), "class", StringTag.class).getValue();
-                try {
-                    return (Class<? extends Deployable>) Class.forName("me.koenn.kingdomwars.deployables." + className);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException("Couldn't find deployable class \'" + className + "\'");
-                }
+                return deployableTag;
             }
         }
         return null;
@@ -81,5 +81,12 @@ public final class DeployableLoader {
         Material type = Material.valueOf(NBTUtil.getChildTag(itemTag.getValue(), "type", StringTag.class).getValue());
         String name = ChatColor.WHITE + NBTUtil.getChildTag(itemTag.getValue(), "name", StringTag.class).getValue();
         return ItemHelper.makeItemStack(type, 1, damage, name, null);
+    }
+
+    public static ScriptEngine loadDeployableScript(Deployable deployable) {
+        return JSReader.read(NBTUtil.getChildTag(deployable.getDeployableInfo().getValue(), "script", StringTag.class).getValue(),
+                Entity.class, Location.class, World.class, Effect.class, Deployable.class, Timer.class, KingdomWars.class, Runnable.class, List.class,
+                Vector.class, PlayerHelper.class, Team.class, Messager.class, References.class, ActionBar.class
+        );
     }
 }

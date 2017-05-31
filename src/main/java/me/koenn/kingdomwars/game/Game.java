@@ -52,6 +52,8 @@ public class Game {
 
         GameHelper.loadPlayers(this);
 
+        GameHelper.loadFakeBlocks(this);
+
         new Timer(References.GAME_START_DELAY * 20, KingdomWars.getInstance()).start(this::start);
     }
 
@@ -100,11 +102,11 @@ public class Game {
     }
 
     public void cancel() {
+        GameHelper.resetFakeBlocks(this);
         Bukkit.getScheduler().cancelTask(this.gameTask);
         this.map.stopRendering();
         this.map.reset();
         this.players.clear();
-        gameRegistry.remove(this);
     }
 
     public List<Player> getPlayers() {
@@ -120,7 +122,7 @@ public class Game {
     }
 
     public boolean isFull() {
-        return players.size() == References.TEAM_SIZE;
+        return players.size() == Math.toIntExact((long) this.map.getProperty("maxplayers"));
     }
 
     public List<Player> getTeam(Team team) {
