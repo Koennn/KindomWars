@@ -5,14 +5,19 @@ import de.slikey.effectlib.effect.CloudEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.core.registry.Registry;
+import me.koenn.fakeblockapi.FakeBlock;
+import me.koenn.fakeblockapi.FakeBlockAPI;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.util.Door;
 import me.koenn.kingdomwars.util.ParticleRenderer;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>
@@ -30,10 +35,13 @@ public class Map {
     private final Door[] doors = new Door[2];
     private final Location[][] controlPointCorners = new Location[2][];
     private final ControlPoint[] controlPoints = new ControlPoint[2];
+    private final Location[] coloredBlocks;
     private final HashMap<String, Object> properties;
     private int renderTask;
 
-    public Map(String name, Location blueSpawn, Location redSpawn, double blueXDoor, double blueZDoor, double redXDoor, double redZDoor, Location[] redControlPoint, Location[] blueControlPoint, HashMap<String, Object> properties) {
+    public Map(String name, Location blueSpawn, Location redSpawn, double blueXDoor, double blueZDoor, double redXDoor, double redZDoor, Location[] redControlPoint, Location[] blueControlPoint, Location[] coloredBlocks, HashMap<String, Object> properties) {
+        //TODO: Could use some cleaning up.
+
         this.name = name;
 
         this.spawns[Team.BLUE.getIndex()] = blueSpawn;
@@ -50,11 +58,9 @@ public class Map {
         this.controlPoints[Team.BLUE.getIndex()] = new ControlPoint(blueControlPoint, Team.BLUE);
         this.controlPoints[Team.RED.getIndex()] = new ControlPoint(redControlPoint, Team.RED);
 
-        this.properties = properties;
-    }
+        this.coloredBlocks = coloredBlocks;
 
-    public static Map getRandomMap() {
-        return maps.getRandom();
+        this.properties = properties;
     }
 
     public static Map getMap(String name) {
@@ -67,25 +73,23 @@ public class Map {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void load(Game game) {
-        //TODO: This is fucking laggy, needs fix!
-        /*for (Chunk chunk : blueSpawn.getWorld().getLoadedChunks()) {
-            for (int x = 0; x < 16; x++) {
-                for (int y = 40; y < 256; y++) {
-                    for (int z = 0; z < 16; z++) {
-                        Block block = chunk.getBlock(x, y, z);
-                        if (block.getType().equals(Material.WOOL) || block.getType().equals(Material.STAINED_CLAY)) {
-                            for (Player player : game.getTeamBlue()) {
-                                FakeBlockAPI.fakeBlockRegistry.register(new FakeBlock(block.getLocation(), block.getType(), (short) 3, player));
-                            }
-                            for (Player player : game.getTeamRed()) {
-                                FakeBlockAPI.fakeBlockRegistry.register(new FakeBlock(block.getLocation(), block.getType(), (short) 14, player));
-                            }
-                        }
-                    }
-                }
+        Bukkit.getScheduler().scheduleAsyncDelayedTask(KingdomWars.getInstance(), () -> {
+            Bukkit.getLogger().info("Starting packet send...");
+            long time = System.currentTimeMillis();
+            int packets = 0;
+            for (Location location : this.coloredBlocks) {
+                final Block block = location.getBlock();
+                final short meta = block.getData();
+                final List<Player> team = game.getTeam(Team.RED);
+                FakeBlockAPI.fakeBlockRegistry.register(new FakeBlock(location, block.getType(), (short) (meta == 11 ? 14 : 11), team.toArray(new Player[team.size()])));
+                packets++;
             }
-        }*/
+            Bukkit.getLogger().info("Send out " + packets + " packets!");
+            long taken = System.currentTimeMillis() - time;
+            Bukkit.getLogger().info("Taken " + taken + "ms");
+        });
     }
 
     public void renderCapture(Team team) {

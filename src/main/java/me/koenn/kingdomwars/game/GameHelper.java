@@ -12,6 +12,7 @@ import me.koenn.kingdomwars.util.Team;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -24,7 +25,7 @@ import java.util.List;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public final class GameHelper {
+public final class GameHelper implements Listener {
 
     public static void loadPlayers(Game game) {
         for (Player player : game.getPlayers()) {
@@ -40,6 +41,7 @@ public final class GameHelper {
 
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0, true, false));
 
+            //TODO: Auto-generate url and make the clickable text more clear.
             Messager.clickableMessage(player, References.MAP.replace("%map%", map.getName()), "Click to open the map page", "http://blockgaming.org/staff/forums/index.php?threads/map-specific-lore.13/");
             Messager.playerMessage(player, References.CLASS.replace("%class%", cl.getName()));
 
@@ -73,7 +75,7 @@ public final class GameHelper {
 
     public static Location getSpawn(Map map, Team team) {
         Location spawn = map.getSpawn(team);
-        return spawn.getBlock() == null ? spawn : spawn.add(0, 1, 0);
+        return spawn.getBlock() == null ? spawn : spawn.add(0.5, 1.0, 0.5);
     }
 
     public static Class getClass(Player player, Team team, Game game) {
@@ -82,6 +84,7 @@ public final class GameHelper {
     }
 
     @SuppressWarnings("deprecation")
+    //TODO: Rewrite and move to Map class.
     public static void loadFakeBlocks(Game game) {
         Map map = game.getMap();
         Location spawn = map.getSpawn(Team.RED);
@@ -91,24 +94,33 @@ public final class GameHelper {
             redTeam[i] = teamRed.get(i);
         }
 
-        new Thread(() -> {
-            for (Chunk chunk : spawn.getWorld().getLoadedChunks()) {
+        Bukkit.getScheduler().scheduleAsyncDelayedTask(KingdomWars.getInstance(), () -> {
+            Bukkit.getLogger().info("Starting packet send...");
+            long time = System.currentTimeMillis();
+            final Chunk[] chunks = spawn.getWorld().getLoadedChunks().clone();
+            int packets = 0;
+            for (Chunk chunk : chunks) {
                 for (int x = 0; x < 16; x++) {
                     for (int y = 0; y < 200; y++) {
                         for (int z = 0; z < 16; z++) {
                             Block block = chunk.getBlock(x, y, z);
                             Material type = block.getType();
-                            if (type.equals(Material.WOOL) || type.equals(Material.STAINED_CLAY) || type.equals(Material.STAINED_GLASS) || type.equals(Material.STAINED_GLASS_PANE)) {
-                                Bukkit.getLogger().info(block.getLocation().toString());
-                                FakeBlockAPI.fakeBlockRegistry.register(new FakeBlock(block.getLocation(), type, (short) (block.getData() == 14 ? 11 : 14), redTeam));
+                            if ((type.equals(Material.WOOL) || type.equals(Material.STAINED_CLAY) || type.equals(Material.STAINED_GLASS) || type.equals(Material.STAINED_GLASS_PANE)) && (block.getData() == 14 || block.getData() == 11)) {
+                                byte data = block.getData();
+                                FakeBlockAPI.fakeBlockRegistry.register(new FakeBlock(block.getLocation(), type, (short) (data == 14 ? 11 : 14), redTeam));
+                                packets++;
                             }
                         }
                     }
                 }
             }
-        }, "fakeblock-loader-thread").start();
+            Bukkit.getLogger().info("Send out " + packets + " packets!");
+            long taken = System.currentTimeMillis() - time;
+            Bukkit.getLogger().info("Taken " + taken + "ms");
+        }, 20);
     }
 
+    //TODO: Doesn't appear to work properly.
     public static void resetFakeBlocks(Game game) {
         game.getPlayers().forEach(FakeBlockAPI::resetPlayer);
     }

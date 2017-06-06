@@ -8,7 +8,7 @@ import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.ItemHelper;
 import me.koenn.core.misc.LoreHelper;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.listeners.MapCreator;
+import me.koenn.kingdomwars.mapcreator.MapCreator;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -73,6 +73,7 @@ public class MapSaveGui extends Gui {
                 manager.setInBody("blueSpawn", tmpMapFile.get("blueSpawn"));
                 manager.setInBody("redSpawn", tmpMapFile.get("redSpawn"));
                 manager.setInBody("properties", new JSONObject(customProperties));
+                manager.setInBody("coloredBlocks", tmpMapFile.get("coloredBlocks"));
                 manager.saveBodyToFile();
             } catch (Exception ex) {
                 Messager.playerMessage(player, References.SAVE_ERROR);

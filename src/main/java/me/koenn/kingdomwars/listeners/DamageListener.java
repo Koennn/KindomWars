@@ -59,11 +59,6 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (event.getEntity().getKiller() == null) {
-            return;
-        }
-
-        Player killer = event.getEntity().getKiller();
         Player killed = event.getEntity();
         Game game = PlayerHelper.getGame(killed);
 
@@ -78,14 +73,23 @@ public class DamageListener implements Listener {
             Messager.playerMessage(killed, References.RESPAWN);
         }, References.RESPAWN_COOLDOWN * 20);
 
+        Messager.playerMessage(killed, References.DEATH);
+        Messager.playerTitle(References.DEATH_TITLE, "", killed);
+
+        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
+        killed.setGameMode(GameMode.SPECTATOR);
+
+        if (event.getEntity().getKiller() == null) {
+            return;
+        }
+
+        Player killer = event.getEntity().getKiller();
+
         if (!PlayerHelper.isInGame(killer)) {
             return;
         }
 
         Messager.playerMessage(killer, References.KILL);
-        Messager.playerMessage(killed, References.DEATH);
-        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
-        killed.setGameMode(GameMode.SPECTATOR);
     }
 
     @EventHandler
@@ -103,8 +107,8 @@ public class DamageListener implements Listener {
 
         if (respawnCooldown.get(player) != 0) {
             player.setGameMode(GameMode.SPECTATOR);
-            event.setRespawnLocation(player.getKiller().getEyeLocation());
             if (player.getKiller() != null) {
+                event.setRespawnLocation(player.getKiller().getEyeLocation());
                 Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.teleport(player.getKiller()), 40);
             }
         }

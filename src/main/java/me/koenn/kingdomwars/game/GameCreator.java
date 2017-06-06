@@ -5,6 +5,8 @@ import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.logger.EventLogger;
+import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
@@ -54,6 +56,11 @@ public class GameCreator implements Runnable {
             } else if (!sign.getLine(2).equals("")) {
                 sign.setLine(2, "");
             }
+            if (game.getCurrentPhase().equals(GamePhase.STARTING) || game.getCurrentPhase().equals(GamePhase.STARTED)) {
+                for (int i = 0; i < 3; i++) {
+                    sign.setLine(i, ChatColor.STRIKETHROUGH + sign.getLine(i));
+                }
+            }
             sign.update();
         });
     }
@@ -77,7 +84,9 @@ public class GameCreator implements Runnable {
         sign.update();
         sign.getBlock().getState().update();
 
-        this.games.put(sign, new Game(map));
+        Game game = new Game(map);
+        this.games.put(sign, game);
+        EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
         this.saveSigns();
     }
 
@@ -88,6 +97,7 @@ public class GameCreator implements Runnable {
         }
 
         game.getPlayers().add(player);
+        EventLogger.log(new Message("info", "Player " + player.getName() + " joined game " + Integer.toHexString(game.hashCode())));
         Messager.playerMessage(player, References.JOIN_MESSAGE);
 
         if (game.isFull()) {
@@ -131,7 +141,9 @@ public class GameCreator implements Runnable {
             String map = (String) signObject.get("map");
             Location location = LocationHelper.fromString((String) signObject.get("location"));
             Sign signBlock = (Sign) location.getWorld().getBlockAt(location).getState();
-            this.games.put(signBlock, new Game(Map.getMap(map)));
+            Game game = new Game(Map.getMap(map));
+            EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
+            this.games.put(signBlock, game);
         });
     }
 }

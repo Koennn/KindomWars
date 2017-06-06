@@ -1,7 +1,8 @@
-package me.koenn.kingdomwars.listeners;
+package me.koenn.kingdomwars.mapcreator;
 
 import me.koenn.core.gui.Gui;
 import me.koenn.core.keyboard.KeyboardGui;
+import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.util.MapSaveGui;
 import me.koenn.kingdomwars.util.Messager;
@@ -35,6 +36,7 @@ public class MapCreator implements Listener {
 
     public static MapCreator instance;
     private final HashMap<Player, JSONObject> tmpMapFiles = new HashMap<>();
+    private final HashMap<Player, Location> tmpLocation = new HashMap<>();
 
     public MapCreator() {
         instance = this;
@@ -99,7 +101,7 @@ public class MapCreator implements Listener {
                     } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                         writeSpawnCoords(clicked, red);
                     }
-                    Messager.playerMessage(player, References.SET_SPAWN.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", clicked.toString()));
+                    Messager.playerMessage(player, References.SET_SPAWN.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", LocationHelper.getString(clicked)));
                     break;
                 case Door:
                     if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -107,7 +109,7 @@ public class MapCreator implements Listener {
                     } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                         writeDoorCoords(clicked, red, !player.isSneaking());
                     }
-                    Messager.playerMessage(player, References.SET_DOOR.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", clicked.toString()));
+                    Messager.playerMessage(player, References.SET_DOOR.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", LocationHelper.getString(clicked)));
                     break;
                 case Point:
                     if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -115,8 +117,24 @@ public class MapCreator implements Listener {
                     } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                         red.put("capturePoint", addPointCorner(clicked, (JSONArray) red.get("capturePoint")));
                     }
-                    Messager.playerMessage(player, References.ADD_CORNER.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", clicked.toString()));
+                    Messager.playerMessage(player, References.ADD_CORNER.replace("%team%", event.getAction() == Action.LEFT_CLICK_BLOCK ? "Blue" : "Red").replace("%coords%", LocationHelper.getString(clicked)));
                     break;
+                case Color:
+                    if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                        tmpLocation.put(player, clicked);
+                        Messager.playerMessage(player, References.SET_POS1.replace("%coords%", LocationHelper.getString(clicked)));
+                    } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                        BlockScanner.findColoredBlocks(tmpLocation.get(player), clicked, (blocks) -> {
+                            Location[] coloredBlocks = blocks.toArray(new Location[blocks.size()]);
+                            JSONArray coloredBlocksJson = new JSONArray();
+                            for (Location location : coloredBlocks) {
+                                coloredBlocksJson.add(LocationHelper.getString(location));
+                            }
+                            tmpMapFile.put("coloredBlocks", coloredBlocksJson);
+                            Bukkit.getLogger().info(tmpMapFile.toJSONString());
+                        });
+                        Messager.playerMessage(player, References.LOADED_BLOCKS);
+                    }
             }
 
             tmpMapFile.put("blueSpawn", blue);
@@ -136,6 +154,8 @@ public class MapCreator implements Listener {
             case Door:
                 return ToolMode.Point;
             case Point:
+                return ToolMode.Color;
+            case Color:
                 return ToolMode.Spawn;
             default:
                 return ToolMode.Spawn;
@@ -178,6 +198,6 @@ public class MapCreator implements Listener {
     }
 
     private enum ToolMode {
-        Spawn, Door, Point
+        Spawn, Door, Point, Color
     }
 }

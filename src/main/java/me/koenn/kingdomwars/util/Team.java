@@ -17,6 +17,15 @@ public enum Team {
         this.index = index;
     }
 
+    public static Team getTeam(int index) {
+        for (Team team : values()) {
+            if (team.index == index) {
+                return team;
+            }
+        }
+        return null;
+    }
+
     public int getIndex() {
         return index;
     }

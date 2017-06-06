@@ -4,6 +4,7 @@ import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.command.CommandAPI;
 import me.koenn.core.pluginmanager.PluginManager;
 import me.koenn.kingdomwars.commands.ForceStartCommand;
+import me.koenn.kingdomwars.commands.ForceStopCommand;
 import me.koenn.kingdomwars.commands.SelectClassCommand;
 import me.koenn.kingdomwars.commands.TestParticleCommand;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
@@ -15,6 +16,8 @@ import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.grenade.GrenadeListener;
 import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
+import me.koenn.kingdomwars.logger.EventLogger;
+import me.koenn.kingdomwars.mapcreator.MapCreator;
 import me.koenn.kingdomwars.util.References;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +34,7 @@ import java.io.File;
 public final class KingdomWars extends JavaPlugin {
 
     private static KingdomWars instance;
+    private static EventLogger eventLogger;
 
     public static KingdomWars getInstance() {
         return instance;
@@ -42,6 +46,9 @@ public final class KingdomWars extends JavaPlugin {
         instance = this;
 
         try {
+            this.getLogger().info("Setting up event logger...");
+            eventLogger = new EventLogger();
+
             this.getLogger().info("Registering plugin to KoennCore...");
             PluginManager.registerPlugin(this);
 
@@ -58,6 +65,7 @@ public final class KingdomWars extends JavaPlugin {
             CommandAPI.registerCommand(new ForceStartCommand(), this);
             CommandAPI.registerCommand(new SelectClassCommand(), this);
             CommandAPI.registerCommand(new TestParticleCommand(), this);
+            CommandAPI.registerCommand(new ForceStopCommand(), this);
 
             this.getLogger().info("Registering custom items...");
             CGiveAPI.registerCItem(References.MAPSTAFF, this);
@@ -69,10 +77,10 @@ public final class KingdomWars extends JavaPlugin {
             DeployableLoader.load();
 
             this.getLogger().info("Loading grenades...");
-            GrenadeLoader.registerGrenades();
+            GrenadeLoader.load();
 
             this.getLogger().info("Loading classes...");
-            ClassLoader.loadClasses();
+            ClassLoader.load();
 
             this.getLogger().info("Loading signs...");
             GameCreator.instance.loadSigns();
@@ -108,6 +116,11 @@ public final class KingdomWars extends JavaPlugin {
 
             this.getLogger().info("Cancelling all repeating tasks...");
             Bukkit.getScheduler().cancelTasks(this);
+
+            this.getLogger().info("Disabling event logger...");
+            if (eventLogger != null) {
+                eventLogger.disable();
+            }
         } catch (Exception ex) {
             this.getLogger().severe("An error occurred while disabling: " + ex);
             ex.printStackTrace();
