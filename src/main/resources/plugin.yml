@@ -10,6 +10,8 @@ depend: [KoennCore, FakeBlockAPI]
 commands:
   forcestart:
     usage: /forcestart
+  forcestop:
+      usage: /forcestop
   mapstaff:
       usage: /mapstaff
   class:

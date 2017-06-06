@@ -1,9 +1,16 @@
 package me.koenn.kingdomwars.listeners;
 
+import de.slikey.effectlib.Effect;
+import de.slikey.effectlib.effect.AnimatedBallEffect;
+import de.slikey.effectlib.util.DynamicLocation;
+import de.slikey.effectlib.util.ParticleEffect;
+import me.koenn.core.misc.EffectBuilder;
+import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -42,6 +49,16 @@ public class SignListener implements Listener {
         }
 
         GameCreator.instance.signClick(sign, player);
+        Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
+                .particleEffect(ParticleEffect.FIREWORKS_SPARK)
+                .iterations(5)
+                .speed(0.1F)
+                .property("yFactor", 1.0F)
+                .property("yOffset", -1.0F)
+                .location(new DynamicLocation(player))
+                .build();
+        effect.start();
+        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.0F);
     }
 
     @EventHandler

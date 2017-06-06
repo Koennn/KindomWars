@@ -1,6 +1,7 @@
 package me.koenn.kingdomwars.game;
 
 import me.koenn.core.data.JSONManager;
+import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,6 +17,7 @@ import org.json.simple.JSONObject;
  */
 public final class MapLoader {
 
+    //TODO: Rework? Please?
     public static void loadMap(String file) {
         JSONManager manager = new JSONManager(KingdomWars.getInstance(), file);
         String name = (String) manager.getFromBody("name");
@@ -44,8 +46,14 @@ public final class MapLoader {
             bluePointCorners[i] = new Location(Bukkit.getWorld((String) redSpawn.get("world")), (double) blueCorner.get("x") + 0.5, (double) blueCorner.get("y") + 0.5, (double) blueCorner.get("z") + 0.5);
         }
 
+        JSONArray coloredBlocks = (JSONArray) manager.getFromBody("coloredBlocks");
+        Location[] coloredLocations = new Location[coloredBlocks.size()];
+        for (int i = 0; i < coloredLocations.length; i++) {
+            coloredLocations[i] = LocationHelper.fromString((String) coloredBlocks.get(i));
+        }
+
         JSONObject properties = (JSONObject) manager.getFromBody("properties");
 
-        Map.maps.register(new Map(name, blue, red, blueDoorX, blueDoorZ, redDoorX, redDoorZ, redPointCorners, bluePointCorners, properties));
+        Map.maps.register(new Map(name, blue, red, blueDoorX, blueDoorZ, redDoorX, redDoorZ, redPointCorners, bluePointCorners, coloredLocations, properties));
     }
 }

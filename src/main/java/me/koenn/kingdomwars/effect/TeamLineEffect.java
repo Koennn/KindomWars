@@ -19,15 +19,15 @@ import java.util.List;
  */
 public class TeamLineEffect extends Effect {
 
+    public final boolean isZigZag;
+    public final int zigZags;
+    public final Vector zigZagOffset;
+    public final double length;
+    protected final List<Player> team;
     public ParticleEffect particle;
-    public boolean isZigZag;
-    public int zigZags;
-    public Vector zigZagOffset;
     public int particles;
-    public double length;
     protected boolean zag;
     protected int step;
-    protected List<Player> team;
 
     public TeamLineEffect(EffectManager effectManager, List<Player> team) {
         super(effectManager);

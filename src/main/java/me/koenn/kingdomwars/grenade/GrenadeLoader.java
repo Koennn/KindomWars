@@ -32,7 +32,7 @@ public class GrenadeLoader {
 
     public static final Registry<CompoundTag> grenadeRegistry = new Registry<>(compoundTag -> NBTUtil.getChildTag(compoundTag.getValue(), "name", StringTag.class).getValue());
 
-    public static void registerGrenades() {
+    public static void load() {
         File grenadeFolder = new File(KingdomWars.getInstance().getDataFolder(), "grenades");
         for (File file : grenadeFolder.listFiles()) {
             if (file.getName().endsWith(".grenade")) {

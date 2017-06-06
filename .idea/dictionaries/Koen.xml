@@ -6,19 +6,24 @@
       <w>bdoor</w>
       <w>candyland</w>
       <w>citem</w>
+      <w>controlpoint</w>
       <w>damager</w>
       <w>deployable</w>
       <w>deployables</w>
       <w>depoyable</w>
+      <w>doctype</w>
       <w>dont</w>
       <w>doorx</w>
       <w>doorz</w>
       <w>eclass</w>
       <w>fakeblock</w>
+      <w>fakeblocks</w>
       <w>forcestart</w>
+      <w>forcestop</w>
       <w>gamemodes</w>
       <w>kingdomwars</w>
       <w>kwclass</w>
+      <w>maplore</w>
       <w>mapname</w>
       <w>mapstaff</w>
       <w>maxp</w>
@@ -30,6 +35,7 @@
       <w>respawned</w>
       <w>teambalance</w>
       <w>testmap</w>
+      <w>testparticle</w>
       <w>zags</w>
     </words>
   </dictionary>

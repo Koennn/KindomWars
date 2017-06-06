@@ -43,6 +43,7 @@ public class Deployable {
             private int task;
             private ScriptEngine script;
 
+            @SuppressWarnings("deprecation")
             @Override
             public void construct(Player player) {
                 this.owner = player;

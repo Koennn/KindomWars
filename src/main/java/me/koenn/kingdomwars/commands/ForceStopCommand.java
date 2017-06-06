@@ -11,16 +11,16 @@ import org.bukkit.entity.Player;
  * Copyright (C) Koenn - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Koen Willemse, April 2017
+ * Written by Koen Willemse, May 2017
  */
-public class ForceStartCommand extends Command {
+public class ForceStopCommand extends Command {
 
-    public ForceStartCommand() {
-        super("forcestart", "/forcestart");
+    public ForceStopCommand() {
+        super("forcestop", "/forcestop");
     }
 
     @Override
-    public boolean execute(CPlayer cPlayer, String[] args) {
+    public boolean execute(CPlayer cPlayer, String[] strings) {
         Player player = cPlayer.getPlayer();
         if (!player.isOp()) {
             return false;
@@ -31,10 +31,7 @@ public class ForceStartCommand extends Command {
             return false;
         }
 
-        if (args.length > 0 && args[0].equalsIgnoreCase("debug")) {
-            game.setDebug(true);
-        }
-        game.load();
+        game.stop();
         return true;
     }
 }

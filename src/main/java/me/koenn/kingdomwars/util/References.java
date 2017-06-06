@@ -26,18 +26,23 @@ public final class References {
     public static final String KILL = "&2+1 Kill!";
     public static final String JOIN_MESSAGE = "&7You joined a game, please wait until it starts.";
     public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 5 seconds.";
+    public static final String DEATH_TITLE = "&c&lYou died!";
     public static final String RESPAWN = GAME_PREFIX + "&2You respawned! Try not to die this time.";
-    public static final String CLASS = GAME_PREFIX + "&2You are in the &a&l%class% &2class!";
-    public static final String MAP = GAME_PREFIX + "&2We're playing on the &a&l%map% &2map!";
     public static final String CAPTURE_LOSS_TITLE = "&c&lPoint lost!";
     public static final String CAPTURE_LOSS_SUBTITLE = "&c&lThe red team captured your point!";
     public static final String CAPTURE_WIN_TITLE = "&a&lPoint captured!";
     public static final String CAPTURE_WIN_SUBTITLE = "&a&lWe captured the red teams point!";
+    public static final String GAME_WIN_TITLE = "&a&lYou won!";
+    public static final String GAME_WIN_SUBTITLE = "&a&lYour team captured 3 points";
+    public static final String GAME_LOSS_TITLE = "&c&lYou lost!";
+    public static final String GAME_LOSS_SUBTITLE = "&c&lThe red team captured 3 points";
 
     public static final String MODE_CHANGE = GAME_PREFIX + "&7Changed mode to %mode%";
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
     public static final String SET_DOOR = GAME_PREFIX + "&7Set the door for team %team% to %coords%!";
     public static final String ADD_CORNER = GAME_PREFIX + "&7Added corner %coords% to the capture point for team %team%!";
+    public static final String SET_POS1 = GAME_PREFIX + "&7Set pos1 to %coords%.";
+    public static final String LOADED_BLOCKS = GAME_PREFIX + "&7Successfully loaded all colored blocks!";
     public static final String SAVE_SUCCESSFUL = GAME_PREFIX + "&7Successfully saved your map!";
     public static final String SAVE_ERROR = GAME_PREFIX + "&4It looks like you made a mistake while setting the areas, please try again!";
 
@@ -51,13 +56,23 @@ public final class References {
     public static final String LAST_SPOT = "&4&lONE SPOT LEFT!";
     public static final String FULL = "&4&lGAME FULL!";
 
+    public static final String[] GAME_JOIN_MESSAGE = new String[]{
+            "&b&m+===============================================+",
+            "&3&lGame: &eKingdomWars",
+            "&3&lMap: &e%map%",
+            "&3&lClass: &e%class%",
+            "&a %desc%",
+            "%clickable%&3&l&nClick to view map lore!",
+            "&b&m+===============================================+"
+    };
+
     public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your turret will not work!";
     public static final String TURRET_COMPLETE = "&a&lTurret construction complete!";
 
     public static final int GAME_START_DELAY = 10;
-    public static final int TEAM_SIZE = 10;
     public static final int RESPAWN_COOLDOWN = 10;
     public static final int UPDATE_RATE = 2;
+    public static final int WINNING_POINTS = 3;
 
     public static final CItem MAPSTAFF = new CItem() {
         @Override

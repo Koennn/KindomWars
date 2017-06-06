@@ -1,10 +1,9 @@
 package me.koenn.kingdomwars.game;
 
+import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.classes.Class;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.util.PlayerHelper;
-import me.koenn.kingdomwars.util.Team;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -18,22 +17,21 @@ import java.util.List;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
+//TODO: Needs major fixes!
 public class TeamBalancer {
 
     private final HashMap<Player, Class> balancedTeam = new HashMap<>();
     private final List<Player> players;
     private final int classSize;
-    private final Team team;
     private int cycles = 0;
 
-    public TeamBalancer(List<Player> players, Team team) {
-        this.team = team;
+    public TeamBalancer(List<Player> players) {
         this.players = players;
-        this.classSize = (players.size() - 1) / 4;
+        this.classSize = players.size() / 4;
     }
 
     public void balance() {
-        Bukkit.getLogger().info(String.format("Starting teambalance with %s players...", players.size()));
+        KingdomWars.getInstance().getLogger().info(String.format("Starting teambalance with %s players...", players.size()));
         Collections.shuffle(this.players);
 
         for (Player player : this.players) {
@@ -42,14 +40,14 @@ public class TeamBalancer {
 
         if (checkDone()) {
             if (classSize == 0) {
-                Bukkit.getLogger().info("Not enough players, aborting balance!");
+                KingdomWars.getInstance().getLogger().info("Not enough players, aborting balance!");
             } else {
-                Bukkit.getLogger().info("Perfect teambalance found!");
+                KingdomWars.getInstance().getLogger().info("Perfect teambalance found!");
             }
             return;
         }
 
-        Bukkit.getLogger().info("Starting to fill required classes...");
+        KingdomWars.getInstance().getLogger().info("Starting to fill required classes...");
         fillNeededClasses();
     }
 
@@ -57,16 +55,18 @@ public class TeamBalancer {
         cycles++;
         Class needed = getNeededClass();
         Class overfilled = getOverfilledClass();
-        if (overfilled == null) {
-            Bukkit.getLogger().info("Unable to balance teams, stopping balance after " + cycles + " cycle(s)!");
+        if (overfilled == null || needed == null) {
+            KingdomWars.getInstance().getLogger().info("Unable to balance teams, stopping balance after " + cycles + " cycle(s)!");
             return;
         }
+
+        KingdomWars.getInstance().getLogger().info("Need class " + needed.getName() + ", overfilled class " + overfilled.getName());
 
         Player move = getRandomPlayerFromClass(overfilled, needed);
         this.balancedTeam.put(move, needed);
 
         if (checkDone()) {
-            Bukkit.getLogger().info("Teambalance complete!");
+            KingdomWars.getInstance().getLogger().info("Teambalance complete!");
             return;
         }
 
@@ -83,10 +83,10 @@ public class TeamBalancer {
         return null;
     }
 
-    private int getClassSize(Class cl) {
+    public int getClassSize(Class cl) {
         int size = 0;
         for (Class cl2 : balancedTeam.values()) {
-            if (cl2.equals(cl)) {
+            if (cl2 != null && cl2.equals(cl)) {
                 size++;
             }
         }
@@ -97,7 +97,8 @@ public class TeamBalancer {
         boolean done = true;
         for (Class cl : ClassLoader.getClasses()) {
             int size = getClassSize(cl);
-            if (size < classSize - 1) {
+            KingdomWars.getInstance().getLogger().info(cl.getName() + " now has size " + size + " and must have more than or equal to " + classSize);
+            if (size < classSize) {
                 done = false;
             }
         }
@@ -127,6 +128,6 @@ public class TeamBalancer {
     }
 
     public TeamInfo getTeamInfo() {
-        return new TeamInfo(this.team, this.balancedTeam);
+        return new TeamInfo(this.balancedTeam);
     }
 }

@@ -1,7 +1,6 @@
 package me.koenn.kingdomwars.game;
 
 import me.koenn.kingdomwars.game.classes.Class;
-import me.koenn.kingdomwars.util.Team;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -17,11 +16,9 @@ import java.util.List;
  */
 public class TeamInfo {
 
-    private final Team team;
     private final HashMap<Player, Class> players;
 
-    public TeamInfo(Team team, HashMap<Player, Class> players) {
-        this.team = team;
+    public TeamInfo(HashMap<Player, Class> players) {
         this.players = players;
     }
 

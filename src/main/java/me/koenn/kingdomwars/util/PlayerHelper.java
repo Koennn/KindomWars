@@ -1,5 +1,6 @@
 package me.koenn.kingdomwars.util;
 
+import me.koenn.core.misc.ReflectionHelper;
 import me.koenn.core.player.CPlayerRegistry;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.classes.Class;
@@ -7,6 +8,8 @@ import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.game.classes.Kit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 /**
  * <p>
@@ -45,10 +48,16 @@ public final class PlayerHelper {
     }
 
     public static Class getMostPreferredClass(Player player) {
+        if (player.getClass().getSimpleName().contains("TestPlayer")) {
+            return ClassLoader.getClass((String) ReflectionHelper.callMethod(player, "getPreferredClass"));
+        }
         return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("most-preferred-class"));
     }
 
     public static Class getLeastPreferredClass(Player player) {
+        if (player.getClass().getSimpleName().contains("TestPlayer")) {
+            return ClassLoader.getClass((String) ReflectionHelper.callMethod(player, "getLeastPreferredClass"));
+        }
         return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("least-preferred-class"));
     }
 
@@ -56,5 +65,13 @@ public final class PlayerHelper {
         for (ItemStack item : kit.getItems()) {
             player.getInventory().addItem(item);
         }
+    }
+
+    public static String[] usernameArray(List<Player> playerList) {
+        String[] players = new String[playerList.size()];
+        for (int i = 0; i < players.length; i++) {
+            players[i] = playerList.get(i).getName();
+        }
+        return players;
     }
 }

@@ -19,8 +19,8 @@ import org.bukkit.Location;
  */
 public class GrenadeEffect extends Effect {
 
-    public ParticleEffect particle;
-    public int height;
+    public final ParticleEffect particle;
+    public final int height;
 
     public GrenadeEffect(EffectManager effectManager, DynamicLocation location) {
         super(effectManager);

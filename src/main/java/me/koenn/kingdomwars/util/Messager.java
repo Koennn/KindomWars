@@ -45,4 +45,14 @@ public final class Messager {
         Title titleObj = new Title(title, subtitle).setFade(1);
         players.forEach(titleObj::send);
     }
+
+    public static void playerTitle(String title, String subtitle, Player player) {
+        new Title(title, subtitle).setFade(1).send(player);
+    }
+
+    public static void clearChat(Player player) {
+        for (int i = 0; i < 40; i++) {
+            player.sendMessage("");
+        }
+    }
 }

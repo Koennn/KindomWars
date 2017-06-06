@@ -10,6 +10,7 @@ import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.js.JSReader;
 import me.koenn.kingdomwars.util.*;
 import org.bukkit.*;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -86,7 +87,7 @@ public final class DeployableLoader {
     public static ScriptEngine loadDeployableScript(Deployable deployable) {
         return JSReader.read(NBTUtil.getChildTag(deployable.getDeployableInfo().getValue(), "script", StringTag.class).getValue(),
                 Entity.class, Location.class, World.class, Effect.class, Deployable.class, Timer.class, KingdomWars.class, Runnable.class, List.class,
-                Vector.class, PlayerHelper.class, Team.class, Messager.class, References.class, ActionBar.class
+                Vector.class, PlayerHelper.class, Team.class, Messager.class, References.class, ActionBar.class, Damageable.class
         );
     }
 }
