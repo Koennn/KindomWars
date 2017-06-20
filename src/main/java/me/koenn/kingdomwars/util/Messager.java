@@ -1,7 +1,9 @@
 package me.koenn.kingdomwars.util;
 
+import me.koenn.core.misc.ActionBar;
 import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.Title;
+import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
@@ -48,6 +50,10 @@ public final class Messager {
 
     public static void playerTitle(String title, String subtitle, Player player) {
         new Title(title, subtitle).setFade(1).send(player);
+    }
+
+    public static void playerActionBar(Player player, String message) {
+        new ActionBar(message, KingdomWars.getInstance()).send(player);
     }
 
     public static void clearChat(Player player) {

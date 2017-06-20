@@ -55,34 +55,38 @@ public class Game {
     }
 
     public void load() {
-        //Set current phase and log messages.
-        this.currentPhase = GamePhase.STARTING;
-        EventLogger.log(new Message("info", "Loading game " + Integer.toHexString(this.hashCode())));
-        EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
+        try {
+            //Set current phase and log messages.
+            this.currentPhase = GamePhase.STARTING;
+            EventLogger.log(new Message("info", "Loading game " + Integer.toHexString(this.hashCode())));
+            EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
 
-        //Shuffle and balance teams.
-        Collections.shuffle(this.players);
-        this.balanceTeams();
+            //Shuffle and balance teams.
+            Collections.shuffle(this.players);
+            this.balanceTeams();
 
-        //Log teams.
-        EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{
-                Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.RED.getIndex()].getPlayers())),
-                Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.BLUE.getIndex()].getPlayers()))
-        }));
+            //Log teams.
+            EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{
+                    Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.RED.getIndex()].getPlayers())),
+                    Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.BLUE.getIndex()].getPlayers()))
+            }));
 
-        //Load the map.
-        this.map.load(this);
+            //Load the map.
+            this.map.load(this);
 
-        //Send game starting message.
-        Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
-        this.players.forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 2.0F, 1.0F));
+            //Send game starting message.
+            Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
+            this.players.forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 2.0F, 1.0F));
 
-        //Load the players and fakeblocks.
-        GameHelper.loadPlayers(this);
-        //GameHelper.loadFakeBlocks(this);
+            //Load the players.
+            GameHelper.loadPlayers(this);
 
-        //Start the game start timer.
-        new Timer(References.GAME_START_DELAY * (this.debug ? 1 : 20), KingdomWars.getInstance()).start(this::start);
+            //Start the game start timer.
+            new Timer(References.GAME_START_DELAY * (this.debug ? 1 : 20), KingdomWars.getInstance()).start(this::start);
+        } catch (Exception ex) {
+            EventLogger.log(this, new Message("error", ex.toString()));
+            ex.printStackTrace();
+        }
     }
 
     private void start() {
@@ -126,9 +130,24 @@ public class Game {
             point.updateCaptureProgress(point.getCurrentlyCapturing(this));
         }
 
+        final int blueProgress = this.map.getControlPoints()[Team.BLUE.getIndex()].captureProgress;
+        final int redProgress = this.map.getControlPoints()[Team.RED.getIndex()].captureProgress;
+        for (int i = 0; i < 2; i++) {
+            final Team team = Team.getTeam(i);
+            this.teams[i].getPlayers().forEach(player -> {
+                if (!PlayerHelper.isCapturing(player, this)) {
+                    Messager.playerActionBar(player, References.CAPTURE_PROGRESS_LAYOUT
+                                    .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
+                                    .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
+                            //.replace("%bluepoints%", String.valueOf(this.points[Team.BLUE.getIndex()]))
+                    );
+                }
+            });
+        }
+
         //Check if a team has enough points, if so, end the game.
         for (int i = 0; i < this.points.length; i++) {
-            if (points[i] == References.WINNING_POINTS) {
+            if (this.points[i] == References.WINNING_POINTS) {
                 this.gameTimer.stop();
                 final int teamIndex = i == Team.RED.getIndex() ? Team.BLUE.getIndex() : i;
                 new Timer(40, KingdomWars.getInstance()).start(() -> this.finish(Team.getTeam(teamIndex)));

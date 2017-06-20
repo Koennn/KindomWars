@@ -21,7 +21,7 @@ public class SelectClassCommand extends Command {
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
-        ClassGui gui = new ClassGui(cPlayer.getPlayer(), true);
+        ClassGui gui = new ClassGui(cPlayer.getPlayer());
         Gui.registerGui(gui, KingdomWars.getInstance());
         gui.open();
         return true;

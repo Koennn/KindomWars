@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -45,10 +44,5 @@ public class TeamBalanceTest {
         for (Player player : info.getPlayers()) {
             System.out.println("Player " + player.getName() + " preferred " + PlayerHelper.getMostPreferredClass(player).getName() + " and got " + info.getClass(player).getName());
         }
-
-        assertTrue("Need more attackers", balancer.getClassSize(ClassLoader.getClass("Attacker")) >= 1);
-        assertTrue("Need more defenders", balancer.getClassSize(ClassLoader.getClass("Defender")) >= 1);
-        assertTrue("Need more builders", balancer.getClassSize(ClassLoader.getClass("Builder")) >= 1);
-        assertTrue("Need more skirmishers", balancer.getClassSize(ClassLoader.getClass("Skirmisher")) >= 1);
     }
 }

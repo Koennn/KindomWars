@@ -2,6 +2,7 @@ package me.koenn.kingdomwars.util;
 
 import me.koenn.core.misc.ReflectionHelper;
 import me.koenn.core.player.CPlayerRegistry;
+import me.koenn.kingdomwars.game.ControlPoint;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.classes.Class;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
@@ -21,7 +22,7 @@ import java.util.List;
 public final class PlayerHelper {
 
     public static Game getGame(Player player) {
-        for (Game game : Game.gameRegistry) {
+        for (final Game game : Game.gameRegistry) {
             for (Player gamePlayer : game.getPlayers()) {
                 if (gamePlayer.getUniqueId().equals(player.getUniqueId())) {
                     return game;
@@ -32,7 +33,7 @@ public final class PlayerHelper {
     }
 
     public static Team getTeam(Player player) {
-        Game game = getGame(player);
+        final Game game = getGame(player);
         if (game == null) {
             return null;
         }
@@ -54,13 +55,6 @@ public final class PlayerHelper {
         return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("most-preferred-class"));
     }
 
-    public static Class getLeastPreferredClass(Player player) {
-        if (player.getClass().getSimpleName().contains("TestPlayer")) {
-            return ClassLoader.getClass((String) ReflectionHelper.callMethod(player, "getLeastPreferredClass"));
-        }
-        return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("least-preferred-class"));
-    }
-
     public static void giveKit(Player player, Kit kit) {
         for (ItemStack item : kit.getItems()) {
             player.getInventory().addItem(item);
@@ -73,5 +67,14 @@ public final class PlayerHelper {
             players[i] = playerList.get(i).getName();
         }
         return players;
+    }
+
+    public static boolean isCapturing(Player player, Game game) {
+        for (final ControlPoint controlPoint : game.getMap().getControlPoints()) {
+            if (controlPoint.isInRange(player)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -36,7 +36,7 @@ public final class EventLogger implements HttpHandler {
 
     public EventLogger() throws IOException {
         server = HttpServer.create(new InetSocketAddress(8000), 0);
-        server.createContext("/stats", this);
+        server.createContext("/log", this);
         server.start();
         liveOverview.put("other", new JSONObject());
         log(new Message("info", "EventLogger enabled!"));

@@ -36,6 +36,7 @@ public final class References {
     public static final String GAME_WIN_SUBTITLE = "&a&lYour team captured 3 points";
     public static final String GAME_LOSS_TITLE = "&c&lYou lost!";
     public static final String GAME_LOSS_SUBTITLE = "&c&lThe red team captured 3 points";
+    public static final String CAPTURE_PROGRESS_LAYOUT = "&1&l%bluepoints% &f&m--&r &1&l%blue%% &f&m--&r  &c&l%redpoints%  &f&m--&r  &c&l%red%%";
 
     public static final String MODE_CHANGE = GAME_PREFIX + "&7Changed mode to %mode%";
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
