@@ -26,7 +26,7 @@ import org.bukkit.potion.PotionEffectType;
 public final class GameHelper implements Listener {
 
     public static void loadPlayers(Game game) {
-        for (Player player : game.getPlayers()) {
+        for (final Player player : game.getPlayers()) {
             final Team team = PlayerHelper.getTeam(player);
             final Map map = game.getMap();
             final Location spawn = getSpawn(map, team);
@@ -64,8 +64,8 @@ public final class GameHelper implements Listener {
     }
 
     public static void capture(ControlPoint point, Game game) {
-        Team lost = point.owningTeam;
-        Team won = point.owningTeam.getOpponent();
+        final Team lost = point.owningTeam;
+        final Team won = point.owningTeam.getOpponent();
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);
@@ -81,9 +81,7 @@ public final class GameHelper implements Listener {
     }
 
     public static void teleportPlayers(Game game) {
-        for (Player player : game.getPlayers()) {
-            player.teleport(getSpawn(game.getMap(), PlayerHelper.getTeam(player)));
-        }
+        game.getPlayers().forEach(player -> player.teleport(getSpawn(game.getMap(), PlayerHelper.getTeam(player))));
     }
 
     public static Location getSpawn(Map map, Team team) {

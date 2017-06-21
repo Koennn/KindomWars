@@ -8,7 +8,6 @@ import me.koenn.kingdomwars.game.classes.Class;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.game.classes.Kit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -56,9 +55,7 @@ public final class PlayerHelper {
     }
 
     public static void giveKit(Player player, Kit kit) {
-        for (ItemStack item : kit.getItems()) {
-            player.getInventory().addItem(item);
-        }
+        kit.getItems().forEach(itemStack -> player.getInventory().addItem(itemStack));
     }
 
     public static String[] usernameArray(List<Player> playerList) {
