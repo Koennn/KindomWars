@@ -16,7 +16,7 @@ import me.koenn.kingdomwars.game.classes.ClassGui;
 public class SelectClassCommand extends Command {
 
     public SelectClassCommand() {
-        super("class", "/class");
+        super("class", "/kingdomwars class");
     }
 
     @Override

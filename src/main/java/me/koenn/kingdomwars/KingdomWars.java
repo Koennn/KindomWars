@@ -1,12 +1,14 @@
 package me.koenn.kingdomwars;
 
+import me.koenn.core.KoennCore;
 import me.koenn.core.cgive.CGiveAPI;
+import me.koenn.core.command.Command;
 import me.koenn.core.command.CommandAPI;
 import me.koenn.core.pluginmanager.PluginManager;
-import me.koenn.kingdomwars.commands.ForceStartCommand;
-import me.koenn.kingdomwars.commands.ForceStopCommand;
+import me.koenn.kingdomwars.commands.EditGameCommand;
+import me.koenn.kingdomwars.commands.KingdomWarsCommand;
 import me.koenn.kingdomwars.commands.SelectClassCommand;
-import me.koenn.kingdomwars.commands.TestParticleCommand;
+import me.koenn.kingdomwars.commands.StatsCommand;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GameCreator;
@@ -36,6 +38,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
     private static KingdomWars instance;
     private static EventLogger eventLogger;
+    private static boolean enabled = false;
 
     public static KingdomWars getInstance() {
         return instance;
@@ -48,6 +51,8 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         instance = this;
 
         try {
+            KoennCore.requireVersion(1.7, this);
+
             this.getLogger().info("Setting up event logger...");
             eventLogger = new EventLogger();
 
@@ -64,10 +69,11 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
 
             this.getLogger().info("Registering commands...");
-            CommandAPI.registerCommand(new ForceStartCommand(), this);
-            CommandAPI.registerCommand(new SelectClassCommand(), this);
-            CommandAPI.registerCommand(new TestParticleCommand(), this);
-            CommandAPI.registerCommand(new ForceStopCommand(), this);
+            Command mainCommand = new KingdomWarsCommand();
+            CommandAPI.registerCommand(mainCommand, this);
+            CommandAPI.registerSubCommand(mainCommand, new SelectClassCommand(), this);
+            CommandAPI.registerSubCommand(mainCommand, new EditGameCommand(), this);
+            CommandAPI.registerSubCommand(mainCommand, new StatsCommand(), this);
 
             this.getLogger().info("Registering custom items...");
             CGiveAPI.registerCItem(References.MAPSTAFF, this);
@@ -88,12 +94,12 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             GameCreator.instance.loadSigns();
         } catch (Exception ex) {
             this.getLogger().severe("An error occurred while initializing: " + ex);
-            ex.printStackTrace();
-            this.getLogger().severe("+=========== 4&lDisabling plugin... ===========+");
+            this.getLogger().severe("Disabling plugin...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
+        enabled = true;
         this.getLogger().info("+=========== Load successful! ===========+");
     }
 
@@ -111,8 +117,10 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         this.getLogger().info("+=========== Disabling KingdomWars ===========+");
 
         try {
-            this.getLogger().info("Saving signs...");
-            GameCreator.instance.saveSigns();
+            if (enabled) {
+                this.getLogger().info("Saving signs...");
+                GameCreator.instance.saveSigns();
+            }
 
             this.getLogger().info("Cancelling and resetting active games...");
             Game.gameRegistry.forEach(Game::stop);
@@ -126,8 +134,11 @@ public final class KingdomWars extends JavaPlugin implements Listener {
                 eventLogger.disable();
             }
         } catch (Exception ex) {
-            this.getLogger().severe("An error occurred while disabling: " + ex);
-            ex.printStackTrace();
+            if (enabled) {
+                this.getLogger().severe("An error occurred while disabling: " + ex);
+            } else {
+                this.getLogger().info("+=========== Disabled with errors! ===========+");
+            }
             return;
         }
 

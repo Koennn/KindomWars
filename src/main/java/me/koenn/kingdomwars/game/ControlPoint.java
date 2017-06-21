@@ -149,4 +149,8 @@ public class ControlPoint {
         this.captureProgress = 0;
         this.frozen = false;
     }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
 }

@@ -28,7 +28,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public class SignListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (PlayerHelper.isInGame(player)) {

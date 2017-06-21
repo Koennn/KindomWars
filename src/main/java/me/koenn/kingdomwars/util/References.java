@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public final class References {
 
     public static final String GAME_PREFIX = "&8[&9KingdomWars&8] ";
+    public static final String INFO_MESSAGE = GAME_PREFIX + " Version %version% by %author%";
 
     public static final String GAME_ABOUT_TO_START = GAME_PREFIX + "&2The game is about to start!";
     public static final String GAME_STARTED = GAME_PREFIX + "&2The game has started!";
@@ -64,6 +65,17 @@ public final class References {
             "&3&lClass: &e%class%",
             "&a %desc%",
             "%clickable%&3&l&nClick to view map lore!",
+            "&b&m+===============================================+"
+    };
+
+    public static final String[] STATS_MESSAGE = new String[]{
+            "&b&m+===============================================+",
+            "&3&lAttacker: &eLevel: %attackerLevel% Exp: %attackerExp%/%attackerNeededExp%",
+            "&3&lDefender: &eLevel: %defenderLevel% Exp: %defenderExp%/%defenderNeededExp%",
+            "&3&lSkirmisher: &eLevel: %skirmisherLevel% Exp: %skirmisherExp%/%skirmisherNeededExp%",
+            "&3&lBuilder: &eLevel: %builderLevel% Exp: %builderExp%/%builderNeededExp%",
+            "&a--------------------------------------------------",
+            "&3&lGames Played: &e%gamesPlayed%",
             "&b&m+===============================================+"
     };
 

@@ -8,13 +8,6 @@ description: In Kingdom Wars there are 2 teams of 10. Blue team are the Good guy
 depend: [KoennCore, FakeBlockAPI]
 
 commands:
-  forcestart:
-    usage: /forcestart
-  forcestop:
-      usage: /forcestop
-  mapstaff:
-      usage: /mapstaff
-  class:
-      usage: /class
-  testparticle:
-        usage: /testparticle
+  kingdomwars:
+    usage: /kingdomwars [subcommand]
+    description: Main KingdomWars command.

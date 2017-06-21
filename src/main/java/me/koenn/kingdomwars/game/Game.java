@@ -167,35 +167,28 @@ public class Game {
             //Play the finish sound.
             player.playSound(player.getLocation(), Sound.WITHER_DEATH, 1.0F, 1.5F);
 
+            if (PlayerHelper.getTeam(player).equals(loser)) {
+                return;
+            }
+
             //Create and launch the firework.
-            Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
-            FireworkMeta meta = firework.getFireworkMeta();
-            meta.addEffect(FireworkEffect.builder().withColor(Color.GREEN).build());
-            firework.setVelocity(new Vector(0, 0.5, 0));
-            firework.setFireworkMeta(meta);
+            for (int i = 0; i < 5; i++) {
+                new Timer(i * 5, KingdomWars.getInstance()).start(() -> {
+                    Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
+                    FireworkMeta meta = firework.getFireworkMeta();
+                    meta.addEffect(FireworkEffect.builder()
+                            .with(FireworkEffect.Type.values()[random.nextInt(FireworkEffect.Type.values().length)])
+                            .withColor(Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
+                            .build()
+                    );
+                    firework.setVelocity(new Vector(0, 0.5, 0));
+                    firework.setFireworkMeta(meta);
+                });
+            }
         });
 
-        //Get the main world spawn location.
-        final Location spawn = Bukkit.getWorlds().get(0).getSpawnLocation();
-
-        new Timer(60, KingdomWars.getInstance()).start(() -> {
-            //Loop over all players.
-            this.players.forEach(player -> {
-
-                //Teleport the player to the spawn.
-                player.teleport(spawn);
-
-                //Clear the players inventory.
-                player.getInventory().clear();
-                player.getInventory().setArmorContents(null);
-
-                //Set the players spawn location to the spawn.
-                player.setBedSpawnLocation(spawn, true);
-            });
-
-            //Stop the game.
-            this.stop();
-        });
+        //Stop the game after 60 ticks.
+        new Timer(60, KingdomWars.getInstance()).start(this::stop);
     }
 
     private void balanceTeams() {
@@ -217,7 +210,19 @@ public class Game {
 
     public void stop() {
         EventLogger.log(new Message("info", "Stopping game " + Integer.toHexString(this.hashCode())));
-        EventLogger.log(this, new Message("phase", GamePhase.ENDING.name()));
+
+        final Location spawn = Bukkit.getWorlds().get(0).getSpawnLocation();
+        this.players.forEach(player -> {
+            try {
+                player.teleport(spawn);
+                player.getInventory().clear();
+                player.getInventory().setArmorContents(null);
+                player.setBedSpawnLocation(spawn, true);
+            } catch (Exception ex) {
+                KingdomWars.getInstance().getLogger().severe("Error while resetting players " + ex);
+            }
+        });
+
         GameHelper.resetFakeBlocks(this);
         if (this.gameTimer != null) {
             this.gameTimer.stop();
@@ -231,6 +236,8 @@ public class Game {
             this.rawTeams[i] = new ArrayList<>();
         }
         this.debug = false;
+        EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), "[]"}));
+        EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{"[]", "[]"}));
     }
 
     public List<Player> getPlayers() {
@@ -253,7 +260,41 @@ public class Game {
         return this.teams[team.getIndex()].getPlayers();
     }
 
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public boolean isAlmostOver() {
+        for (int point : this.points) {
+            if (point + 1 == References.WINNING_POINTS) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void enableDebugMode() {
+        this.debug = true;
+    }
+
+    @SuppressWarnings("unused")
+    public void disableDebugMode() {
+        this.debug = false;
+    }
+
+    @SuppressWarnings("unused")
+    public void loadInDebugMode() {
+        this.enableDebugMode();
+        this.load();
+    }
+
+    @SuppressWarnings("unused")
+    public void freezePoints() {
+        for (ControlPoint controlPoint : this.map.getControlPoints()) {
+            controlPoint.setFrozen(true);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void unFreezePoints() {
+        for (ControlPoint controlPoint : this.map.getControlPoints()) {
+            controlPoint.setFrozen(false);
+        }
     }
 }

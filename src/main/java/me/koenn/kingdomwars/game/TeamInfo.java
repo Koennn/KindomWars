@@ -4,6 +4,7 @@ import me.koenn.kingdomwars.game.classes.Class;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,5 +31,10 @@ public class TeamInfo {
         List<Player> players = new ArrayList<>();
         players.addAll(this.players.keySet());
         return players;
+    }
+
+    @Override
+    public String toString() {
+        return "TeamInfo{players=" + Arrays.toString(this.getPlayers().toArray(new Player[this.getPlayers().size()])) + "}";
     }
 }

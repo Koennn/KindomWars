@@ -145,4 +145,9 @@ public class Map {
     public Object getProperty(String name) {
         return this.properties.get(name);
     }
+
+    @Override
+    public String toString() {
+        return "Map{name=" + this.name + "}";
+    }
 }

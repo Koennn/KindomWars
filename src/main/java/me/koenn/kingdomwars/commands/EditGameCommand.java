@@ -1,37 +1,36 @@
 package me.koenn.kingdomwars.commands;
 
 import me.koenn.core.command.Command;
+import me.koenn.core.gui.Gui;
 import me.koenn.core.player.CPlayer;
+import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.game.EditGameGui;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.util.PlayerHelper;
-import org.bukkit.entity.Player;
 
 /**
  * <p>
  * Copyright (C) Koenn - All Rights Reserved
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
- * Written by Koen Willemse, May 2017
+ * Written by Koen Willemse, June 2017
  */
-public class ForceStopCommand extends Command {
+public class EditGameCommand extends Command {
 
-    public ForceStopCommand() {
-        super("forcestop", "/forcestop");
+    public EditGameCommand() {
+        super("editgame", "You're not in a game");
     }
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
-        Player player = cPlayer.getPlayer();
-        if (!player.isOp()) {
-            return false;
-        }
-
-        Game game = PlayerHelper.getGame(player);
+        Game game = PlayerHelper.getGame(cPlayer.getPlayer());
         if (game == null) {
             return false;
         }
 
-        game.stop();
+        Gui gui = new EditGameGui(cPlayer.getPlayer(), game);
+        Gui.registerGui(gui, KingdomWars.getInstance());
+        gui.open();
         return true;
     }
 }
