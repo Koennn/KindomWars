@@ -1,5 +1,10 @@
 package me.koenn.kingdomwars.listeners;
 
+import de.slikey.effectlib.Effect;
+import de.slikey.effectlib.effect.AnimatedBallEffect;
+import de.slikey.effectlib.util.DynamicLocation;
+import de.slikey.effectlib.util.ParticleEffect;
+import me.koenn.core.misc.EffectBuilder;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
@@ -8,6 +13,7 @@ import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,19 +47,20 @@ public class DamageListener implements Listener {
             return;
         }
 
-        Game game = PlayerHelper.getGame(damager);
-        if (game == null) {
+        Game damagerGame = PlayerHelper.getGame(damager);
+        Game damagedGame = PlayerHelper.getGame(damaged);
+        if (damagedGame == null || damagedGame == null || damagedGame != damagerGame) {
             return;
         }
 
-        if (game.getCurrentPhase() != GamePhase.STARTED) {
+        if (damagedGame.getCurrentPhase() != GamePhase.STARTED) {
             event.setCancelled(true);
             return;
         }
 
         if (!PlayerHelper.canDamage(damager, damaged)) {
             event.setCancelled(true);
-            Messager.playerMessage(damager, References.DONT_SHOOT_ALLY);
+            Messager.playerMessage(damager, References.DONT_HURT_ALLY);
         }
     }
 
@@ -80,6 +87,16 @@ public class DamageListener implements Listener {
 
         respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
         killed.setGameMode(GameMode.SPECTATOR);
+        killed.playSound(killed.getLocation(), Sound.ENDERDRAGON_GROWL, 0.8F, 1.0F);
+        Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
+                .particleEffect(ParticleEffect.FLAME)
+                .iterations(5)
+                .speed(0.1F)
+                .property("yFactor", 1.0F)
+                .property("yOffset", -1.0F)
+                .location(new DynamicLocation(killed))
+                .build();
+        effect.start();
 
         if (event.getEntity().getKiller() == null) {
             return;
@@ -112,7 +129,6 @@ public class DamageListener implements Listener {
             if (player.getKiller() != null) {
                 Player killer = player.getKiller();
                 event.setRespawnLocation(killer.getEyeLocation());
-                Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.teleport(killer), 40);
             }
         }
     }

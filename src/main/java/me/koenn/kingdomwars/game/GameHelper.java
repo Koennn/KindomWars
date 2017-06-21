@@ -69,7 +69,7 @@ public final class GameHelper implements Listener {
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);
-        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 0.5F));
+        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.5F, 0.5F));
 
         game.getMap().renderCapture(lost);
 

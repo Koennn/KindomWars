@@ -22,7 +22,7 @@ public final class References {
 
     public static final String GAME_ABOUT_TO_START = GAME_PREFIX + "&2The game is about to start!";
     public static final String GAME_STARTED = GAME_PREFIX + "&2The game has started!";
-    public static final String DONT_SHOOT_ALLY = GAME_PREFIX + "&cPlease don't attempt to hurt your allies.";
+    public static final String DONT_HURT_ALLY = GAME_PREFIX + "&cPlease don't attempt to hurt your allies.";
     public static final String KILL = "&2+1 Kill!";
     public static final String JOIN_MESSAGE = "&7You joined a game, please wait until it starts.";
     public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 5 seconds.";
@@ -36,7 +36,7 @@ public final class References {
     public static final String GAME_WIN_SUBTITLE = "&a&lYour team captured 3 points";
     public static final String GAME_LOSS_TITLE = "&c&lYou lost!";
     public static final String GAME_LOSS_SUBTITLE = "&c&lThe red team captured 3 points";
-    public static final String CAPTURE_PROGRESS_LAYOUT = "&1&l%bluepoints% &f&m--&r &1&l%blue%% &f&m--&r  &c&l%redpoints%  &f&m--&r  &c&l%red%%";
+    public static final String CAPTURE_PROGRESS_LAYOUT = "&1&l%bluepoints% points &f&m--&r &1&l%blue%%  &f&m--&r  &4&l%red%% &f&m--&r  &4&l%redpoints% points";
 
     public static final String MODE_CHANGE = GAME_PREFIX + "&7Changed mode to %mode%";
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
@@ -72,7 +72,7 @@ public final class References {
 
     public static final int GAME_START_DELAY = 10;
     public static final int RESPAWN_COOLDOWN = 10;
-    public static final int UPDATE_RATE = 2;
+    public static final int UPDATE_RATE = 3;
     public static final int WINNING_POINTS = 3;
 
     public static final CItem MAPSTAFF = new CItem() {

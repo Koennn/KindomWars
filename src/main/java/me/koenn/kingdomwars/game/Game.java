@@ -112,6 +112,9 @@ public class Game {
         //Loop over all control points.
         for (final ControlPoint point : this.map.getControlPoints()) {
 
+            //Update the capture progress.
+            point.updateCaptureProgress(this, point.getCurrentlyCapturing(this));
+
             //Continue to the next point if the current point is empty.
             if (point.isEmpty(this)) {
                 continue;
@@ -123,33 +126,28 @@ public class Game {
             //Check if the point is captured and handle point capture if so.
             if (point.captureProgress == 100 || (this.debug && point.captureProgress == 10)) {
                 GameHelper.capture(point, this);
-                this.points[point.owningTeam.getIndex()]++;
+                this.points[point.owningTeam.getOpponent().getIndex()]++;
             }
-
-            //Update the capture progress.
-            point.updateCaptureProgress(point.getCurrentlyCapturing(this));
         }
 
         final int blueProgress = this.map.getControlPoints()[Team.BLUE.getIndex()].captureProgress;
         final int redProgress = this.map.getControlPoints()[Team.RED.getIndex()].captureProgress;
         for (int i = 0; i < 2; i++) {
             final Team team = Team.getTeam(i);
-            this.teams[i].getPlayers().forEach(player -> {
-                if (!PlayerHelper.isCapturing(player, this)) {
-                    Messager.playerActionBar(player, References.CAPTURE_PROGRESS_LAYOUT
-                                    .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
-                                    .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
-                            //.replace("%bluepoints%", String.valueOf(this.points[Team.BLUE.getIndex()]))
-                    );
-                }
-            });
+            this.teams[i].getPlayers().stream().filter(player -> !PlayerHelper.isCapturing(player, this)).forEach(player -> Messager.playerActionBar(player,
+                    References.CAPTURE_PROGRESS_LAYOUT
+                            .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
+                            .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
+                            .replace("%bluepoints%", String.valueOf(this.points[team.getIndex()]))
+                            .replace("%redpoints%", String.valueOf(this.points[team.getOpponent().getIndex()]))
+            ));
         }
 
         //Check if a team has enough points, if so, end the game.
         for (int i = 0; i < this.points.length; i++) {
             if (this.points[i] == References.WINNING_POINTS) {
                 this.gameTimer.stop();
-                final int teamIndex = i == Team.RED.getIndex() ? Team.BLUE.getIndex() : i;
+                final int teamIndex = Team.getTeam(i).getIndex();
                 new Timer(40, KingdomWars.getInstance()).start(() -> this.finish(Team.getTeam(teamIndex)));
             }
         }
@@ -157,7 +155,7 @@ public class Game {
 
     private void finish(final Team winner) {
         //Get the losing team.
-        final Team loser = winner == Team.RED ? Team.BLUE : Team.RED;
+        final Team loser = winner.getOpponent();
 
         //Send the titles to the teams.
         Messager.teamTitle(References.GAME_WIN_TITLE, References.GAME_WIN_SUBTITLE, winner, this);

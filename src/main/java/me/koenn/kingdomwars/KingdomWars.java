@@ -43,6 +43,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        this.getLogger().info(String.format("+=========== Starting KingdomWars v%s ===========+", this.getDescription().getVersion()));
         this.getLogger().info("All credits for this plugin go to Koenn");
         instance = this;
 
@@ -88,12 +89,12 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         } catch (Exception ex) {
             this.getLogger().severe("An error occurred while initializing: " + ex);
             ex.printStackTrace();
-            this.getLogger().severe("Disabling plugin...");
+            this.getLogger().severe("+=========== 4&lDisabling plugin... ===========+");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
-        this.getLogger().info("Load successful!");
+        this.getLogger().info("+=========== Load successful! ===========+");
     }
 
     public void reloadMaps() {
@@ -107,6 +108,8 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        this.getLogger().info("+=========== Disabling KingdomWars ===========+");
+
         try {
             this.getLogger().info("Saving signs...");
             GameCreator.instance.saveSigns();
@@ -128,7 +131,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             return;
         }
 
-        this.getLogger().info("Successfully disabled!");
+        this.getLogger().info("+=========== Successfully disabled! ===========+");
     }
 
 

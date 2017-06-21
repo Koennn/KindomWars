@@ -7,6 +7,7 @@ import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -25,10 +26,12 @@ public class ControlPoint {
     private Vector min = new Vector(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private Vector max = new Vector(0.0, 0.0, 0.0);
     private boolean frozen = false;
+    private int cooldown = 0;
 
     public ControlPoint(Location[] corners, Team owningTeam) {
         this.corners = corners;
         this.owningTeam = owningTeam;
+
         Location[] edges = new Location[2];
         edges[0] = corners[0];
         for (Location corner : this.corners) {
@@ -36,18 +39,36 @@ public class ControlPoint {
                 edges[1] = corner;
             }
         }
-        min = Vector.getMinimum(edges[0].toVector(), edges[1].toVector());
-        max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
+
+        this.min = Vector.getMinimum(edges[0].toVector(), edges[1].toVector());
+        this.max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
     }
 
     public void showProgressToPlayers(Game game) {
-        ProgressBar progressBar = new ProgressBar(60);
-        String progressString = progressBar.get(this.captureProgress);
-        for (Player player : game.getPlayers()) {
-            if (isInRange(player)) {
-                new ActionBar(progressString, KingdomWars.getInstance()).setStay(1).send(player);
+        final String progressString = new ProgressBar(60).get(this.captureProgress);
+        final ActionBar actionBar = new ActionBar(progressString, KingdomWars.getInstance()).setStay(1);
+        game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
+            actionBar.send(player);
+            if (this.frozen) {
+                return;
             }
-        }
+
+            if (this.captureProgress == 0 && this.owningTeam.equals(PlayerHelper.getTeam(player))) {
+                return;
+            }
+
+            if (this.cooldown == 0) {
+                player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
+                this.cooldown = 10 - Math.round(this.captureProgress / 10);
+            }
+            if (this.cooldown > 0) {
+                this.cooldown--;
+            }
+        });
+    }
+
+    private float calculateScaledProgress(float current, float maxSize) {
+        return current < 100.0F ? (current > 0.0F ? current * maxSize / 100.0F : 0.0F) : maxSize;
     }
 
     public Team getCurrentlyCapturing(Game game) {
@@ -64,6 +85,20 @@ public class ControlPoint {
         return opposingTeam > owningTeam ? this.owningTeam.getOpponent() : this.owningTeam;
     }
 
+    public boolean isNeutral(Game game) {
+        int owningTeam = 0, opposingTeam = 0;
+        for (Player player : game.getPlayers()) {
+            if (isInRange(player)) {
+                if (PlayerHelper.getTeam(player) == this.owningTeam) {
+                    owningTeam++;
+                } else {
+                    opposingTeam++;
+                }
+            }
+        }
+        return owningTeam == opposingTeam;
+    }
+
     public boolean isEmpty(Game game) {
         for (Player player : game.getPlayers()) {
             if (isInRange(player)) {
@@ -74,16 +109,23 @@ public class ControlPoint {
     }
 
     public boolean isInRange(Player player) {
-        Location location = player.getLocation();
-        return location.getX() > min.getX() && location.getX() < max.getX() && location.getZ() > min.getZ() && location.getZ() < max.getZ() && isInYRange(location, min.getY());
+        final Location location = player.getLocation();
+        return isInRange(location.getX(), min.getX(), max.getX()) && isInRange(location.getZ(), min.getZ(), max.getZ()) && isInYRange(location, min.getY());
+    }
+
+    private boolean isInRange(double coord, double min, double max) {
+        return coord > min && coord < max;
     }
 
     private boolean isInYRange(Location location, double y) {
         return location.getY() > y - 1 && location.getY() < y + 1;
     }
 
-    public void updateCaptureProgress(Team capturing) {
+    public void updateCaptureProgress(Game game, Team capturing) {
         if (this.frozen) {
+            return;
+        }
+        if (this.isNeutral(game) && !this.isEmpty(game)) {
             return;
         }
         if (capturing == this.owningTeam) {
