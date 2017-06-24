@@ -5,13 +5,13 @@ import de.slikey.effectlib.effect.AnimatedBallEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.core.misc.EffectBuilder;
+import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -32,7 +32,7 @@ import java.util.HashMap;
  */
 public class DamageListener implements Listener {
 
-    private final HashMap<Player, Integer> respawnCooldown = new HashMap<>();
+    private static final HashMap<Player, Integer> respawnCooldown = new HashMap<>();
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
@@ -40,16 +40,15 @@ public class DamageListener implements Listener {
             return;
         }
 
-        Player damager = (Player) event.getDamager();
-        Player damaged = (Player) event.getEntity();
+        final Player damager = (Player) event.getDamager();
+        final Player damaged = (Player) event.getEntity();
 
         if (!PlayerHelper.isInGame(damager) || !PlayerHelper.isInGame(damaged)) {
             return;
         }
 
-        Game damagerGame = PlayerHelper.getGame(damager);
-        Game damagedGame = PlayerHelper.getGame(damaged);
-        if (damagedGame == null || damagedGame == null || damagedGame != damagerGame) {
+        final Game damagedGame = PlayerHelper.getGame(damaged);
+        if (damagedGame == null || damagedGame == null || damagedGame != PlayerHelper.getGame(damager)) {
             return;
         }
 
@@ -66,8 +65,8 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player killed = event.getEntity();
-        Game game = PlayerHelper.getGame(killed);
+        final Player killed = event.getEntity();
+        final Game game = PlayerHelper.getGame(killed);
 
         if (!PlayerHelper.isInGame(killed) || game == null) {
             return;
@@ -75,17 +74,17 @@ public class DamageListener implements Listener {
 
         event.setKeepInventory(true);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
+        new Timer(References.RESPAWN_COOLDOWN * 20, KingdomWars.getInstance()).start(() -> {
             respawnCooldown.put(killed, 0);
             killed.setGameMode(GameMode.SURVIVAL);
             killed.teleport(game.getMap().getSpawn(PlayerHelper.getTeam(killed)));
             Messager.playerMessage(killed, References.RESPAWN);
-        }, References.RESPAWN_COOLDOWN * 20);
+        });
 
         Messager.playerMessage(killed, References.DEATH);
         Messager.playerTitle(References.DEATH_TITLE, "", killed);
 
-        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
         killed.setGameMode(GameMode.SPECTATOR);
         killed.playSound(killed.getLocation(), Sound.ENDERDRAGON_GROWL, 0.8F, 1.0F);
         Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
@@ -102,8 +101,7 @@ public class DamageListener implements Listener {
             return;
         }
 
-        Player killer = event.getEntity().getKiller();
-
+        final Player killer = event.getEntity().getKiller();
         if (!PlayerHelper.isInGame(killer)) {
             return;
         }
@@ -113,21 +111,16 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        if (event.getPlayer() == null) {
-            return;
-        }
-
-        Player player = event.getPlayer();
-        Game game = PlayerHelper.getGame(player);
-
-        if (!PlayerHelper.isInGame(player) || game == null) {
+        final Player player = event.getPlayer();
+        if (player == null || !PlayerHelper.isInGame(player)) {
             return;
         }
 
         if (respawnCooldown.get(player) != 0) {
             player.setGameMode(GameMode.SPECTATOR);
-            if (player.getKiller() != null) {
-                Player killer = player.getKiller();
+
+            final Player killer = player.getKiller();
+            if (killer != null) {
                 event.setRespawnLocation(killer.getEyeLocation());
             }
         }

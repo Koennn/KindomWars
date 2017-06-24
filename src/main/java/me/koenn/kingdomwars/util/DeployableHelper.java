@@ -15,14 +15,14 @@ import java.util.Arrays;
  */
 public final class DeployableHelper {
 
-    public static final BlockFace[] axis = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+    private static final BlockFace[] AXIS = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 
     public static BlockFace getPlayerDirection(Player player) {
         return yawToFace(player.getLocation().getYaw());
     }
 
     public static Vector rotateOffsetTowards(Vector offset, BlockFace towards) {
-        int index = Arrays.asList(axis).indexOf(towards);
+        final int index = Arrays.asList(AXIS).indexOf(towards);
         if (index == 0) {
             return offset;
         }
@@ -30,26 +30,21 @@ public final class DeployableHelper {
     }
 
     private static Vector rotate(Vector vector, int times) {
-        double x = vector.getX();
-        double y = vector.getY();
-        double z = vector.getZ();
+        vector = rotate(vector.getX(), vector.getY(), vector.getZ());
 
-        vector = rotate(x, y, z);
         times--;
         if (times > 0) {
             vector = rotate(vector, times);
         }
+
         return vector;
     }
 
     private static Vector rotate(double x, double y, double z) {
-        double newX, newZ;
-        newZ = x;
-        newX = z == 0 ? 0 : -z;
-        return new Vector(newX, y, newZ);
+        return new Vector(z == 0 ? 0 : -z, y, x);
     }
 
     private static BlockFace yawToFace(float yaw) {
-        return axis[Math.round(yaw / 90f) & 0x3];
+        return AXIS[Math.round(yaw / 90F) & 0x3];
     }
 }

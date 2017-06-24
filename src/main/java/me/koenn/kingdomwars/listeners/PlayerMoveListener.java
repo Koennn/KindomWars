@@ -23,12 +23,12 @@ public class PlayerMoveListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         if (!PlayerHelper.isInGame(player)) {
             return;
         }
 
-        Game game = PlayerHelper.getGame(player);
+        final Game game = PlayerHelper.getGame(player);
         if (game == null) {
             return;
         }
@@ -37,11 +37,10 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        Door door = game.getMap().getDoor(PlayerHelper.getTeam(player));
-        double currentLocation = door.getType() == Door.DoorType.X ? Math.round(event.getTo().getX()) : Math.round(event.getTo().getZ());
+        final Door door = game.getMap().getDoor(PlayerHelper.getTeam(player));
+        final double currentLocation = door.getType() == Door.DoorType.X ? Math.round(event.getTo().getX()) : Math.round(event.getTo().getZ());
         if (currentLocation == Math.round(door.getLocation())) {
-            PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(EnumParticle.BARRIER, true, (float) event.getFrom().getX(), (float) event.getFrom().getY() + 1.8F, (float) event.getFrom().getZ(), 0, 0, 0, 0, 1);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutWorldParticles(EnumParticle.BARRIER, true, (float) event.getFrom().getX(), (float) event.getFrom().getY() + 1.8F, (float) event.getFrom().getZ(), 0, 0, 0, 0, 1));
             event.setTo(event.getFrom());
         }
     }

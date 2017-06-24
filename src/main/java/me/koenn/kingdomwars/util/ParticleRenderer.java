@@ -22,15 +22,15 @@ import java.util.List;
 public final class ParticleRenderer {
 
     public static void renderLine(Location pos1, Location pos2, boolean red, Game game) {
-        List<Player> blueTeam = game.getTeam(Team.BLUE);
-        List<Player> redTeam = game.getTeam(Team.RED);
+        final List<Player> blueTeam = game.getTeam(Team.BLUE);
+        final List<Player> redTeam = game.getTeam(Team.RED);
 
         createLineEffect(red ? blueTeam : redTeam, ParticleEffect.DRIP_LAVA, pos1, pos2);
         createLineEffect(red ? redTeam : blueTeam, ParticleEffect.DRIP_WATER, pos1, pos2);
     }
 
     private static void createLineEffect(List<Player> team, ParticleEffect particleEffect, Location pos1, Location pos2) {
-        TeamLineEffect lineEffect = new TeamLineEffect(new EffectManager(KingdomWars.getInstance()), team);
+        final TeamLineEffect lineEffect = new TeamLineEffect(new EffectManager(KingdomWars.getInstance()), team);
         lineEffect.particle = particleEffect;
         lineEffect.setDynamicOrigin(new DynamicLocation(pos1));
         lineEffect.setDynamicTarget(new DynamicLocation(pos2));

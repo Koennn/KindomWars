@@ -7,7 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 
 /**
@@ -30,13 +29,12 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        ItemStack item = event.getItemInHand();
-        CompoundTag tag = DeployableLoader.getDeployableInfo(item);
+        CompoundTag tag = DeployableLoader.getDeployableInfo(event.getItemInHand());
         if (tag == null) {
             return;
         }
 
-        Deployable deployable = new Deployable(event.getBlockPlaced().getLocation(), tag);
-        deployable.construct(event.getPlayer());
+        //TODO: Save somewhere for post-game removal.
+        new Deployable(event.getBlockPlaced().getLocation(), tag).construct(event.getPlayer());
     }
 }

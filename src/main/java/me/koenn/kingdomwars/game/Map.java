@@ -109,13 +109,13 @@ public class Map {
     public void startRendering(final Game game) {
         this.renderTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), () -> {
             for (int i = 0; i <= 1; i++) {
-                boolean red = i == Team.RED.getIndex();
+                final boolean red = i == Team.RED.getIndex();
                 ParticleRenderer.renderLine(this.controlPointCorners[i][0], this.controlPointCorners[i][1], red, game);
                 ParticleRenderer.renderLine(this.controlPointCorners[i][1], this.controlPointCorners[i][2], red, game);
                 ParticleRenderer.renderLine(this.controlPointCorners[i][2], this.controlPointCorners[i][3], red, game);
                 ParticleRenderer.renderLine(this.controlPointCorners[i][3], this.controlPointCorners[i][0], red, game);
             }
-        }, 0, 2);
+        }, 0, 5);
     }
 
     public void stopRendering() {

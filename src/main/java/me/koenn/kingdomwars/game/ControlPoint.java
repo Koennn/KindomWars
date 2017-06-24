@@ -47,24 +47,27 @@ public class ControlPoint {
     public void showProgressToPlayers(Game game) {
         final String progressString = new ProgressBar(60).get(this.captureProgress);
         final ActionBar actionBar = new ActionBar(progressString, KingdomWars.getInstance()).setStay(1);
-        game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
-            actionBar.send(player);
-            if (this.frozen) {
-                return;
-            }
 
-            if (this.captureProgress == 0 && this.owningTeam.equals(PlayerHelper.getTeam(player))) {
-                return;
-            }
+        if (this.frozen) {
+            game.getPlayers().stream().filter(this::isInRange).forEach(actionBar::send);
+        } else {
+            game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
+                actionBar.send(player);
+                if (this.captureProgress == 0 && this.owningTeam.equals(PlayerHelper.getTeam(player))) {
+                    return;
+                }
 
-            if (this.cooldown == 0) {
-                player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
-                this.cooldown = 10 - Math.round(this.captureProgress / 10);
-            }
-            if (this.cooldown > 0) {
-                this.cooldown--;
-            }
-        });
+                if (this.cooldown == 0) {
+                    player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
+                    this.cooldown = 10 - Math.round(this.captureProgress / 10);
+                }
+                if (this.cooldown > 0) {
+                    this.cooldown--;
+                }
+            });
+        }
+
+
     }
 
     private float calculateScaledProgress(float current, float maxSize) {

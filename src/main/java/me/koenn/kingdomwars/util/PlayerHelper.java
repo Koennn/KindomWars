@@ -1,6 +1,5 @@
 package me.koenn.kingdomwars.util;
 
-import me.koenn.core.misc.ReflectionHelper;
 import me.koenn.core.player.CPlayerRegistry;
 import me.koenn.kingdomwars.game.ControlPoint;
 import me.koenn.kingdomwars.game.Game;
@@ -21,7 +20,7 @@ import java.util.List;
 public final class PlayerHelper {
 
     public static Game getGame(Player player) {
-        for (final Game game : Game.gameRegistry) {
+        for (Game game : Game.gameRegistry) {
             for (Player gamePlayer : game.getPlayers()) {
                 if (gamePlayer.getUniqueId().equals(player.getUniqueId())) {
                     return game;
@@ -48,9 +47,6 @@ public final class PlayerHelper {
     }
 
     public static Class getMostPreferredClass(Player player) {
-        if (player.getClass().getSimpleName().contains("TestPlayer")) {
-            return ClassLoader.getClass((String) ReflectionHelper.callMethod(player, "getPreferredClass"));
-        }
         return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("most-preferred-class"));
     }
 
@@ -59,7 +55,7 @@ public final class PlayerHelper {
     }
 
     public static String[] usernameArray(List<Player> playerList) {
-        String[] players = new String[playerList.size()];
+        final String[] players = new String[playerList.size()];
         for (int i = 0; i < players.length; i++) {
             players[i] = playerList.get(i).getName();
         }
@@ -67,7 +63,7 @@ public final class PlayerHelper {
     }
 
     public static boolean isCapturing(Player player, Game game) {
-        for (final ControlPoint controlPoint : game.getMap().getControlPoints()) {
+        for (ControlPoint controlPoint : game.getMap().getControlPoints()) {
             if (controlPoint.isInRange(player)) {
                 return true;
             }

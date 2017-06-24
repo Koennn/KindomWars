@@ -9,8 +9,6 @@ import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
 /**
  * <p>
  * Copyright (C) Koenn - All Rights Reserved
@@ -21,15 +19,11 @@ import java.util.List;
 public final class Messager {
 
     public static void globalMessage(String message) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(ColorHelper.readColor(message));
-        }
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ColorHelper.readColor(message)));
     }
 
     public static void gameMessage(Game game, String message) {
-        for (Player player : game.getPlayers()) {
-            player.sendMessage(ColorHelper.readColor(message));
-        }
+        game.getPlayers().forEach(player -> player.sendMessage(ColorHelper.readColor(message)));
     }
 
     public static void playerMessage(Player player, String message) {
@@ -37,15 +31,12 @@ public final class Messager {
     }
 
     public static void clickableMessage(Player player, String message, String tooltip, String url) {
-        FancyMessage fancyMessage = new FancyMessage(ColorHelper.readColor(message));
-        fancyMessage.tooltip(ColorHelper.readColor(tooltip)).link(url);
-        fancyMessage.send(player);
+        new FancyMessage(ColorHelper.readColor(message)).tooltip(ColorHelper.readColor(tooltip)).link(url).send(player);
     }
 
     public static void teamTitle(String title, String subtitle, Team team, Game game) {
-        List<Player> players = game.getTeam(team);
-        Title titleObj = new Title(title, subtitle).setFade(1);
-        players.forEach(titleObj::send);
+        final Title titleObj = new Title(title, subtitle).setFade(1);
+        game.getTeam(team).forEach(titleObj::send);
     }
 
     public static void playerTitle(String title, String subtitle, Player player) {
