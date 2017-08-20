@@ -4,6 +4,7 @@ import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.cgive.CItem;
 import me.koenn.core.misc.ActionBar;
 import me.koenn.core.misc.ItemHelper;
+import me.koenn.core.misc.LoreHelper;
 import me.koenn.core.misc.Timer;
 import me.koenn.core.registry.Registry;
 import me.koenn.kingdomwars.KingdomWars;
@@ -36,7 +37,7 @@ public final class DeployableLoader {
     public static final Registry<CompoundTag> deployables = new Registry<>(compoundTag -> NBTUtil.getChildTag(NBTUtil.getChildTag(compoundTag.getValue(), "properties", CompoundTag.class).getValue(), "name", StringTag.class).getValue());
 
     public static void load() {
-        File deployablesFolder = new File(KingdomWars.getInstance().getDataFolder(), "deployables");
+        File deployablesFolder = new File(KingdomWars.getInstance().getDataFolder(), References.DEPLOYABLE_FOLDER);
         for (File file : deployablesFolder.listFiles()) {
             if (file.getName().endsWith(".dpl")) {
                 try {
@@ -81,7 +82,11 @@ public final class DeployableLoader {
         short damage = NBTUtil.getChildTag(itemTag.getValue(), "damage", ShortTag.class).getValue();
         Material type = Material.valueOf(NBTUtil.getChildTag(itemTag.getValue(), "type", StringTag.class).getValue());
         String name = ChatColor.WHITE + NBTUtil.getChildTag(itemTag.getValue(), "name", StringTag.class).getValue();
-        return ItemHelper.makeItemStack(type, 1, damage, name, null);
+        List<String> lore = LoreHelper.makeLore(NBTUtil.getChildTag(itemTag.getValue(), "lore", StringTag.class).getValue().split("%n"));
+        for (int i = 0; i < lore.size(); i++) {
+            lore.set(i, ChatColor.YELLOW + lore.get(i));
+        }
+        return ItemHelper.makeItemStack(type, 1, damage, name, lore);
     }
 
     public static ScriptEngine loadDeployableScript(Deployable deployable) {

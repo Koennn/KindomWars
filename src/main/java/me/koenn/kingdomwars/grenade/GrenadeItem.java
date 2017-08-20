@@ -5,7 +5,9 @@ import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.ItemHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 
@@ -26,7 +28,11 @@ public class GrenadeItem implements CItem {
 
     @Override
     public ItemStack getItem() {
-        return ItemHelper.makeItemStack(Material.SNOW_BALL, 1, (short) 0, ChatColor.WHITE + this.type + " Grenade", new ArrayList<>());
+        ItemStack itemStack = ItemHelper.makeItemStack(Material.SNOW_BALL, 1, (short) 0, ChatColor.WHITE + this.type + " Grenade", new ArrayList<>());
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 
     @Override

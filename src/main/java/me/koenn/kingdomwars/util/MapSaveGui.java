@@ -28,6 +28,7 @@ import java.util.HashMap;
 public class MapSaveGui extends Gui {
 
     private final HashMap<String, Object> customProperties = new HashMap<>();
+    //TODO: Fix name change?
     private String name;
 
     public MapSaveGui(Player player, String name, JSONObject tmpMapFile) {

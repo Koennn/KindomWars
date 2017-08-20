@@ -130,10 +130,6 @@ public class Map {
         return this.doors[team.getIndex()];
     }
 
-    public Location[] getControlpointCorners(Team team) {
-        return this.controlPointCorners[team.getIndex()];
-    }
-
     public ControlPoint[] getControlPoints() {
         return this.controlPoints;
     }

@@ -1,8 +1,12 @@
 package me.koenn.kingdomwars.listeners;
 
+import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
+import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.game.GamePhase;
 import me.koenn.kingdomwars.util.PlayerHelper;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,12 +33,30 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        CompoundTag tag = DeployableLoader.getDeployableInfo(event.getItemInHand());
+        final CompoundTag tag = DeployableLoader.getDeployableInfo(event.getItemInHand());
         if (tag == null) {
             return;
         }
 
-        //TODO: Save somewhere for post-game removal.
-        new Deployable(event.getBlockPlaced().getLocation(), tag).construct(event.getPlayer());
+        final Player player = event.getPlayer();
+        if (!PlayerHelper.isInGame(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        final Game game = PlayerHelper.getGame(player);
+        if (!game.getCurrentPhase().equals(GamePhase.STARTED)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        try {
+            final Deployable deployable = new Deployable(event.getBlockPlaced().getLocation(), tag);
+            game.addDeployable(deployable);
+            deployable.construct(event.getPlayer());
+        } catch (Exception ex) {
+            KingdomWars.getInstance().getLogger().severe("Error while constructing deployable: " + ex);
+            ex.printStackTrace();
+        }
     }
 }

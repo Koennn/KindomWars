@@ -4,6 +4,7 @@ import me.koenn.core.KoennCore;
 import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.command.Command;
 import me.koenn.core.command.CommandAPI;
+import me.koenn.core.misc.Timer;
 import me.koenn.core.pluginmanager.PluginManager;
 import me.koenn.kingdomwars.commands.EditGameCommand;
 import me.koenn.kingdomwars.commands.KingdomWarsCommand;
@@ -20,6 +21,7 @@ import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.mapcreator.MapCreator;
+import me.koenn.kingdomwars.stats.StatsManager;
 import me.koenn.kingdomwars.util.References;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -39,6 +41,8 @@ public final class KingdomWars extends JavaPlugin implements Listener {
     private static KingdomWars instance;
     private static EventLogger eventLogger;
     private static boolean enabled = false;
+    private static StatsManager statsManager;
+    private static Timer statsTimer;
 
     public static KingdomWars getInstance() {
         return instance;
@@ -67,6 +71,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new MapCreator(), this);
             Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
             Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
+            Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
 
             this.getLogger().info("Registering commands...");
             Command mainCommand = new KingdomWarsCommand();
@@ -89,6 +94,11 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
             this.getLogger().info("Loading classes...");
             ClassLoader.load();
+
+            this.getLogger().info("Loading StatsManager...");
+            statsManager = new StatsManager("stats.json");
+            statsTimer = new Timer(1200, this);
+            statsTimer.start(statsManager);
 
             this.getLogger().info("Loading signs...");
             GameCreator.instance.loadSigns();
@@ -117,6 +127,10 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         this.getLogger().info("+=========== Disabling KingdomWars ===========+");
 
         try {
+            this.getLogger().info("Disabling StatsManager...");
+            statsManager.save();
+            statsTimer.stop();
+
             if (enabled) {
                 this.getLogger().info("Saving signs...");
                 GameCreator.instance.saveSigns();
@@ -128,11 +142,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
             this.getLogger().info("Cancelling all repeating tasks...");
             Bukkit.getScheduler().cancelTasks(this);
-
-            this.getLogger().info("Disabling event logger...");
-            if (eventLogger != null) {
-                eventLogger.disable();
-            }
         } catch (Exception ex) {
             if (enabled) {
                 this.getLogger().severe("An error occurred while disabling: " + ex);
@@ -140,6 +149,11 @@ public final class KingdomWars extends JavaPlugin implements Listener {
                 this.getLogger().info("+=========== Disabled with errors! ===========+");
             }
             return;
+        } finally {
+            if (eventLogger != null) {
+                this.getLogger().info("Disabling event logger...");
+                eventLogger.disable();
+            }
         }
 
         this.getLogger().info("+=========== Successfully disabled! ===========+");

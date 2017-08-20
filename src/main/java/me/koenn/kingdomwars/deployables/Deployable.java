@@ -6,6 +6,7 @@ import me.koenn.kingdomwars.util.DeployableHelper;
 import me.koenn.kingdomwars.util.NBTUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -16,6 +17,7 @@ import org.jnbt.Tag;
 
 import javax.script.ScriptEngine;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -31,13 +33,15 @@ public class Deployable {
     private final CompoundTag deployableInfo;
     private final ListTag phases;
     private final Deployable instance;
+    private final List<Location> deployableBlocks = new ArrayList<>();
 
     public Deployable(final Location location, CompoundTag deployableInfo) {
         this.instance = this;
         this.location = location;
         this.deployableInfo = deployableInfo;
         this.phases = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "construction", CompoundTag.class).getValue(), "phases", ListTag.class);
-        executor = new DeployableExecutor() {
+
+        this.executor = new DeployableExecutor() {
             private boolean constructed = false;
             private Player owner;
             private int task;
@@ -54,6 +58,7 @@ public class Deployable {
                 final BlockFace facing = DeployableHelper.getPlayerDirection(player);
                 int highestDelay = 0;
 
+                //TODO: Clean up...
                 for (Tag phase : phases.getValue()) {
                     CompoundTag phaseTag = (CompoundTag) phase;
                     int delay = NBTUtil.getChildTag(phaseTag.getValue(), "delay", IntTag.class).getValue();
@@ -68,6 +73,7 @@ public class Deployable {
                             Location place = location.clone().add(offset);
                             place.getBlock().setType(block.getType());
                             place.getBlock().setData(block.getData());
+                            deployableBlocks.add(place);
                         }
                     }, delay);
                 }
@@ -84,7 +90,9 @@ public class Deployable {
 
             @Override
             public void tick() {
-                ScriptHelper.invokeFunction(this.script, "onTick", instance, new ArrayList<>(Bukkit.getOnlinePlayers()));
+                if (this.constructed) {
+                    ScriptHelper.invokeFunction(this.script, "onTick", instance, new ArrayList<>(Bukkit.getOnlinePlayers()));
+                }
             }
 
             @Override
@@ -97,12 +105,23 @@ public class Deployable {
                 this.constructed = false;
                 Bukkit.getScheduler().cancelTask(this.task);
                 ScriptHelper.invokeFunction(this.script, "onDestroy", instance);
+                deployableBlocks.forEach(block -> block.getBlock().setType(Material.AIR));
+                deployableBlocks.clear();
             }
         };
     }
 
+    public void damage(int amount, Player damager) {
+        this.executor.damage(amount, damager);
+        damager.sendMessage("Damaged!");
+    }
+
     public void construct(Player constructor) {
         this.executor.construct(constructor);
+    }
+
+    public void remove() {
+        this.executor.destroy();
     }
 
     public Location getLocation() {
@@ -111,5 +130,9 @@ public class Deployable {
 
     public CompoundTag getDeployableInfo() {
         return deployableInfo;
+    }
+
+    public List<Location> getDeployableBlocks() {
+        return deployableBlocks;
     }
 }

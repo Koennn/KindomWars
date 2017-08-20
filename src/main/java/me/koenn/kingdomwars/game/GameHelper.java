@@ -96,7 +96,7 @@ public final class GameHelper implements Listener {
         return teamInfo.getClass(player);
     }
 
-    //TODO: Doesn't appear to work properly.
+    //TODO: Doesn't appear to work properly?.
     public static void resetFakeBlocks(Game game) {
         game.getPlayers().forEach(FakeBlockAPI::resetPlayer);
     }

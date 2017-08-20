@@ -22,7 +22,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="craftbukkit-1.8.8" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="KoennCore" level="project" />
     <orderEntry type="library" name="FakeBlockAPI" level="project" />
     <orderEntry type="library" name="jnbt-1.1" level="project" />
@@ -39,6 +38,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax.persistence:persistence-api:1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.yaml:snakeyaml:1.15" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.md-5:bungeecord-chat:1.8-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.bukkit:craftbukkit:1.8.8-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: de.slikey:EffectLib:5.4" level="project" />
   </component>
 </module>

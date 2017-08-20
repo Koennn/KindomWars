@@ -15,7 +15,7 @@ function onConstruct(deployable, placer, location) {
 
 function onConstructComplete(deployable) {
     if (owner != null) {
-        new ActionBar(References.TURRET_COMPLETE, KingdomWars.getInstance()).setStay(3).send(owner);
+        Messager.playerMessage(owner, References.TURRET_COMPLETE);
     }
 }
 

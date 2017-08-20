@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
@@ -27,24 +26,16 @@ public class GrenadeListener implements Listener {
             return;
         }
 
-        Player player = (Player) event.getEntity().getShooter();
-        ItemStack snowball = player.getItemInHand();
+        final Player player = (Player) event.getEntity().getShooter();
+        final ItemStack snowball = player.getItemInHand();
 
         CompoundTag grenadeInfo = GrenadeHelper.getGrenade(snowball);
-        BaseGrenade grenade = new BaseGrenade(NBTUtil.getChildTag(grenadeInfo.getValue(), "name", StringTag.class).getValue(), grenadeInfo);
-
-        grenade.setProjectile((Snowball) event.getEntity());
-        grenade.start();
-    }
-
-    @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) {
-        if (!event.getEntityType().equals(EntityType.SNOWBALL) || !(event.getEntity().getShooter() instanceof Player)) {
+        if (grenadeInfo == null) {
             return;
         }
 
-        Player player = (Player) event.getEntity().getShooter();
-
-
+        final BaseGrenade grenade = new BaseGrenade(NBTUtil.getChildTag(grenadeInfo.getValue(), "name", StringTag.class).getValue(), grenadeInfo);
+        grenade.setProjectile((Snowball) event.getEntity());
+        grenade.start();
     }
 }

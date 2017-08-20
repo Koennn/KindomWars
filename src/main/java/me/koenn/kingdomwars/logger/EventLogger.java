@@ -32,7 +32,7 @@ public final class EventLogger implements HttpHandler {
     private static final List<JSONObject> events = new ArrayList<>();
     private static final JSONObject liveOverview = new JSONObject();
 
-    private final HttpServer server;
+    public static HttpServer server;
 
     public EventLogger() throws IOException {
         server = HttpServer.create(new InetSocketAddress(8000), 0);
@@ -84,7 +84,9 @@ public final class EventLogger implements HttpHandler {
     }
 
     public void disable() {
-        this.server.stop(0);
+        if (server != null) {
+            server.stop(0);
+        }
     }
 
     @Override

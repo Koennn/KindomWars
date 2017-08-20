@@ -2,6 +2,7 @@ package me.koenn.kingdomwars.game;
 
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.deployables.Deployable;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.Messager;
@@ -31,6 +32,7 @@ public class Game {
     public final TeamInfo[] teams = new TeamInfo[2];
     private final List<Player> players = new ArrayList<>();
     private final List<Player>[] rawTeams = new List[2];
+    private final List<Deployable> deployables = new ArrayList<>();
     private final Map map;
 
     private boolean debug;
@@ -227,6 +229,10 @@ public class Game {
         if (this.gameTimer != null) {
             this.gameTimer.stop();
         }
+
+        this.deployables.forEach(Deployable::remove);
+        this.deployables.clear();
+
         this.currentPhase = GamePhase.ENDING;
         this.map.stopRendering();
         this.map.reset();
@@ -296,5 +302,17 @@ public class Game {
         for (ControlPoint controlPoint : this.map.getControlPoints()) {
             controlPoint.setFrozen(false);
         }
+    }
+
+    public void addDeployable(Deployable deployable) {
+        this.deployables.add(deployable);
+    }
+
+    public void removeDeployable(Deployable deployable) {
+        this.deployables.remove(deployable);
+    }
+
+    public List<Deployable> getDeployables() {
+        return deployables;
     }
 }

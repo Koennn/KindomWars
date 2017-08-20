@@ -23,6 +23,7 @@ public final class ScriptHelper {
             ((Invocable) script).invokeFunction(name, args);
         } catch (Exception e) {
             Bukkit.getLogger().severe("Error while running function \'" + name + "\': \'" + e.toString() + "\'");
+            e.printStackTrace();
         }
     }
 }

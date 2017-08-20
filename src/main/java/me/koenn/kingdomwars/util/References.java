@@ -80,7 +80,9 @@ public final class References {
     };
 
     public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your turret will not work!";
-    public static final String TURRET_COMPLETE = "&a&lTurret construction complete!";
+    public static final String TURRET_COMPLETE = GAME_PREFIX + "&a&lTurret construction complete!";
+
+    public static final String DEPLOYABLE_FOLDER = "deployables";
 
     public static final int GAME_START_DELAY = 10;
     public static final int RESPAWN_COOLDOWN = 10;

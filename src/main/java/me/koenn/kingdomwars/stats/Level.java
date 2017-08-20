@@ -20,8 +20,8 @@ public class Level {
     }
 
     public Level(JSONObject json) {
-        this.level = (int) json.get("level");
-        this.exp = (int) json.get("exp");
+        this.level = Math.toIntExact((long) json.get("level"));
+        this.exp = Math.toIntExact((long) json.get("exp"));
     }
 
     public JSONObject toJSON() {

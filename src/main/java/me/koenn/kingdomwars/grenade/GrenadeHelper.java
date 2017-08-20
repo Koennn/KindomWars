@@ -1,6 +1,7 @@
 package me.koenn.kingdomwars.grenade;
 
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jnbt.CompoundTag;
 
@@ -14,6 +15,10 @@ import org.jnbt.CompoundTag;
 public final class GrenadeHelper {
 
     public static CompoundTag getGrenade(ItemStack item) {
+        if (!item.getItemMeta().hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
+            return null;
+        }
+
         String name = ChatColor.stripColor(item.getItemMeta().getDisplayName()).toLowerCase().replace(" grenade", "");
         return GrenadeLoader.grenadeRegistry.get(name);
     }
