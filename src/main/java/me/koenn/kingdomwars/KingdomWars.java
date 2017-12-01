@@ -31,10 +31,8 @@ import java.io.File;
 
 /**
  * <p>
- * Copyright (C) Koenn - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Koen Willemse, April 2017
+ * Copyright (C) Koenn - All Rights Reserved Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential Written by Koen Willemse, April 2017
  */
 public final class KingdomWars extends JavaPlugin implements Listener {
 
@@ -104,6 +102,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             GameCreator.instance.loadSigns();
         } catch (Exception ex) {
             this.getLogger().severe("An error occurred while initializing: " + ex);
+            ex.printStackTrace();
             this.getLogger().severe("Disabling plugin...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
@@ -115,6 +114,11 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
     public void reloadMaps() {
         Map.maps.clear();
+
+        if (!this.getDataFolder().exists()) {
+            this.getDataFolder().mkdir();
+        }
+
         for (File file : this.getDataFolder().listFiles()) {
             if (file != null && file.getName().endsWith("map.json")) {
                 MapLoader.loadMap(file.getName());

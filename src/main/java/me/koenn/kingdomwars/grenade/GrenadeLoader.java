@@ -34,6 +34,9 @@ public class GrenadeLoader {
 
     public static void load() {
         File grenadeFolder = new File(KingdomWars.getInstance().getDataFolder(), "grenades");
+        if (!grenadeFolder.exists()) {
+            grenadeFolder.mkdir();
+        }
         for (File file : grenadeFolder.listFiles()) {
             if (file.getName().endsWith(".grenade")) {
                 try {

@@ -38,6 +38,9 @@ public final class DeployableLoader {
 
     public static void load() {
         File deployablesFolder = new File(KingdomWars.getInstance().getDataFolder(), References.DEPLOYABLE_FOLDER);
+        if (!deployablesFolder.exists()) {
+            deployablesFolder.mkdir();
+        }
         for (File file : deployablesFolder.listFiles()) {
             if (file.getName().endsWith(".dpl")) {
                 try {
