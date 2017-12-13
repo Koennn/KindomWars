@@ -135,6 +135,9 @@ public class GameCreator implements Runnable {
         }
         JSONManager signFile = new JSONManager(KingdomWars.getInstance(), file.getName());
         JSONArray signs = (JSONArray) signFile.getFromBody("signs");
+        if (signs == null) {
+            return;
+        }
 
         signs.forEach(sign -> {
             JSONObject signObject = (JSONObject) sign;

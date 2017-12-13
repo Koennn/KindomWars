@@ -78,7 +78,7 @@ public class Game {
 
             //Send game starting message.
             Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
-            this.players.forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 2.0F, 1.0F));
+            this.players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 1.0F));
 
             //Load the players.
             GameHelper.loadPlayers(this);
@@ -107,7 +107,7 @@ public class Game {
         Messager.gameMessage(this, References.GAME_STARTED);
 
         //Play game started sound.
-        players.forEach(player -> player.playSound(player.getLocation(), Sound.WITHER_SPAWN, 1.0F, 1.0F));
+        players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F));
     }
 
     private void update() {
@@ -167,7 +167,7 @@ public class Game {
         this.players.forEach(player -> {
 
             //Play the finish sound.
-            player.playSound(player.getLocation(), Sound.WITHER_DEATH, 1.0F, 1.5F);
+            player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
 
             if (PlayerHelper.getTeam(player).equals(loser)) {
                 return;
@@ -225,7 +225,6 @@ public class Game {
             }
         });
 
-        GameHelper.resetFakeBlocks(this);
         if (this.gameTimer != null) {
             this.gameTimer.stop();
         }
@@ -266,6 +265,7 @@ public class Game {
         return this.teams[team.getIndex()].getPlayers();
     }
 
+    //TODO: What in case of a comeback?
     public boolean isAlmostOver() {
         for (int point : this.points) {
             if (point + 1 == References.WINNING_POINTS) {

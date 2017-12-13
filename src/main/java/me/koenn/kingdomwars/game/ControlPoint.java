@@ -58,7 +58,7 @@ public class ControlPoint {
                 }
 
                 if (this.cooldown == 0) {
-                    player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
                     this.cooldown = 10 - Math.round(this.captureProgress / 10);
                 }
                 if (this.cooldown > 0) {

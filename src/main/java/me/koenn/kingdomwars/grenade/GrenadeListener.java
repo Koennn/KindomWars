@@ -27,7 +27,7 @@ public class GrenadeListener implements Listener {
         }
 
         final Player player = (Player) event.getEntity().getShooter();
-        final ItemStack snowball = player.getItemInHand();
+        final ItemStack snowball = player.getInventory().getItemInMainHand();
 
         CompoundTag grenadeInfo = GrenadeHelper.getGrenade(snowball);
         if (grenadeInfo == null) {

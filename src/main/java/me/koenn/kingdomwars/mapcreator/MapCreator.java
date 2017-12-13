@@ -37,6 +37,7 @@ public class MapCreator implements Listener {
     public static MapCreator instance;
     private final HashMap<Player, JSONObject> tmpMapFiles = new HashMap<>();
     private final HashMap<Player, Location> tmpLocation = new HashMap<>();
+    private long lastUse = System.currentTimeMillis();
 
     public MapCreator() {
         instance = this;
@@ -49,16 +50,23 @@ public class MapCreator implements Listener {
         }
 
         Player player = event.getPlayer();
-        if (player.getItemInHand() == null || player.getItemInHand().getType() != Material.WOOD_HOE) {
+        if (player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType() != Material.WOOD_HOE) {
             return;
         }
 
-        ItemMeta meta = player.getItemInHand().getItemMeta();
+        ItemMeta meta = player.getInventory().getItemInMainHand().getItemMeta();
         if (!meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) || !meta.hasLore()) {
             return;
         }
 
-        ToolMode mode = getToolMode(player.getItemInHand());
+        event.setCancelled(true);
+
+        if (System.currentTimeMillis() - this.lastUse < 200) {
+            return;
+        }
+        this.lastUse = System.currentTimeMillis();
+
+        ToolMode mode = getToolMode(player.getInventory().getItemInMainHand());
         if (player.isSneaking() && event.getClickedBlock() == null) {
             if (event.getAction() == Action.LEFT_CLICK_AIR) {
                 KeyboardGui gui = new KeyboardGui(player, "Map Name", input -> {
@@ -73,7 +81,7 @@ public class MapCreator implements Listener {
                 ArrayList<String> lore = new ArrayList<>();
                 lore.add(ChatColor.GOLD + "Mode: " + next.name());
                 meta.setLore(lore);
-                player.getItemInHand().setItemMeta(meta);
+                player.getInventory().getItemInMainHand().setItemMeta(meta);
                 Messager.playerMessage(player, References.MODE_CHANGE.replace("%mode%", next.name()));
             }
         } else if (event.getClickedBlock() != null) {
@@ -189,8 +197,8 @@ public class MapCreator implements Listener {
     }
 
     private void writeDoorCoords(Location coords, JSONObject spawnJson, boolean x) {
-        spawnJson.put("doorx", x ? coords.getX() : 10000.0);
-        spawnJson.put("doorz", x ? 10000.0 : coords.getZ());
+        spawnJson.put("doorx", x ? coords.getX() : Double.MAX_VALUE);
+        spawnJson.put("doorz", x ? Double.MAX_VALUE : coords.getZ());
     }
 
     public void resetPlayerMapFile(Player player) {

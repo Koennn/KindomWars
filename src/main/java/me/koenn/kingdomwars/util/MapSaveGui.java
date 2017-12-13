@@ -68,6 +68,10 @@ public class MapSaveGui extends Gui {
                 e.printStackTrace();
             }
 
+            if (!customProperties.containsKey("maxplayers")) {
+                customProperties.put("maxplayers", 12);
+            }
+
             JSONManager manager = new JSONManager(KingdomWars.getInstance(), fileName + "_map.json");
             try {
                 manager.setInBody("name", new FancyString(this.name).toString());
