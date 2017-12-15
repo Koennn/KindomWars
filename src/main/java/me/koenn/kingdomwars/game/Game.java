@@ -265,14 +265,8 @@ public class Game {
         return this.teams[team.getIndex()].getPlayers();
     }
 
-    //TODO: What in case of a comeback?
-    public boolean isAlmostOver() {
-        for (int point : this.points) {
-            if (point + 1 == References.WINNING_POINTS) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isFinalCaptureFor(Team team) {
+        return this.points[team.getIndex()] + 1 == References.WINNING_POINTS;
     }
 
     public void enableDebugMode() {

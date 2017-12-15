@@ -7,8 +7,8 @@ import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.js.JSReader;
 import me.koenn.kingdomwars.util.NBTUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.jnbt.CompoundTag;
@@ -54,7 +54,7 @@ public class GrenadeLoader {
 
     public static void startGrenadeScript(BaseGrenade grenade) {
         ScriptEngine script = JSReader.read(NBTUtil.getChildTag(grenade.grenadeInfo.getValue(), "script", StringTag.class).getValue(),
-                Entity.class, Location.class, World.class, Effect.class, BaseGrenade.class, Timer.class, KingdomWars.class, Runnable.class
+                Entity.class, Location.class, World.class, Particle.class, BaseGrenade.class, Timer.class, KingdomWars.class, Runnable.class
         );
 
         try {

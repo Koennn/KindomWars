@@ -8,7 +8,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import me.koenn.core.data.JSONManager;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.logger.EventLogger;
 import org.json.simple.JSONObject;
 
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class StatsManager implements HttpHandler, Runnable {
         }
 
         try {
-            EventLogger.server.createContext("/stats", this);
+            //EventLogger.server.createContext("/stats", this);
             KingdomWars.getInstance().getLogger().info("Created context");
         } catch (Exception ex) {
             KingdomWars.getInstance().getLogger().severe("Error while starting HttpServer: " + ex);
