@@ -59,6 +59,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
      * Constructor to create a new CollectiveHealthPool.
      *
      * @param maxHealth maximum health in the pool
+     * @param players   players in the pool
      */
     public CollectiveHealthPool(final double maxHealth, final Player[] players) {
         //Create and set properties.
@@ -86,6 +87,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
      * Apply a certain amount of damage to the health pool.
      *
      * @param amount amount of damage to apply
+     * @param cause  cause of the damage
      */
     private void damage(double amount, EntityDamageEvent cause) {
         //Set the pool's health, lower cap at 0.
