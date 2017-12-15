@@ -86,7 +86,7 @@ public class DamageListener implements Listener {
         Messager.playerTitle(References.DEATH_TITLE, "", killed);
 
         killed.setGameMode(GameMode.SPECTATOR);
-        killed.playSound(killed.getLocation(), Sound.ENDERDRAGON_GROWL, 0.8F, 1.0F);
+        killed.playSound(killed.getLocation(), Sound.ENTITY_ENDERDRAGON_GROWL, 0.8F, 1.0F);
         Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
                 .particleEffect(ParticleEffect.FLAME)
                 .iterations(5)

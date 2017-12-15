@@ -59,7 +59,7 @@ public class SignListener implements Listener {
                 .location(new DynamicLocation(player))
                 .build();
         effect.start();
-        player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.0F);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
     }
 
     @EventHandler

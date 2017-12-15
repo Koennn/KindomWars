@@ -1,7 +1,6 @@
 package me.koenn.kingdomwars.game;
 
 import me.koenn.core.misc.Timer;
-import me.koenn.fakeblockapi.FakeBlockAPI;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.classes.Class;
 import me.koenn.kingdomwars.util.Messager;
@@ -18,10 +17,8 @@ import org.bukkit.potion.PotionEffectType;
 
 /**
  * <p>
- * Copyright (C) Koenn - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Koen Willemse, April 2017
+ * Copyright (C) Koenn - All Rights Reserved Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential Written by Koen Willemse, April 2017
  */
 public final class GameHelper implements Listener {
 
@@ -69,7 +66,7 @@ public final class GameHelper implements Listener {
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);
-        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.5F, 0.5F));
+        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.5F, 0.5F));
 
         game.getMap().renderCapture(lost);
 
@@ -94,10 +91,5 @@ public final class GameHelper implements Listener {
     public static Class getClass(Player player, Team team, Game game) {
         TeamInfo teamInfo = game.teams[team.getIndex()];
         return teamInfo.getClass(player);
-    }
-
-    //TODO: Doesn't appear to work properly?.
-    public static void resetFakeBlocks(Game game) {
-        game.getPlayers().forEach(FakeBlockAPI::resetPlayer);
     }
 }

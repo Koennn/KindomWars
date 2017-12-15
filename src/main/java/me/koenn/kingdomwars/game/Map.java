@@ -5,26 +5,19 @@ import de.slikey.effectlib.effect.CloudEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.core.registry.Registry;
-import me.koenn.fakeblockapi.FakeBlock;
-import me.koenn.fakeblockapi.FakeBlockAPI;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.util.Door;
 import me.koenn.kingdomwars.util.ParticleRenderer;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * <p>
- * Copyright (C) Koenn - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Koen Willemse, April 2017
+ * Copyright (C) Koenn - All Rights Reserved Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential Written by Koen Willemse, April 2017
  */
 public class Map {
 
@@ -47,9 +40,9 @@ public class Map {
         this.spawns[Team.BLUE.getIndex()] = blueSpawn;
         this.spawns[Team.RED.getIndex()] = redSpawn;
 
-        boolean blueZ = blueXDoor == Double.MAX_VALUE;
+        boolean blueZ = blueXDoor == Double.MAX_VALUE || blueXDoor >= 10000.0;
         this.doors[Team.BLUE.getIndex()] = new Door(blueZ ? blueZDoor : blueXDoor, blueZ ? Door.DoorType.Z : Door.DoorType.X);
-        boolean redZ = redXDoor == Double.MAX_VALUE;
+        boolean redZ = redXDoor == Double.MAX_VALUE || redXDoor >= 10000.0;
         this.doors[Team.RED.getIndex()] = new Door(redZ ? redZDoor : redXDoor, redZ ? Door.DoorType.Z : Door.DoorType.X);
 
         this.controlPointCorners[Team.BLUE.getIndex()] = blueControlPoint;
@@ -75,7 +68,7 @@ public class Map {
 
     @SuppressWarnings("deprecation")
     public void load(Game game) {
-        Bukkit.getScheduler().scheduleAsyncDelayedTask(KingdomWars.getInstance(), () -> {
+        /*Bukkit.getScheduler().scheduleAsyncDelayedTask(KingdomWars.getInstance(), () -> {
             Bukkit.getLogger().info("Starting packet send...");
             long time = System.currentTimeMillis();
             int packets = 0;
@@ -89,7 +82,7 @@ public class Map {
             Bukkit.getLogger().info("Send out " + packets + " packets!");
             long taken = System.currentTimeMillis() - time;
             Bukkit.getLogger().info("Taken " + taken + "ms");
-        });
+        });*/
     }
 
     public void renderCapture(Team team) {
