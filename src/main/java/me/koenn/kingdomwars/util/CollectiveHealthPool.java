@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Class to link the health of multiple players together into one collective health pool.
+ */
 public class CollectiveHealthPool implements Listener, Runnable {
 
     /**
@@ -182,6 +185,15 @@ public class CollectiveHealthPool implements Listener, Runnable {
         this.registered.clear();
     }
 
+    /**
+     * Get the current health of the pool.
+     *
+     * @return health of the pool
+     */
+    public double getHealth() {
+        return this.health;
+    }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
         //Check if the health pool contains the player.
@@ -240,7 +252,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
 
     @Override
     public void run() {
-        //Check if the pool's health is over 0.5
+        //Check if the pool's health is 0.5 or higher
         if (this.health >= 0.5) {
 
             //Apply the pool's health to all players in the pool.
