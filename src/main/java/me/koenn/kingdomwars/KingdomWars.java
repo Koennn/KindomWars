@@ -6,6 +6,7 @@ import me.koenn.core.command.Command;
 import me.koenn.core.command.CommandAPI;
 import me.koenn.core.misc.Timer;
 import me.koenn.core.pluginmanager.PluginManager;
+import me.koenn.kingdomwars.characters.CharacterLoader;
 import me.koenn.kingdomwars.commands.EditGameCommand;
 import me.koenn.kingdomwars.commands.KingdomWarsCommand;
 import me.koenn.kingdomwars.commands.SelectClassCommand;
@@ -15,7 +16,6 @@ import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.game.Map;
 import me.koenn.kingdomwars.game.MapLoader;
-import me.koenn.kingdomwars.game.classes.ClassLoader;
 import me.koenn.kingdomwars.grenade.GrenadeListener;
 import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
@@ -90,13 +90,13 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             this.getLogger().info("Loading grenades...");
             GrenadeLoader.load();
 
-            this.getLogger().info("Loading classes...");
-            ClassLoader.load();
+            this.getLogger().info("Loading characters...");
+            CharacterLoader.load();
 
-            this.getLogger().info("Loading StatsManager...");
+            /*this.getLogger().info("Loading StatsManager...");
             statsManager = new StatsManager("stats.json");
             statsTimer = new Timer(1200, this);
-            statsTimer.start(statsManager);
+            statsTimer.start(statsManager);*/
 
             this.getLogger().info("Loading signs...");
             GameCreator.instance.loadSigns();

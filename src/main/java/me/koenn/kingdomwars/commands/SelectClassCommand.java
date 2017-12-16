@@ -4,7 +4,7 @@ import me.koenn.core.command.Command;
 import me.koenn.core.gui.Gui;
 import me.koenn.core.player.CPlayer;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.game.classes.ClassGui;
+import me.koenn.kingdomwars.characters.CharacterGui;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ public class SelectClassCommand extends Command {
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
-        ClassGui gui = new ClassGui(cPlayer.getPlayer());
+        Gui gui = new CharacterGui(cPlayer.getPlayer());
         Gui.registerGui(gui, KingdomWars.getInstance());
         gui.open();
         return true;
