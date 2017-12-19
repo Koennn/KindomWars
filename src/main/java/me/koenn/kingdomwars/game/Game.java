@@ -3,6 +3,8 @@ package me.koenn.kingdomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
+import me.koenn.kingdomwars.game.map.ControlPoint;
+import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.*;
@@ -30,14 +32,14 @@ public class Game {
     private final List<Player> players = new ArrayList<>();
     private final List<Player>[] rawTeams = new List[2];
     private final List<Deployable> deployables = new ArrayList<>();
-    private final Map map;
+    private final me.koenn.kingdomwars.game.map.Map map;
 
     private boolean debug;
     private int[] points = new int[2];
     private GamePhase currentPhase;
     private Timer gameTimer;
 
-    public Game(final Map map) {
+    public Game(final me.koenn.kingdomwars.game.map.Map map) {
         //Set the current phase.
         this.currentPhase = GamePhase.LOADING;
 
@@ -69,9 +71,6 @@ public class Game {
                     Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.RED.getIndex()].getPlayers())),
                     Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.BLUE.getIndex()].getPlayers()))
             }));
-
-            //Load the map.
-            this.map.load(this);
 
             //Send game starting message.
             Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
@@ -109,7 +108,7 @@ public class Game {
 
     private void update() {
         //Loop over all control points.
-        for (ControlPoint point : this.map.getControlPoints()) {
+        for (ControlPoint point : this.map.getPoints()) {
 
             //Update the capture progress.
             point.updateCaptureProgress(this, point.getCurrentlyCapturing(this));
@@ -129,8 +128,8 @@ public class Game {
             }
         }
 
-        final int blueProgress = this.map.getControlPoints()[Team.BLUE.getIndex()].captureProgress;
-        final int redProgress = this.map.getControlPoints()[Team.RED.getIndex()].captureProgress;
+        final int blueProgress = this.map.getPoints()[Team.BLUE.getIndex()].captureProgress;
+        final int redProgress = this.map.getPoints()[Team.RED.getIndex()].captureProgress;
         for (int i = 0; i < 2; i++) {
             final Team team = Team.getTeam(i);
             this.teams[i].getPlayers().stream().filter(player -> !PlayerHelper.isCapturing(player, this)).forEach(player -> Messager.playerActionBar(player,
@@ -268,13 +267,13 @@ public class Game {
     }
 
     public void freezePoints() {
-        for (ControlPoint controlPoint : this.map.getControlPoints()) {
+        for (ControlPoint controlPoint : this.map.getPoints()) {
             controlPoint.setFrozen(true);
         }
     }
 
     public void unFreezePoints() {
-        for (ControlPoint controlPoint : this.map.getControlPoints()) {
+        for (ControlPoint controlPoint : this.map.getPoints()) {
             controlPoint.setFrozen(false);
         }
     }

@@ -1,7 +1,7 @@
 package me.koenn.kingdomwars.util;
 
 import me.koenn.core.player.CPlayerRegistry;
-import me.koenn.kingdomwars.game.ControlPoint;
+import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.classes.Class;
 import me.koenn.kingdomwars.game.classes.ClassLoader;
@@ -63,7 +63,7 @@ public final class PlayerHelper {
     }
 
     public static boolean isCapturing(Player player, Game game) {
-        for (ControlPoint controlPoint : game.getMap().getControlPoints()) {
+        for (ControlPoint controlPoint : game.getMap().getPoints()) {
             if (controlPoint.isInRange(player)) {
                 return true;
             }

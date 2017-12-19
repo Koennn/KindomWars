@@ -1,8 +1,11 @@
-package me.koenn.kingdomwars.game;
+package me.koenn.kingdomwars.game.map;
 
 import me.koenn.core.misc.ActionBar;
+import me.koenn.core.misc.LocationHelper;
 import me.koenn.core.misc.ProgressBar;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.util.JSONSerializable;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
@@ -10,6 +13,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * <p>
@@ -18,22 +23,26 @@ import org.bukkit.util.Vector;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public class ControlPoint {
+public class ControlPoint implements JSONSerializable {
 
-    public final Location[] corners;
-    public final Team owningTeam;
+    public Location[] corners;
+    public Team owningTeam;
     public int captureProgress = 0;
     private Vector min;
     private Vector max;
     private boolean frozen = false;
     private int cooldown = 0;
 
-    public ControlPoint(Location[] corners, Team owningTeam) {
-        this.corners = corners;
-        this.owningTeam = owningTeam;
+    public ControlPoint(JSONObject json) {
+        this.owningTeam = Team.valueOf((String) json.get("owningTeam"));
+        JSONArray corners = (JSONArray) json.get("corners");
+        this.corners = new Location[corners.size()];
+        for (int i = 0; i < corners.size(); i++) {
+            this.corners[i] = LocationHelper.fromString((String) corners.get(i));
+        }
 
         Location[] edges = new Location[2];
-        edges[0] = corners[0];
+        edges[0] = this.corners[0];
         for (Location corner : this.corners) {
             if (corner.getX() != edges[0].getX() && corner.getZ() != edges[0].getZ()) {
                 edges[1] = corner;
@@ -42,6 +51,18 @@ public class ControlPoint {
 
         this.min = Vector.getMinimum(edges[0].toVector(), edges[1].toVector());
         this.max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("team", this.owningTeam.name());
+        JSONArray corners = new JSONArray();
+        for (Location corner : this.corners) {
+            corners.add(LocationHelper.getString(corner));
+        }
+        json.put("corners", corners);
+        return json;
     }
 
     public void showProgressToPlayers(Game game) {

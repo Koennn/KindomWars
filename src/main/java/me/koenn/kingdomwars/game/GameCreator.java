@@ -5,6 +5,7 @@ import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.Messager;

@@ -3,6 +3,8 @@ package me.koenn.kingdomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.classes.Class;
+import me.koenn.kingdomwars.game.map.ControlPoint;
+import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
@@ -70,7 +72,7 @@ public final class GameHelper implements Listener {
 
         game.getMap().renderCapture(lost);
 
-        for (ControlPoint controlPoint : game.getMap().getControlPoints()) {
+        for (ControlPoint controlPoint : game.getMap().getPoints()) {
             controlPoint.reset(game);
         }
 

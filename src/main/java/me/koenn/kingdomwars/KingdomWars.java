@@ -11,7 +11,7 @@ import me.koenn.kingdomwars.commands.*;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GameCreator;
-import me.koenn.kingdomwars.game.Map;
+import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.game.MapLoader;
 import me.koenn.kingdomwars.grenade.GrenadeListener;
 import me.koenn.kingdomwars.grenade.GrenadeLoader;
@@ -37,8 +37,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
     private static KingdomWars instance;
     private static EventLogger eventLogger;
     private static boolean enabled = false;
-    private static StatsManager statsManager;
-    private static Timer statsTimer;
 
     public static KingdomWars getInstance() {
         return instance;
@@ -92,11 +90,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             this.getLogger().info("Loading characters...");
             CharacterLoader.load();
 
-            /*this.getLogger().info("Loading StatsManager...");
-            statsManager = new StatsManager("stats.json");
-            statsTimer = new Timer(1200, this);
-            statsTimer.start(statsManager);*/
-
             this.getLogger().info("Loading signs...");
             GameCreator.instance.loadSigns();
         } catch (Exception ex) {
@@ -130,10 +123,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         this.getLogger().info("+=========== Disabling KingdomWars ===========+");
 
         try {
-            this.getLogger().info("Disabling StatsManager...");
-            statsManager.save();
-            statsTimer.stop();
-
             if (enabled) {
                 this.getLogger().info("Saving signs...");
                 GameCreator.instance.saveSigns();

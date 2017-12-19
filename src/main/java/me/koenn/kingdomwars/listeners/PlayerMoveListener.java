@@ -4,7 +4,7 @@ import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
 import me.koenn.kingdomwars.stats.PlayerStats;
 import me.koenn.kingdomwars.stats.StatsManager;
-import me.koenn.kingdomwars.util.Door;
+import me.koenn.kingdomwars.game.map.Door;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
