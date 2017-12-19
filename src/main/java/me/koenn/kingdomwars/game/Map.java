@@ -60,9 +60,9 @@ public class Map {
         return maps.get(name);
     }
 
-    public void reset() {
+    public void reset(Game game) {
         for (ControlPoint controlPoint : this.controlPoints) {
-            controlPoint.forceReset();
+            controlPoint.forceReset(game);
         }
     }
 

@@ -23,7 +23,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="KoennCore" level="project" />
+    <orderEntry type="library" name="FakeBlockAPI" level="project" />
     <orderEntry type="library" name="jnbt-1.1" level="project" />
+    <orderEntry type="library" name="pircbot" level="project" />
     <orderEntry type="library" name="gson-2.6.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.spigotmc:spigot-api:1.12.1-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: commons-lang:commons-lang:2.6" level="project" />

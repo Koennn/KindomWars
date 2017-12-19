@@ -5,17 +5,14 @@ import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
-import me.koenn.kingdomwars.util.Messager;
-import me.koenn.kingdomwars.util.PlayerHelper;
-import me.koenn.kingdomwars.util.References;
-import me.koenn.kingdomwars.util.Team;
-import org.bukkit.*;
-import org.bukkit.entity.Firework;
+import me.koenn.kingdomwars.util.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * <p>
@@ -27,7 +24,7 @@ import java.util.*;
 public class Game {
 
     public static final List<Game> gameRegistry = new ArrayList<>();
-    public static final Random random = new Random(System.nanoTime());
+    public static final Random random = ThreadLocalRandom.current();
 
     public final TeamInfo[] teams = new TeamInfo[2];
     private final List<Player> players = new ArrayList<>();
@@ -64,7 +61,7 @@ public class Game {
             EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
 
             //Shuffle and balance teams.
-            Collections.shuffle(this.players);
+            Collections.shuffle(this.players, random);
             this.balanceTeams();
 
             //Log teams.
@@ -112,7 +109,7 @@ public class Game {
 
     private void update() {
         //Loop over all control points.
-        for (final ControlPoint point : this.map.getControlPoints()) {
+        for (ControlPoint point : this.map.getControlPoints()) {
 
             //Update the capture progress.
             point.updateCaptureProgress(this, point.getCurrentlyCapturing(this));
@@ -169,23 +166,9 @@ public class Game {
             //Play the finish sound.
             player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
 
-            if (PlayerHelper.getTeam(player).equals(loser)) {
-                return;
-            }
-
-            //Create and launch the firework.
-            for (int i = 0; i < 5; i++) {
-                new Timer(i * 5, KingdomWars.getInstance()).start(() -> {
-                    Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
-                    FireworkMeta meta = firework.getFireworkMeta();
-                    meta.addEffect(FireworkEffect.builder()
-                            .with(FireworkEffect.Type.values()[random.nextInt(FireworkEffect.Type.values().length)])
-                            .withColor(Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
-                            .build()
-                    );
-                    firework.setVelocity(new Vector(0, 0.5, 0));
-                    firework.setFireworkMeta(meta);
-                });
+            //Launch fireworks at all winners.
+            if (PlayerHelper.getTeam(player).equals(winner)) {
+                FireworkHelper.endGameFireworks(player);
             }
         });
 
@@ -229,12 +212,12 @@ public class Game {
             this.gameTimer.stop();
         }
 
-        this.deployables.forEach(Deployable::remove);
+        this.deployables.forEach(this::removeDeployable);
         this.deployables.clear();
 
         this.currentPhase = GamePhase.ENDING;
         this.map.stopRendering();
-        this.map.reset();
+        this.map.reset(this);
         this.players.clear();
         this.points = new int[2];
         for (int i = 0; i < 2; i++) {
@@ -265,7 +248,7 @@ public class Game {
         return this.teams[team.getIndex()].getPlayers();
     }
 
-    public boolean isFinalCaptureFor(Team team) {
+    public boolean isAlmostOverFor(Team team) {
         return this.points[team.getIndex()] + 1 == References.WINNING_POINTS;
     }
 
@@ -284,14 +267,12 @@ public class Game {
         this.load();
     }
 
-    @SuppressWarnings("unused")
     public void freezePoints() {
         for (ControlPoint controlPoint : this.map.getControlPoints()) {
             controlPoint.setFrozen(true);
         }
     }
 
-    @SuppressWarnings("unused")
     public void unFreezePoints() {
         for (ControlPoint controlPoint : this.map.getControlPoints()) {
             controlPoint.setFrozen(false);

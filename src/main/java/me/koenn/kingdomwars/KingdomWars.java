@@ -7,10 +7,7 @@ import me.koenn.core.command.CommandAPI;
 import me.koenn.core.misc.Timer;
 import me.koenn.core.pluginmanager.PluginManager;
 import me.koenn.kingdomwars.characters.CharacterLoader;
-import me.koenn.kingdomwars.commands.EditGameCommand;
-import me.koenn.kingdomwars.commands.KingdomWarsCommand;
-import me.koenn.kingdomwars.commands.SelectClassCommand;
-import me.koenn.kingdomwars.commands.StatsCommand;
+import me.koenn.kingdomwars.commands.*;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GameCreator;
@@ -36,6 +33,7 @@ import java.io.File;
  */
 public final class KingdomWars extends JavaPlugin implements Listener {
 
+    public static Command command;
     private static KingdomWars instance;
     private static EventLogger eventLogger;
     private static boolean enabled = false;
@@ -72,11 +70,12 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
 
             this.getLogger().info("Registering commands...");
-            Command mainCommand = new KingdomWarsCommand();
-            CommandAPI.registerCommand(mainCommand, this);
-            CommandAPI.registerSubCommand(mainCommand, new SelectClassCommand(), this);
-            CommandAPI.registerSubCommand(mainCommand, new EditGameCommand(), this);
-            CommandAPI.registerSubCommand(mainCommand, new StatsCommand(), this);
+            command = new KingdomWarsCommand();
+            CommandAPI.registerCommand(command, this);
+            CommandAPI.registerSubCommand(command, new HelpCommand(), this);
+            CommandAPI.registerSubCommand(command, new SelectClassCommand(), this);
+            CommandAPI.registerSubCommand(command, new EditGameCommand(), this);
+            CommandAPI.registerSubCommand(command, new StatsCommand(), this);
 
             this.getLogger().info("Registering custom items...");
             CGiveAPI.registerCItem(References.MAPSTAFF, this);

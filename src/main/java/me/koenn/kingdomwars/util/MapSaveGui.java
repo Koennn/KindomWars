@@ -88,6 +88,9 @@ public class MapSaveGui extends Gui {
             }
             Messager.playerMessage(player, References.SAVE_SUCCESSFUL);
             player.closeInventory();
+
+            KingdomWars.getInstance().reloadMaps();
+            Messager.playerMessage(player, References.MAPS_RELOADED);
         }));
     }
 }

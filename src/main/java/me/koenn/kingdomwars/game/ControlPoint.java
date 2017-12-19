@@ -23,8 +23,8 @@ public class ControlPoint {
     public final Location[] corners;
     public final Team owningTeam;
     public int captureProgress = 0;
-    private Vector min = new Vector(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-    private Vector max = new Vector(0.0, 0.0, 0.0);
+    private Vector min;
+    private Vector max;
     private boolean frozen = false;
     private int cooldown = 0;
 
@@ -47,27 +47,24 @@ public class ControlPoint {
     public void showProgressToPlayers(Game game) {
         final String progressString = new ProgressBar(60).get(this.captureProgress);
         final ActionBar actionBar = new ActionBar(progressString, KingdomWars.getInstance()).setStay(1);
+        final float pitch = calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F;
 
         if (this.frozen) {
             game.getPlayers().stream().filter(this::isInRange).forEach(actionBar::send);
         } else {
             game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
                 actionBar.send(player);
-                if (this.captureProgress == 0 && this.owningTeam.equals(PlayerHelper.getTeam(player))) {
-                    return;
-                }
-
                 if (this.cooldown == 0) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F);
-                    this.cooldown = 10 - Math.round(this.captureProgress / 10);
-                }
-                if (this.cooldown > 0) {
-                    this.cooldown--;
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
                 }
             });
         }
 
-
+        if (this.cooldown > 0) {
+            this.cooldown--;
+        } else if (this.cooldown == 0) {
+            this.cooldown = 10 - Math.round(this.captureProgress / 10);
+        }
     }
 
     private float calculateScaledProgress(float current, float maxSize) {
@@ -142,15 +139,15 @@ public class ControlPoint {
         }
     }
 
-    public void reset() {
-        this.frozen = true;
+    public void reset(Game game) {
+        game.freezePoints();
         this.captureProgress = 0;
-        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> this.frozen = false, 25);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), game::unFreezePoints, 25);
     }
 
-    public void forceReset() {
+    public void forceReset(Game game) {
         this.captureProgress = 0;
-        this.frozen = false;
+        game.unFreezePoints();
     }
 
     public void setFrozen(boolean frozen) {

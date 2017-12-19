@@ -71,10 +71,10 @@ public final class GameHelper implements Listener {
         game.getMap().renderCapture(lost);
 
         for (ControlPoint controlPoint : game.getMap().getControlPoints()) {
-            controlPoint.reset();
+            controlPoint.reset(game);
         }
 
-        if (!game.isFinalCaptureFor(won)) {
+        if (!game.isAlmostOverFor(won)) {
             new Timer(20, KingdomWars.getInstance()).start(() -> teleportPlayers(game));
         }
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public final class References {
 
-    public static final String GAME_PREFIX = "&8[&9KingdomWars&8] ";
+    public static final String GAME_PREFIX = "&8[&9KingdomWars&8] &r";
     public static final String INFO_MESSAGE = GAME_PREFIX + " Version %version% by %author%";
 
     public static final String GAME_ABOUT_TO_START = GAME_PREFIX + "&2The game is about to start!";
@@ -47,6 +47,8 @@ public final class References {
     public static final String LOADED_BLOCKS = GAME_PREFIX + "&7Successfully loaded all colored blocks!";
     public static final String SAVE_SUCCESSFUL = GAME_PREFIX + "&7Successfully saved your map!";
     public static final String SAVE_ERROR = GAME_PREFIX + "&4It looks like you made a mistake while setting the areas, please try again!";
+    public static final String MAPS_RELOADED = GAME_PREFIX + "&7Reloaded all maps!";
+
 
     public static final String SAVED_PREFERENCE = GAME_PREFIX + "&7Successfully saved your preference!";
 
