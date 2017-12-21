@@ -38,6 +38,7 @@ public final class References {
     public static final String GAME_LOSS_TITLE = "&c&lYou lost!";
     public static final String GAME_LOSS_SUBTITLE = "&c&lThe red team captured 3 points";
     public static final String CAPTURE_PROGRESS_LAYOUT = "&1&l%bluepoints% points &f&m--&r &1&l%blue%%  &f&m--&r  &4&l%red%% &f&m--&r  &4&l%redpoints% points";
+    public static final String NOT_ENOUGH_SPACE = GAME_PREFIX + "&c&lThere's not enough space to place that there!";
 
     public static final String MODE_CHANGE = GAME_PREFIX + "&7Changed mode to %mode%";
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
@@ -64,7 +65,7 @@ public final class References {
             "&b&m+===============================================+",
             "&3&lGame: &eKingdomWars",
             "&3&lMap: &e%map%",
-            "&3&lClass: &e%class%",
+            "&3&lCharacter: &e%class%",
             "&a %desc%",
             "%clickable%&3&l&nClick to view map lore!",
             "&b&m+===============================================+"

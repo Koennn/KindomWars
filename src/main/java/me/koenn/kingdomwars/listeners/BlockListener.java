@@ -5,7 +5,9 @@ import me.koenn.kingdomwars.deployables.Deployable;
 import me.koenn.kingdomwars.deployables.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
+import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
+import me.koenn.kingdomwars.util.References;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,7 +55,10 @@ public class BlockListener implements Listener {
         try {
             final Deployable deployable = new Deployable(event.getBlockPlaced().getLocation(), tag);
             game.addDeployable(deployable);
-            deployable.construct(event.getPlayer());
+            if (!deployable.construct(event.getPlayer())) {
+                event.setCancelled(true);
+                Messager.playerMessage(player, References.NOT_ENOUGH_SPACE);
+            }
         } catch (Exception ex) {
             KingdomWars.getInstance().getLogger().severe("Error while constructing deployable: " + ex);
             ex.printStackTrace();

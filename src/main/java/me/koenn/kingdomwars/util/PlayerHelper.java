@@ -1,11 +1,11 @@
 package me.koenn.kingdomwars.util;
 
 import me.koenn.core.player.CPlayerRegistry;
-import me.koenn.kingdomwars.game.map.ControlPoint;
+import me.koenn.kingdomwars.characters.Character;
+import me.koenn.kingdomwars.characters.CharacterKit;
+import me.koenn.kingdomwars.characters.CharacterLoader;
 import me.koenn.kingdomwars.game.Game;
-import me.koenn.kingdomwars.game.classes.Class;
-import me.koenn.kingdomwars.game.classes.ClassLoader;
-import me.koenn.kingdomwars.game.classes.Kit;
+import me.koenn.kingdomwars.game.map.ControlPoint;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -46,11 +46,11 @@ public final class PlayerHelper {
         return getGame(player) != null;
     }
 
-    public static Class getMostPreferredClass(Player player) {
-        return ClassLoader.getClass(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("most-preferred-class"));
+    public static Character getSelectedCharacter(Player player) {
+        return CharacterLoader.CHARACTER_REGISTRY.get(CPlayerRegistry.getCPlayer(player.getUniqueId()).get("character"));
     }
 
-    public static void giveKit(Player player, Kit kit) {
+    public static void giveKit(Player player, CharacterKit kit) {
         kit.getItems().forEach(itemStack -> player.getInventory().addItem(itemStack));
     }
 

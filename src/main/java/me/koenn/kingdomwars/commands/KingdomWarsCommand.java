@@ -3,6 +3,7 @@ package me.koenn.kingdomwars.commands;
 import me.koenn.core.command.Command;
 import me.koenn.core.player.CPlayer;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.mapcreator.MapTool;
 import me.koenn.kingdomwars.util.References;
 
 import java.util.Arrays;
@@ -26,6 +27,7 @@ public class KingdomWarsCommand extends Command {
                 .replace("%version%", KingdomWars.getInstance().getDescription().getVersion())
                 .replace("%author%", Arrays.toString(KingdomWars.getInstance().getDescription().getAuthors().toArray()))
         );
+        new MapTool(cPlayer.getPlayer());
         return true;
     }
 }

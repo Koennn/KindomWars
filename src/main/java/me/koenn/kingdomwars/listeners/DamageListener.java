@@ -9,9 +9,11 @@ import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
+import me.koenn.kingdomwars.game.events.GameKillEvent;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -107,6 +109,8 @@ public class DamageListener implements Listener {
         }
 
         Messager.playerMessage(killer, References.KILL);
+
+        Bukkit.getPluginManager().callEvent(new GameKillEvent(game, killer, killed));
     }
 
     @EventHandler

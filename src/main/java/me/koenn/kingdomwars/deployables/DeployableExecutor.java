@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
  */
 public interface DeployableExecutor {
 
-    void construct(Player player);
+    boolean construct(Player player);
 
     void constructComplete();
 

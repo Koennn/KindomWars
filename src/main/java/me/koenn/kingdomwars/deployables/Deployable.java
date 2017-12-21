@@ -7,9 +7,7 @@ import me.koenn.kingdomwars.util.NBTUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
 import org.jnbt.ListTag;
@@ -17,6 +15,7 @@ import org.jnbt.Tag;
 
 import javax.script.ScriptEngine;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,36 +48,45 @@ public class Deployable {
 
             @SuppressWarnings("deprecation")
             @Override
-            public void construct(Player player) {
+            public boolean construct(Player player) {
                 this.owner = player;
+
+                HashMap<DeployableBlock, Integer> blocks = new HashMap<>();
+
+                for (Tag phase : phases.getValue()) {
+                    CompoundTag phaseTag = (CompoundTag) phase;
+                    ListTag blockTags = NBTUtil.getChildTag(phaseTag.getValue(), "blocks", ListTag.class);
+
+                    for (Tag blockTag : blockTags.getValue()) {
+                        DeployableBlock block = NBTUtil.getBlock((CompoundTag) blockTag);
+                        block.setOffset(DeployableHelper.rotateOffsetTowards(block.getOffset(), DeployableHelper.getPlayerDirection(player)));
+                        blocks.put(block, NBTUtil.getChildTag(phaseTag.getValue(), "delay", IntTag.class).getValue());
+
+                        if (!location.clone().add(block.getOffset()).getBlock().getType().equals(Material.AIR)) {
+                            return false;
+                        }
+                    }
+                }
 
                 this.script = DeployableLoader.loadDeployableScript(instance);
                 ScriptHelper.invokeFunction(this.script, "onConstruct", instance, this.owner, location);
 
-                final BlockFace facing = DeployableHelper.getPlayerDirection(player);
                 int highestDelay = 0;
-
-                //TODO: Clean up...
-                for (Tag phase : phases.getValue()) {
-                    CompoundTag phaseTag = (CompoundTag) phase;
-                    int delay = NBTUtil.getChildTag(phaseTag.getValue(), "delay", IntTag.class).getValue();
-                    final ListTag blocks = NBTUtil.getChildTag(phaseTag.getValue(), "blocks", ListTag.class);
-
+                for (DeployableBlock block : blocks.keySet()) {
+                    int delay = blocks.get(block);
                     highestDelay = delay > highestDelay ? delay : highestDelay;
 
                     Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-                        for (Tag blockTag : blocks.getValue()) {
-                            DeployableBlock block = NBTUtil.getBlock((CompoundTag) blockTag);
-                            Vector offset = DeployableHelper.rotateOffsetTowards(block.getOffset(), facing);
-                            Location place = location.clone().add(offset);
-                            place.getBlock().setType(block.getType());
-                            place.getBlock().setData(block.getData());
-                            deployableBlocks.add(place);
-                        }
+                        Location place = location.clone().add(block.getOffset());
+                        place.getBlock().setType(block.getType());
+                        place.getBlock().setData(block.getData());
+                        deployableBlocks.add(place);
                     }, delay);
                 }
 
                 Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), this::constructComplete, highestDelay);
+
+                return true;
             }
 
             @Override
@@ -116,8 +124,8 @@ public class Deployable {
         damager.sendMessage("Damaged!");
     }
 
-    public void construct(Player constructor) {
-        this.executor.construct(constructor);
+    public boolean construct(Player constructor) {
+        return this.executor.construct(constructor);
     }
 
     public void remove() {

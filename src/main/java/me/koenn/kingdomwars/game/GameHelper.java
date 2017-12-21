@@ -2,13 +2,15 @@ package me.koenn.kingdomwars.game;
 
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.game.classes.Class;
+import me.koenn.kingdomwars.characters.Character;
+import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
 import me.koenn.kingdomwars.util.Team;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -29,7 +31,7 @@ public final class GameHelper implements Listener {
             final Team team = PlayerHelper.getTeam(player);
             final Map map = game.getMap();
             final Location spawn = getSpawn(map, team);
-            final Class cl = getClass(player, team, game);
+            final Character character = getCharacter(player, team, game);
 
             player.getInventory().clear();
             player.getInventory().setArmorContents(null);
@@ -51,12 +53,12 @@ public final class GameHelper implements Listener {
                     Messager.playerMessage(player, line
                             .replace("%map%", game.getMap().getName())
                             .replace("%desc%", "-- DESCRIPTION COMING SOON --")
-                            .replace("%class%", cl.getName())
+                            .replace("%class%", character.getName())
                     );
                 }
             }
 
-            PlayerHelper.giveKit(player, cl.getKits()[0]);
+            PlayerHelper.giveKit(player, character.getKit());
         }
 
         teleportPlayers(game);
@@ -65,6 +67,8 @@ public final class GameHelper implements Listener {
     public static void capture(ControlPoint point, Game game) {
         final Team lost = point.owningTeam;
         final Team won = point.owningTeam.getOpponent();
+
+        Bukkit.getPluginManager().callEvent(new GamePointCapEvent(game, won));
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);
@@ -90,8 +94,8 @@ public final class GameHelper implements Listener {
         return spawn.getBlock() == null ? spawn : spawn.clone().add(0.5, 1.0, 0.5);
     }
 
-    public static Class getClass(Player player, Team team, Game game) {
+    public static Character getCharacter(Player player, Team team, Game game) {
         TeamInfo teamInfo = game.teams[team.getIndex()];
-        return teamInfo.getClass(player);
+        return teamInfo.getCharacter(player);
     }
 }

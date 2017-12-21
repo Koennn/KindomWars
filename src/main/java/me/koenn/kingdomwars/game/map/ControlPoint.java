@@ -16,6 +16,9 @@ import org.bukkit.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Copyright (C) Koenn - All Rights Reserved
@@ -38,7 +41,7 @@ public class ControlPoint implements JSONSerializable {
         JSONArray corners = (JSONArray) json.get("corners");
         this.corners = new Location[corners.size()];
         for (int i = 0; i < corners.size(); i++) {
-            this.corners[i] = LocationHelper.fromString((String) corners.get(i));
+            this.corners[i] = LocationHelper.fromString((String) corners.get(i)).add(0.5, 0.5, 0.5);
         }
 
         Location[] edges = new Location[2];
@@ -132,6 +135,15 @@ public class ControlPoint implements JSONSerializable {
     public boolean isInRange(Player player) {
         final Location location = player.getLocation();
         return isInRange(location.getX(), min.getX(), max.getX()) && isInRange(location.getZ(), min.getZ(), max.getZ()) && isInYRange(location, min.getY());
+    }
+
+    public List<Player>[] getPlayersOnPoint(Game game) {
+        List<Player>[] players = new List[2];
+        for (Team team : Team.values()) {
+            players[team.getIndex()] = new ArrayList<>();
+            game.getTeam(team).stream().filter(this::isInRange).forEach(player -> players[team.getIndex()].add(player));
+        }
+        return players;
     }
 
     private boolean isInRange(double coord, double min, double max) {

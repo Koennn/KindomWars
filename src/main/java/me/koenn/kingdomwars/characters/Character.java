@@ -9,11 +9,13 @@ public class Character {
     private final String name;
     private final String description;
     private final ItemStack icon;
+    private final CharacterKit kit;
 
     public Character(JSONObject json) {
         this.name = (String) json.get("name");
         this.description = (String) json.get("description");
         this.icon = ItemHelper.stringToItem((String) json.get("icon"));
+        this.kit = new CharacterKit((JSONObject) json.get("kit"));
     }
 
     public String getName() {
@@ -26,5 +28,9 @@ public class Character {
 
     public ItemStack getIcon() {
         return icon;
+    }
+
+    public CharacterKit getKit() {
+        return kit;
     }
 }

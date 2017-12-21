@@ -1,7 +1,9 @@
 package me.koenn.kingdomwars.game.map;
 
 import me.koenn.kingdomwars.util.JSONSerializable;
+import org.bukkit.Location;
 import org.json.simple.JSONObject;
+
 
 /**
  * <p>
@@ -14,6 +16,11 @@ public class Door implements JSONSerializable {
 
     private final double location;
     private final DoorType type;
+
+    public Door(Location location, DoorType type) {
+        this.location = (type == DoorType.X ? location.getBlockX() : location.getBlockY()) + 0.5;
+        this.type = type;
+    }
 
     public Door(JSONObject json) {
         this.location = Double.parseDouble(String.valueOf(json.get("location")));

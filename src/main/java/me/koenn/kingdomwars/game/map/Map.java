@@ -33,13 +33,15 @@ public class Map {
     private int renderTask;
 
     public Map(JSONObject json) {
-        this.name = (String) json.get("name");
-        this.properties = (JSONObject) json.get("properties");
+        JSONObject mapJson = (JSONObject) json.get("map");
+
+        this.name = (String) mapJson.get("name");
+        this.properties = (JSONObject) mapJson.get("properties");
 
         for (Team team : Team.values()) {
-            this.spawns[team.getIndex()] = LocationHelper.fromString((String) ((JSONObject) json.get("spawns")).get(team.name()));
-            this.doors[team.getIndex()] = new Door((JSONObject) ((JSONObject) json.get("doors")).get(team.name()));
-            this.points[team.getIndex()] = new ControlPoint((JSONObject) ((JSONObject) json.get("points")).get(team.name()));
+            this.spawns[team.getIndex()] = LocationHelper.fromString((String) ((JSONObject) mapJson.get("spawns")).get(team.name()));
+            this.doors[team.getIndex()] = new Door((JSONObject) ((JSONObject) mapJson.get("doors")).get(team.name()));
+            this.points[team.getIndex()] = new ControlPoint((JSONObject) ((JSONObject) mapJson.get("points")).get(team.name()));
         }
     }
 

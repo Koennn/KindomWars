@@ -3,10 +3,13 @@ package me.koenn.kingdomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
+import me.koenn.kingdomwars.game.events.GameLoadEvent;
+import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
+import me.koenn.kingdomwars.tracker.GameTracker;
 import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,14 +35,15 @@ public class Game {
     private final List<Player> players = new ArrayList<>();
     private final List<Player>[] rawTeams = new List[2];
     private final List<Deployable> deployables = new ArrayList<>();
-    private final me.koenn.kingdomwars.game.map.Map map;
+    private final Map map;
+    private final GameTracker tracker;
 
     private boolean debug;
     private int[] points = new int[2];
     private GamePhase currentPhase;
     private Timer gameTimer;
 
-    public Game(final me.koenn.kingdomwars.game.map.Map map) {
+    public Game(final Map map) {
         //Set the current phase.
         this.currentPhase = GamePhase.LOADING;
 
@@ -53,6 +57,8 @@ public class Game {
         for (int i = 0; i < 2; i++) {
             this.rawTeams[i] = new ArrayList<>();
         }
+
+        this.tracker = new GameTracker(this);
     }
 
     public void load() {
@@ -81,6 +87,8 @@ public class Game {
 
             //Start the game start timer.
             new Timer(References.GAME_START_DELAY * (this.debug ? 1 : 20), KingdomWars.getInstance()).start(this::start);
+
+            Bukkit.getPluginManager().callEvent(new GameLoadEvent(this));
         } catch (Exception ex) {
             EventLogger.log(this, new Message("error", ex.toString()));
             ex.printStackTrace();
@@ -104,6 +112,8 @@ public class Game {
 
         //Play game started sound.
         players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F));
+
+        Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
     }
 
     private void update() {
@@ -125,6 +135,7 @@ public class Game {
             if (point.captureProgress == 100 || (this.debug && point.captureProgress == 10)) {
                 GameHelper.capture(point, this);
                 this.points[point.owningTeam.getOpponent().getIndex()]++;
+                break;
             }
         }
 
@@ -194,6 +205,8 @@ public class Game {
 
     public void stop() {
         EventLogger.log(new Message("info", "Stopping game " + Integer.toHexString(this.hashCode())));
+
+        this.tracker.disable();
 
         final Location spawn = Bukkit.getWorlds().get(0).getSpawnLocation();
         this.players.forEach(player -> {
