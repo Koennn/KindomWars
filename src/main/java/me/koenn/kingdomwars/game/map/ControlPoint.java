@@ -5,10 +5,12 @@ import me.koenn.core.misc.LocationHelper;
 import me.koenn.core.misc.ProgressBar;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.tracker.PointTracker;
 import me.koenn.kingdomwars.util.JSONSerializable;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,11 +30,13 @@ import java.util.List;
  */
 public class ControlPoint implements JSONSerializable {
 
+    private final Vector min;
+    private final Vector max;
+    private final PointTracker tracker;
+
     public Location[] corners;
     public Team owningTeam;
     public int captureProgress = 0;
-    private final Vector min;
-    private final Vector max;
     private boolean frozen = false;
     private int cooldown = 0;
 
@@ -54,6 +58,12 @@ public class ControlPoint implements JSONSerializable {
 
         this.min = Vector.getMinimum(edges[0].toVector(), edges[1].toVector());
         this.max = Vector.getMaximum(edges[0].toVector(), edges[1].toVector());
+
+        this.tracker = new PointTracker(this);
+    }
+
+    public void load(Game game) {
+        this.tracker.enable(game);
     }
 
     @Override
@@ -134,14 +144,17 @@ public class ControlPoint implements JSONSerializable {
 
     public boolean isInRange(Player player) {
         final Location location = player.getLocation();
-        return isInRange(location.getX(), min.getX(), max.getX()) && isInRange(location.getZ(), min.getZ(), max.getZ()) && isInYRange(location, min.getY());
+        return isInRange(location.getX(), min.getX(), max.getX()) &&
+                isInRange(location.getZ(), min.getZ(), max.getZ()) &&
+                isInYRange(location, min.getY()) &&
+                player.getGameMode().equals(GameMode.SURVIVAL);
     }
 
     public List<Player>[] getPlayersOnPoint(Game game) {
         List<Player>[] players = new List[2];
         for (Team team : Team.values()) {
             players[team.getIndex()] = new ArrayList<>();
-            game.getTeam(team).stream().filter(this::isInRange).forEach(player -> players[team.getIndex()].add(player));
+            game.getTeam(team).stream().filter(this::isInRange).filter(player -> player.getGameMode().equals(GameMode.SURVIVAL)).forEach(player -> players[team.getIndex()].add(player));
         }
         return players;
     }

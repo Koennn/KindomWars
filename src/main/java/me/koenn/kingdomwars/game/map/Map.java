@@ -49,6 +49,12 @@ public class Map {
         return maps.get(name);
     }
 
+    public void load(Game game) {
+        for (ControlPoint point : this.points) {
+            point.load(game);
+        }
+    }
+
     public void reset(Game game) {
         for (ControlPoint controlPoint : this.points) {
             controlPoint.forceReset(game);

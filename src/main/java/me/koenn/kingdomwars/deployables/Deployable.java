@@ -34,11 +34,14 @@ public class Deployable {
     private final Deployable instance;
     private final List<Location> deployableBlocks = new ArrayList<>();
 
+    private int health;
+
     public Deployable(final Location location, CompoundTag deployableInfo) {
         this.instance = this;
         this.location = location;
         this.deployableInfo = deployableInfo;
         this.phases = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "construction", CompoundTag.class).getValue(), "phases", ListTag.class);
+        this.health = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "properties", CompoundTag.class).getValue(), "health", IntTag.class).getValue();
 
         this.executor = new DeployableExecutor() {
             private boolean constructed = false;
@@ -121,7 +124,11 @@ public class Deployable {
 
     public void damage(int amount, Player damager) {
         this.executor.damage(amount, damager);
-        damager.sendMessage("Damaged!");
+
+        this.health -= amount;
+        if (this.health <= 0) {
+
+        }
     }
 
     public boolean construct(Player constructor) {

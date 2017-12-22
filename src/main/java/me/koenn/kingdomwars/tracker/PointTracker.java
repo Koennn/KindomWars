@@ -2,6 +2,7 @@ package me.koenn.kingdomwars.tracker;
 
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.game.events.GameFinishEvent;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.events.GamePointDefendedEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
@@ -16,18 +17,15 @@ public class PointTracker implements Listener, Runnable {
     private static final int REFRESH_RATE = 5;
 
     private final ControlPoint point;
-    private final Game game;
-    private final int taskId;
 
+    private Game game;
+    private int taskId;
     private int highestProgress;
     private boolean started;
     private int timeTaken;
 
-    public PointTracker(ControlPoint point, Game game) {
+    public PointTracker(ControlPoint point) {
         this.point = point;
-        this.game = game;
-
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, REFRESH_RATE);
     }
 
     private void resetProgress() {
@@ -40,6 +38,12 @@ public class PointTracker implements Listener, Runnable {
         this.timeTaken += REFRESH_RATE;
     }
 
+    public void enable(Game game) {
+        this.game = game;
+        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, REFRESH_RATE);
+        Bukkit.getPluginManager().registerEvents(this, KingdomWars.getInstance());
+    }
+
     public void disable() {
         Bukkit.getScheduler().cancelTask(this.taskId);
         HandlerList.unregisterAll(this);
@@ -49,6 +53,13 @@ public class PointTracker implements Listener, Runnable {
     public void onGamePointCap(GamePointCapEvent event) {
         if (event.getGame().getMap().getPoints()[event.getCaptured().getIndex()].equals(this.point)) {
             this.resetProgress();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onGameFinish(GameFinishEvent event) {
+        if (event.isGame(this.game)) {
+            this.disable();
         }
     }
 

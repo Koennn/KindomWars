@@ -77,6 +77,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
         this.players.forEach(player -> {
             this.registered.add(player.getUniqueId());
             player.setMaxHealth(maxHealth);
+            player.setHealth(player.getMaxHealth());
         });
 
         //Register this to Bukkit as an event listener.
@@ -84,6 +85,8 @@ public class CollectiveHealthPool implements Listener, Runnable {
 
         //Start the repeating task for the run method.
         this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, 2);
+
+        this.health = this.maxHealth;
     }
 
     /**
@@ -93,20 +96,20 @@ public class CollectiveHealthPool implements Listener, Runnable {
      * @param cause  cause of the damage
      */
     private void damage(double amount, EntityDamageEvent cause) {
-        //Set the pool's health, lower cap at 0.
-        this.health = Math.max(this.health - amount, 0);
+        //Check if the pool's health is below 1
+        if (this.health - amount < 1) {
 
-        //Check if the pool's health is below 0.5
-        if (this.health < 0.5) {
+            //Set the pool's health back to the pool's max health.
+            this.health = this.maxHealth;
 
             //Kill all players in the pool with the last damage cause.
             this.players.forEach(player -> {
                 player.setLastDamageCause(cause);
-                player.setHealth(0);
+                player.damage(100);
             });
-
-            //Set the pool's health back to the pool's max health.
-            this.health = this.maxHealth;
+        } else {
+            //Set the pool's health, lower cap at 0.
+            this.health = Math.max(this.health - amount, 0);
         }
     }
 
@@ -197,10 +200,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
         //Check if the health pool contains the player.
-        if (this.containsPlayer(event)) {
-
-            //Cancel the event.
-            event.setCancelled(true);
+        if (this.containsPlayer(event) && !event.getCause().equals(EntityDamageEvent.DamageCause.CUSTOM)) {
 
             //Apply the damage to the health pool.
             this.damage(event.getFinalDamage() * DAMAGE_MULTIPLIER, event);
@@ -252,11 +252,11 @@ public class CollectiveHealthPool implements Listener, Runnable {
 
     @Override
     public void run() {
-        //Check if the pool's health is 0.5 or higher
-        if (this.health >= 0.5) {
+        //Check if the pool's health is 1 or higher
+        if (this.health >= 1) {
 
             //Apply the pool's health to all players in the pool.
-            this.players.forEach(player -> player.setHealth(this.health));
+            this.players.stream().filter(player -> !player.isDead()).forEach(player -> player.setHealth(this.health));
         }
     }
 }

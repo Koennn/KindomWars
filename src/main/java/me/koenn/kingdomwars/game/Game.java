@@ -70,6 +70,7 @@ public class Game {
             EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
 
             this.tracker.enable();
+            this.map.load(this);
 
             //Shuffle and balance teams.
             Collections.shuffle(this.players, random);

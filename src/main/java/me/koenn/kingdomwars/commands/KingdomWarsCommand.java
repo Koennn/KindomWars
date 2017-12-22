@@ -3,8 +3,10 @@ package me.koenn.kingdomwars.commands;
 import me.koenn.core.command.Command;
 import me.koenn.core.player.CPlayer;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.mapcreator.MapTool;
+import me.koenn.kingdomwars.gadgets.CollectiveHealthPool;
 import me.koenn.kingdomwars.util.References;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
@@ -27,7 +29,8 @@ public class KingdomWarsCommand extends Command {
                 .replace("%version%", KingdomWars.getInstance().getDescription().getVersion())
                 .replace("%author%", Arrays.toString(KingdomWars.getInstance().getDescription().getAuthors().toArray()))
         );
-        new MapTool(cPlayer.getPlayer());
+
+        CollectiveHealthPool pool = new CollectiveHealthPool(40, new Player[]{Bukkit.getPlayer("NotKoenn"), cPlayer.getPlayer()});
         return true;
     }
 }

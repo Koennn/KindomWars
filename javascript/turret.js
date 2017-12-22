@@ -15,7 +15,7 @@ function onConstruct(deployable, placer, location) {
 
 function onConstructComplete(deployable) {
     if (owner != null) {
-        Messager.playerMessage(owner, References.TURRET_COMPLETE);
+        new ActionBar(References.TURRET_COMPLETE, KingdomWars.getInstance()).setStay(3).send(owner);
     }
 }
 
@@ -46,7 +46,7 @@ function onTick(deployable) {
     if (lockedOn != null) {
         var loc2 = deployable.getLocation().clone().add(0.5, 2.5, 0.5);
         var loc1 = lockedOn.getLocation().clone().add(0.0, 1.0 + (lockedOn.getLocation().distance(deployable.getLocation()) / 8), 0.0);
-        loc2.getWorld().spawnArrow(loc2, new Vector(loc1.getX()-loc2.getX(), loc1.getY()-loc2.getY(), loc1.getZ()-loc2.getZ()), 1, 0);
+        loc2.getWorld().spawnArrow(loc2, new Vector(loc1.getX()-loc2.getX(), loc1.getY()-loc2.getY(), loc1.getZ()-loc2.getZ()), 1.5, 0);
         cooldown = 12;
     }
 }
