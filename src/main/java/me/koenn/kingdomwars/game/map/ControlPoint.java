@@ -31,8 +31,8 @@ public class ControlPoint implements JSONSerializable {
     public Location[] corners;
     public Team owningTeam;
     public int captureProgress = 0;
-    private Vector min;
-    private Vector max;
+    private final Vector min;
+    private final Vector max;
     private boolean frozen = false;
     private int cooldown = 0;
 

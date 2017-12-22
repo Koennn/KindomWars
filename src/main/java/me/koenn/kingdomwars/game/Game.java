@@ -3,6 +3,7 @@ package me.koenn.kingdomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
+import me.koenn.kingdomwars.game.events.GameFinishEvent;
 import me.koenn.kingdomwars.game.events.GameLoadEvent;
 import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
@@ -67,6 +68,8 @@ public class Game {
             this.currentPhase = GamePhase.STARTING;
             EventLogger.log(new Message("info", "Loading game " + Integer.toHexString(this.hashCode())));
             EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
+
+            this.tracker.enable();
 
             //Shuffle and balance teams.
             Collections.shuffle(this.players, random);
@@ -169,6 +172,8 @@ public class Game {
         //Send the titles to the teams.
         Messager.teamTitle(References.GAME_WIN_TITLE, References.GAME_WIN_SUBTITLE, winner, this);
         Messager.teamTitle(References.GAME_LOSS_TITLE, References.GAME_LOSS_SUBTITLE, loser, this);
+
+        Bukkit.getPluginManager().callEvent(new GameFinishEvent(this, winner));
 
         //Loop over all players.
         this.players.forEach(player -> {

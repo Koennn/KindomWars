@@ -2,6 +2,7 @@ package me.koenn.kingdomwars.tracker;
 
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.game.events.GameFinishEvent;
 import me.koenn.kingdomwars.game.events.GameKillEvent;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.events.GameStartEvent;
@@ -26,18 +27,22 @@ import java.util.List;
 
 public class GameTracker implements Listener {
 
-    private static final SimpleDateFormat timestamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+    private static final SimpleDateFormat timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     private final Game game;
-    private final List<String> log;
+    private List<String> log;
     private BufferedWriter writer;
 
     public GameTracker(Game game) {
         this.game = game;
+    }
+
+    public void enable() {
         this.log = new ArrayList<>();
 
-        File file = new File(KingdomWars.getInstance().getDataFolder(), String.valueOf(game.hashCode()));
+        File file = new File(KingdomWars.getInstance().getDataFolder(), timestamp.format(new Date()) + "-" + String.valueOf(game.hashCode()) + ".log");
         try {
+            file.createNewFile();
             this.writer = new BufferedWriter(new FileWriter(file));
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,6 +59,7 @@ public class GameTracker implements Listener {
             try {
                 this.writer.flush();
                 this.writer.close();
+                this.writer = null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -104,7 +110,7 @@ public class GameTracker implements Listener {
         }
 
         Team winner = event.getCaptured();
-        ControlPoint point = this.game.getMap().getPoints()[winner.getIndex()];
+        ControlPoint point = this.game.getMap().getPoints()[winner.getOpponent().getIndex()];
         List<Player>[] captured = point.getPlayersOnPoint(game);
         int attackers = captured[winner.getIndex()].size();
         int defenders = captured[winner.getOpponent().getIndex()].size();
@@ -119,10 +125,27 @@ public class GameTracker implements Listener {
         );
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onGameFinish(GameFinishEvent event) {
+        if (!event.isGame(this.game)) {
+            return;
+        }
+
+        this.log(
+                String.format(
+                        "[%s] Team %s won the game! (2.%s)",
+                        timestamp.format(new Date()),
+                        event.getWinner().getIndex(),
+                        event.getWinner().getIndex()
+                )
+        );
+    }
+
     private void log(String message) {
         this.log.add(message);
         try {
             this.writer.write(message);
+            this.writer.write(System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         }

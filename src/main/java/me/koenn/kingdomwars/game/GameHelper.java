@@ -68,7 +68,7 @@ public final class GameHelper implements Listener {
         final Team lost = point.owningTeam;
         final Team won = point.owningTeam.getOpponent();
 
-        Bukkit.getPluginManager().callEvent(new GamePointCapEvent(game, won));
+        Bukkit.getPluginManager().callEvent(new GamePointCapEvent(game, won, point.getPlayersOnPoint(game)));
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);

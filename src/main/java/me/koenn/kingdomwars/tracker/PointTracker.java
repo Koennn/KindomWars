@@ -3,7 +3,7 @@ package me.koenn.kingdomwars.tracker;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
-import me.koenn.kingdomwars.game.events.PointDefendedEvent;
+import me.koenn.kingdomwars.game.events.GamePointDefendedEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -59,7 +59,7 @@ public class PointTracker implements Listener, Runnable {
                 this.updateProgress();
             } else if (this.point.captureProgress == 0) {
                 Bukkit.getPluginManager().callEvent(
-                        new PointDefendedEvent(this.game, this.point.owningTeam, this.highestProgress, this.timeTaken)
+                        new GamePointDefendedEvent(this.game, this.point.owningTeam, this.highestProgress, this.timeTaken)
                 );
                 this.resetProgress();
             }
