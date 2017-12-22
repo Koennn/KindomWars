@@ -1,5 +1,8 @@
 package me.koenn.kingdomwars.deployables;
 
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.BleedEffect;
+import de.slikey.effectlib.util.DynamicLocation;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.js.ScriptHelper;
 import me.koenn.kingdomwars.util.DeployableHelper;
@@ -60,10 +63,16 @@ public class Deployable {
                     CompoundTag phaseTag = (CompoundTag) phase;
                     ListTag blockTags = NBTUtil.getChildTag(phaseTag.getValue(), "blocks", ListTag.class);
 
+                    boolean skip = true;
                     for (Tag blockTag : blockTags.getValue()) {
                         DeployableBlock block = NBTUtil.getBlock((CompoundTag) blockTag);
                         block.setOffset(DeployableHelper.rotateOffsetTowards(block.getOffset(), DeployableHelper.getPlayerDirection(player)));
                         blocks.put(block, NBTUtil.getChildTag(phaseTag.getValue(), "delay", IntTag.class).getValue());
+
+                        if (skip) {
+                            skip = false;
+                            continue;
+                        }
 
                         if (!location.clone().add(block.getOffset()).getBlock().getType().equals(Material.AIR)) {
                             return false;
@@ -125,9 +134,14 @@ public class Deployable {
     public void damage(int amount, Player damager) {
         this.executor.damage(amount, damager);
 
+        BleedEffect effect = new BleedEffect(new EffectManager(KingdomWars.getInstance()));
+        effect.setDynamicOrigin(new DynamicLocation(this.location));
+        effect.setDynamicTarget(new DynamicLocation(this.location));
+        effect.start();
+
         this.health -= amount;
         if (this.health <= 0) {
-
+            this.remove();
         }
     }
 

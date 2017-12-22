@@ -30,7 +30,8 @@ public class KingdomWarsCommand extends Command {
                 .replace("%author%", Arrays.toString(KingdomWars.getInstance().getDescription().getAuthors().toArray()))
         );
 
-        CollectiveHealthPool pool = new CollectiveHealthPool(40, new Player[]{Bukkit.getPlayer("NotKoenn"), cPlayer.getPlayer()});
+        CollectiveHealthPool pool = new CollectiveHealthPool(40, new Player[]{Bukkit.getPlayer(strings[0]), cPlayer.getPlayer()});
+        cPlayer.giveItem(References.MAPSTAFF.getItem());
         return true;
     }
 }
