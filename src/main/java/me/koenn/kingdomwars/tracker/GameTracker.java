@@ -14,6 +14,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -26,16 +30,34 @@ public class GameTracker implements Listener {
 
     private final Game game;
     private final List<String> log;
+    private BufferedWriter writer;
 
     public GameTracker(Game game) {
         this.game = game;
         this.log = new ArrayList<>();
+
+        File file = new File(KingdomWars.getInstance().getDataFolder(), String.valueOf(game.hashCode()));
+        try {
+            this.writer = new BufferedWriter(new FileWriter(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.disable();
+        }
 
         Bukkit.getPluginManager().registerEvents(this, KingdomWars.getInstance());
     }
 
     public void disable() {
         HandlerList.unregisterAll(this);
+
+        if (this.writer != null) {
+            try {
+                this.writer.flush();
+                this.writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -99,6 +121,11 @@ public class GameTracker implements Listener {
 
     private void log(String message) {
         this.log.add(message);
+        try {
+            this.writer.write(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println(message);
     }
 
