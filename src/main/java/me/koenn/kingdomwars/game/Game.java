@@ -3,6 +3,7 @@ package me.koenn.kingdomwars.game;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.deployables.Deployable;
+import me.koenn.kingdomwars.game.counters.PrepareCounter;
 import me.koenn.kingdomwars.game.events.GameFinishEvent;
 import me.koenn.kingdomwars.game.events.GameLoadEvent;
 import me.koenn.kingdomwars.game.events.GameStartEvent;
@@ -89,9 +90,10 @@ public class Game {
             //Load the players.
             GameHelper.loadPlayers(this);
 
-            //Start the game start timer.
-            new Timer(References.GAME_START_DELAY * (this.debug ? 1 : 20), KingdomWars.getInstance()).start(this::start);
+            //Start the game prepare timer.
+            new PrepareCounter(this.debug, this).start(this::start);
 
+            //Call the GameLoadEvent.
             Bukkit.getPluginManager().callEvent(new GameLoadEvent(this));
         } catch (Exception ex) {
             EventLogger.log(this, new Message("error", ex.toString()));
@@ -117,6 +119,7 @@ public class Game {
         //Play game started sound.
         players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F));
 
+        //Call the GameStartEvent.
         Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
     }
 
@@ -147,13 +150,15 @@ public class Game {
         final int redProgress = this.map.getPoints()[Team.RED.getIndex()].captureProgress;
         for (int i = 0; i < 2; i++) {
             final Team team = Team.getTeam(i);
-            this.teams[i].getPlayers().stream().filter(player -> !PlayerHelper.isCapturing(player, this)).forEach(player -> Messager.playerActionBar(player,
-                    References.CAPTURE_PROGRESS_LAYOUT
-                            .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
-                            .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
-                            .replace("%bluepoints%", String.valueOf(this.points[team.getIndex()]))
-                            .replace("%redpoints%", String.valueOf(this.points[team.getOpponent().getIndex()]))
-            ));
+            this.teams[i].getPlayers().stream()
+                    .filter(player -> !PlayerHelper.isCapturing(player, this))
+                    .forEach(player -> Messager.playerActionBar(player,
+                            References.CAPTURE_PROGRESS_LAYOUT
+                                    .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
+                                    .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
+                                    .replace("%bluepoints%", String.valueOf(this.points[team.getIndex()]))
+                                    .replace("%redpoints%", String.valueOf(this.points[team.getOpponent().getIndex()]))
+                    ));
         }
 
         //Check if a team has enough points, if so, end the game.
@@ -174,6 +179,7 @@ public class Game {
         Messager.teamTitle(References.GAME_WIN_TITLE, References.GAME_WIN_SUBTITLE, winner, this);
         Messager.teamTitle(References.GAME_LOSS_TITLE, References.GAME_LOSS_SUBTITLE, loser, this);
 
+        //Call the GameFinishEvent.
         Bukkit.getPluginManager().callEvent(new GameFinishEvent(this, winner));
 
         //Loop over all players.

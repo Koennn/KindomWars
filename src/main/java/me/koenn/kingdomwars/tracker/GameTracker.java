@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +28,6 @@ public class GameTracker implements Listener {
     private static final SimpleDateFormat timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     private final Game game;
-    private List<String> log;
     private BufferedWriter writer;
 
     public GameTracker(Game game) {
@@ -38,8 +35,6 @@ public class GameTracker implements Listener {
     }
 
     public void enable() {
-        this.log = new ArrayList<>();
-
         File file = new File(KingdomWars.getInstance().getDataFolder(), timestamp.format(new Date()) + "-" + String.valueOf(game.hashCode()) + ".log");
         try {
             file.createNewFile();
@@ -74,11 +69,10 @@ public class GameTracker implements Listener {
 
         this.log(
                 String.format(
-                        "[%s] Game %s on map %s has started! (0.%s.%s)",
+                        "[%s] Game %s on map %s has started!",
                         timestamp.format(new Date()),
                         Integer.toHexString(this.game.hashCode()),
-                        this.game.getMap().getName(), this.hashCode(),
-                        convertToBase64(this.game.getMap().getName())
+                        this.game.getMap().getName()
                 )
         );
     }
@@ -95,9 +89,8 @@ public class GameTracker implements Listener {
 
         this.log(
                 String.format(
-                        "[%s] %s killed %s while %s (1.%s.%s.%s)",
+                        "[%s] %s killed %s while %s",
                         timestamp.format(new Date()),
-                        killer, killed, action,
                         killer, killed, action
                 )
         );
@@ -117,9 +110,8 @@ public class GameTracker implements Listener {
 
         this.log(
                 String.format(
-                        "[%s] Team %s captured the point with %s attackers and %s defenders (2.%s.%s.%s)",
+                        "[%s] Team %s captured the point with %s attackers and %s defenders",
                         timestamp.format(new Date()),
-                        winner.getIndex(), attackers, defenders,
                         winner.getIndex(), attackers, defenders
                 )
         );
@@ -133,16 +125,14 @@ public class GameTracker implements Listener {
 
         this.log(
                 String.format(
-                        "[%s] Team %s won the game! (2.%s)",
+                        "[%s] Team %s won the game!",
                         timestamp.format(new Date()),
-                        event.getWinner().getIndex(),
                         event.getWinner().getIndex()
                 )
         );
     }
 
     private void log(String message) {
-        this.log.add(message);
         try {
             this.writer.write(message);
             this.writer.write(System.lineSeparator());
@@ -150,9 +140,5 @@ public class GameTracker implements Listener {
             e.printStackTrace();
         }
         System.out.println(message);
-    }
-
-    private String convertToBase64(String string) {
-        return new String(Base64.getEncoder().encode(string.getBytes()));
     }
 }

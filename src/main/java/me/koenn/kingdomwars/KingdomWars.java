@@ -71,6 +71,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             CommandAPI.registerSubCommand(command, new SelectClassCommand(), this);
             CommandAPI.registerSubCommand(command, new EditGameCommand(), this);
             CommandAPI.registerSubCommand(command, new StatsCommand(), this);
+            CommandAPI.registerSubCommand(command, new MapCommand(), this);
 
             this.getLogger().info("Registering custom items...");
             CGiveAPI.registerCItem(References.MAPSTAFF, this);

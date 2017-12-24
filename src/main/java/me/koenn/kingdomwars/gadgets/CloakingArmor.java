@@ -3,15 +3,12 @@ package me.koenn.kingdomwars.gadgets;
 import me.koenn.core.misc.ItemHelper;
 import me.koenn.core.misc.LoreHelper;
 import me.koenn.kingdomwars.KingdomWars;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -25,7 +22,7 @@ import org.bukkit.potion.PotionEffectType;
 /**
  * Class for armor that can make you invisible.
  */
-public class CloakingArmor implements Listener, Runnable {
+public class CloakingArmor extends Trait {
 
     /**
      * Maximum cloaking time in ticks.
@@ -58,11 +55,6 @@ public class CloakingArmor implements Listener, Runnable {
     private final Player player;
 
     /**
-     * The id of the scheduled run task.
-     */
-    private final int taskId;
-
-    /**
      * Current cloak status, true if the player is cloaked.
      */
     private boolean cloaked;
@@ -84,12 +76,6 @@ public class CloakingArmor implements Listener, Runnable {
         //Give the player the cloaking armor and device.
         this.player.getInventory().setArmorContents(CLOAKING_ARMOR);
         this.player.getInventory().addItem(CLOAKING_DEVICE);
-
-        //Register this to Bukkit as an event listener.
-        Bukkit.getPluginManager().registerEvents(this, KingdomWars.getInstance());
-
-        //Start the repeating task for the run method.
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, 5);
     }
 
     /**
@@ -137,13 +123,8 @@ public class CloakingArmor implements Listener, Runnable {
      * Disable and unregister the cloak.
      * Makes the player visible again.
      */
-    public void disable() {
-        //Cancel the repeating run task.
-        Bukkit.getScheduler().cancelTask(this.taskId);
-
-        //Unregister this listener from Bukkit.
-        HandlerList.unregisterAll(this);
-
+    @Override
+    protected void disable() {
         //Decloak the player.
         this.deCloak();
 
@@ -215,7 +196,7 @@ public class CloakingArmor implements Listener, Runnable {
         if (event.getPlugin().equals(KingdomWars.getInstance())) {
 
             //Disable this cloaking armor.
-            this.disable();
+            this.stop();
         }
     }
 

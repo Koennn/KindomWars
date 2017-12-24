@@ -12,11 +12,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.json.simple.JSONArray;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public final class DataProcessor implements Listener {
+
+    private static final SimpleDateFormat timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     public static DataProcessor INSTANCE;
 
@@ -78,15 +83,25 @@ public final class DataProcessor implements Listener {
             });
         }
 
-        JSONManager dataFile = new JSONManager(KingdomWars.getInstance(), "data.json");
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPluginDisable(PluginDisableEvent event) {
+        if (!event.getPlugin().equals(KingdomWars.getInstance())) {
+            return;
+        }
+
+        JSONManager dataFile = new JSONManager(KingdomWars.getInstance(), String.format("%s_", timestamp.format(new Date())));
+
         JSONArray maps = new JSONArray();
         JSONArray players = new JSONArray();
         this.mapData.getRegisteredObjects().forEach(mapData -> maps.add(mapData.toJSON()));
         this.playerData.getRegisteredObjects().forEach(playerData -> players.add(playerData.toJSON()));
-        System.out.println(maps);
-        System.out.println(players);
+
         dataFile.setInBody("maps", maps);
         dataFile.setInBody("players", players);
+
         System.out.println(dataFile.getBody().toJSONString());
     }
 }

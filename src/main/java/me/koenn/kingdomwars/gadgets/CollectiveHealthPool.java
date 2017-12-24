@@ -1,9 +1,10 @@
 package me.koenn.kingdomwars.gadgets;
 
 import me.koenn.kingdomwars.KingdomWars;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -20,7 +21,7 @@ import java.util.UUID;
 /**
  * Class to link the health of multiple players together into one collective health pool.
  */
-public class CollectiveHealthPool implements Listener, Runnable {
+public class CollectiveHealthPool extends Trait {
 
     /**
      * Multiplier for all healing of the pool.
@@ -49,11 +50,6 @@ public class CollectiveHealthPool implements Listener, Runnable {
     private final double maxHealth;
 
     /**
-     * Id of the repeating run task.
-     */
-    private final int taskId;
-
-    /**
      * Current health in the pool.
      */
     private double health;
@@ -79,12 +75,6 @@ public class CollectiveHealthPool implements Listener, Runnable {
             player.setMaxHealth(maxHealth);
             player.setHealth(player.getMaxHealth());
         });
-
-        //Register this to Bukkit as an event listener.
-        Bukkit.getPluginManager().registerEvents(this, KingdomWars.getInstance());
-
-        //Start the repeating task for the run method.
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, 2);
 
         this.health = this.maxHealth;
     }
@@ -170,13 +160,8 @@ public class CollectiveHealthPool implements Listener, Runnable {
      * Disable and remove this CollectiveHealthPool.
      * Resets all players in the pool to the default max and full health.
      */
-    public void disable() {
-        //Cancel the repeating run task.
-        Bukkit.getScheduler().cancelTask(this.taskId);
-
-        //Unregister this listener from Bukkit.
-        HandlerList.unregisterAll(this);
-
+    @Override
+    protected void disable() {
         //Reset the max health and health for the players in the pool.
         this.players.forEach(player -> {
             player.resetMaxHealth();
@@ -186,15 +171,6 @@ public class CollectiveHealthPool implements Listener, Runnable {
         //Clear all the player from the pool.
         this.players.clear();
         this.registered.clear();
-    }
-
-    /**
-     * Get the current health of the pool.
-     *
-     * @return health of the pool
-     */
-    public double getHealth() {
-        return this.health;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -246,7 +222,7 @@ public class CollectiveHealthPool implements Listener, Runnable {
         if (event.getPlugin().equals(KingdomWars.getInstance())) {
 
             //Disable this health pool.
-            this.disable();
+            this.stop();
         }
     }
 
