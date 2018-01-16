@@ -107,7 +107,7 @@ public class Game {
         EventLogger.log(this, new Message("phase", this.currentPhase.name()));
 
         //Start rendering the control points.
-        this.map.startRendering(this);
+        this.map.startRendering();
 
         //Start the game update timer.
         this.gameTimer = new Timer(References.UPDATE_RATE, true, KingdomWars.getInstance());

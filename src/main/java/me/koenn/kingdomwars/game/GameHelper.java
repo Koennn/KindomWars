@@ -24,6 +24,7 @@ import org.bukkit.potion.PotionEffectType;
  * Copyright (C) Koenn - All Rights Reserved Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential Written by Koen Willemse, April 2017
  */
+@SuppressWarnings("deprecation")
 public final class GameHelper implements Listener {
 
     public static void loadPlayers(Game game) {
@@ -86,7 +87,11 @@ public final class GameHelper implements Listener {
     }
 
     public static void teleportPlayers(Game game) {
-        game.getPlayers().forEach(player -> player.teleport(getSpawn(game.getMap(), PlayerHelper.getTeam(player))));
+        game.getPlayers().forEach(player -> {
+            player.teleport(getSpawn(game.getMap(), PlayerHelper.getTeam(player)));
+            player.setHealth(player.getMaxHealth());
+            player.setSaturation(20.0F);
+        });
     }
 
     public static Location getSpawn(Map map, Team team) {

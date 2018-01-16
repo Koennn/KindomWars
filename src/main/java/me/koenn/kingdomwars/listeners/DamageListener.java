@@ -18,9 +18,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.HashMap;
@@ -128,5 +130,15 @@ public class DamageListener implements Listener {
                 event.setRespawnLocation(killer.getEyeLocation());
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerItemDamage(PlayerItemDamageEvent event) {
+        final Player player = event.getPlayer();
+        if (!PlayerHelper.isInGame(player)) {
+            return;
+        }
+
+        event.setCancelled(true);
     }
 }

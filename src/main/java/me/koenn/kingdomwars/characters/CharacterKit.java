@@ -1,5 +1,6 @@
 package me.koenn.kingdomwars.characters;
 
+import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.misc.ItemHelper;
 import me.koenn.kingdomwars.util.JSONSerializable;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,13 @@ public class CharacterKit implements JSONSerializable {
 
     public CharacterKit(JSONObject json) {
         this.name = (String) json.get("name");
-        ((JSONArray) json.get("items")).forEach(item -> this.items.add(ItemHelper.stringToItem((String) item)));
+        ((JSONArray) json.get("items")).forEach(item -> {
+            if (((String) item).toLowerCase().startsWith("citem")) {
+                this.items.add(CGiveAPI.getCItem(((String) item).split(" ")[1].toLowerCase()).getItem());
+            } else {
+                this.items.add(ItemHelper.stringToItem((String) item));
+            }
+        });
     }
 
     public String getName() {

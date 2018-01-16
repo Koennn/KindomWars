@@ -5,7 +5,6 @@ import de.slikey.effectlib.effect.LineEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.game.Game;
 import org.bukkit.Location;
 
 /**
@@ -15,8 +14,12 @@ import org.bukkit.Location;
  */
 public final class ParticleRenderer {
 
-    public static void renderLine(Location pos1, Location pos2, boolean red, Game game) {
-        createLineEffect(ParticleEffect.FLAME, pos1, pos2);
+    public static void renderLine(Location pos1, Location pos2) {
+        renderLine(ParticleEffect.FLAME, pos1, pos2);
+    }
+
+    public static void renderLine(ParticleEffect effect, Location pos1, Location pos2) {
+        createLineEffect(effect, pos1, pos2);
     }
 
     private static void createLineEffect(ParticleEffect particleEffect, Location pos1, Location pos2) {

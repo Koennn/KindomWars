@@ -41,6 +41,7 @@ public class PlayerListener implements Listener {
         final Player player = event.getPlayer();
         if (PlayerHelper.isInGame(player)) {
             event.setCancelled(true);
+            event.getItem().setDurability(event.getItem().getType().getMaxDurability());
         }
     }
 }

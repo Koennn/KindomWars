@@ -16,7 +16,6 @@ import me.koenn.kingdomwars.grenade.GrenadeListener;
 import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
 import me.koenn.kingdomwars.logger.EventLogger;
-import me.koenn.kingdomwars.tracker.processing.DataProcessor;
 import me.koenn.kingdomwars.util.References;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -91,7 +90,7 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             this.getLogger().info("Loading signs...");
             GameCreator.instance.loadSigns();
 
-            DataProcessor.INSTANCE = new DataProcessor();
+            //DataProcessor.INSTANCE = new DataProcessor();
         } catch (Exception ex) {
             this.getLogger().severe("An error occurred while initializing: " + ex);
             ex.printStackTrace();

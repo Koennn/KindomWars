@@ -74,15 +74,14 @@ public class Map {
         }
     }
 
-    public void startRendering(final Game game) {
+    public void startRendering() {
         this.renderTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), () -> {
             for (int i = 0; i <= 1; i++) {
-                final boolean red = i == Team.RED.getIndex();
                 Location[] corners = this.points[i].corners;
-                ParticleRenderer.renderLine(corners[0], corners[1], red, game);
-                ParticleRenderer.renderLine(corners[1], corners[2], red, game);
-                ParticleRenderer.renderLine(corners[2], corners[3], red, game);
-                ParticleRenderer.renderLine(corners[3], corners[0], red, game);
+                ParticleRenderer.renderLine(corners[0], corners[1]);
+                ParticleRenderer.renderLine(corners[1], corners[2]);
+                ParticleRenderer.renderLine(corners[2], corners[3]);
+                ParticleRenderer.renderLine(corners[3], corners[0]);
             }
         }, 0, 5);
     }

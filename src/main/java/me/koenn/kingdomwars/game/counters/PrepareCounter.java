@@ -10,7 +10,7 @@ import org.bukkit.Sound;
 //TODO Test system!
 public class PrepareCounter extends Counter {
 
-    private static final int PREPARE_TIME = 1200;
+    private static final int PREPARE_TIME = 500;
 
     private final Game game;
     private int cooldown = 0;
@@ -22,9 +22,9 @@ public class PrepareCounter extends Counter {
 
     @Override
     public void onCount(int time) {
-        int scaledTime = (time / 1200) * 100;
+        int scaledTime = Math.round((1.0F / ((float) time / 500.0F)) * 10.0F);
         float pitch = calculateScaledProgress(scaledTime, 1.0F) + 0.5F;
-        ActionBar actionBar = new ActionBar(new ProgressBar(60).get(scaledTime), KingdomWars.getInstance()).setStay(1);
+        ActionBar actionBar = new ActionBar(new ProgressBar(60).get((int) ((calculateScaledProgress(time, PREPARE_TIME) / 100) * 60)), KingdomWars.getInstance()).setStay(1);
 
         this.game.getPlayers().forEach(player -> {
             actionBar.send(player);

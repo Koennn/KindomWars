@@ -4,7 +4,7 @@ version: 1.0-BETA
 prefix: KingdomWars
 authors: [Koenn]
 description: COMING SOON!
-depend: [KoennCore, FakeBlockAPI, EffectLib]
+depend: [KoennCore, EffectLib]
 
 commands:
   kingdomwars:
