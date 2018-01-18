@@ -7,6 +7,7 @@ import me.koenn.kingdomwars.game.events.GameKillEvent;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
+import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +77,15 @@ public class GameTracker implements Listener {
                         this.game.getMap().getName()
                 )
         );
+
+        this.log(
+                String.format(
+                        "[%s] Teams RED: %s BLUE: %s",
+                        timestamp.format(new Date()),
+                        Arrays.toString(PlayerHelper.usernameArray(this.game.getTeam(Team.RED))),
+                        Arrays.toString(PlayerHelper.usernameArray(this.game.getTeam(Team.BLUE)))
+                )
+        );
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -89,9 +100,11 @@ public class GameTracker implements Listener {
 
         this.log(
                 String.format(
-                        "[%s] %s killed %s while %s",
+                        "[%s] %s (%s) killed %s (%s) while %s",
                         timestamp.format(new Date()),
-                        killer, killed, action
+                        killer, PlayerHelper.getTeam(event.getKiller()).name(),
+                        killed, PlayerHelper.getTeam(event.getKilled()).name(),
+                        action
                 )
         );
     }
@@ -112,7 +125,7 @@ public class GameTracker implements Listener {
                 String.format(
                         "[%s] Team %s captured the point with %s attackers and %s defenders",
                         timestamp.format(new Date()),
-                        winner.getIndex(), attackers, defenders
+                        winner.name(), attackers, defenders
                 )
         );
     }
@@ -127,12 +140,12 @@ public class GameTracker implements Listener {
                 String.format(
                         "[%s] Team %s won the game!",
                         timestamp.format(new Date()),
-                        event.getWinner().getIndex()
+                        event.getWinner().name()
                 )
         );
     }
 
-    private void log(String message) {
+    public void log(String message) {
         try {
             this.writer.write(message);
             this.writer.write(System.lineSeparator());

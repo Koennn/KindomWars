@@ -1,5 +1,6 @@
 package me.koenn.kingdomwars.deployables;
 
+import me.koenn.kingdomwars.util.Team;
 import org.bukkit.entity.Player;
 
 /**
@@ -20,4 +21,8 @@ public interface DeployableExecutor {
     void damage(int amount, Player damager);
 
     void destroy();
+
+    Team getTeam();
+
+    Player getOwner();
 }

@@ -4,8 +4,10 @@ import de.slikey.effectlib.Effect;
 import de.slikey.effectlib.effect.AnimatedBallEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
+import me.koenn.core.gui.Gui;
 import me.koenn.core.misc.EffectBuilder;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.characters.CharacterGui;
 import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
@@ -49,7 +51,10 @@ public class SignListener implements Listener {
             return;
         }
 
-        GameCreator.instance.signClick(sign, player);
+        if (!GameCreator.instance.signClick(sign, player)) {
+            return;
+        }
+
         Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
                 .particleEffect(ParticleEffect.FIREWORKS_SPARK)
                 .iterations(5)
@@ -60,6 +65,10 @@ public class SignListener implements Listener {
                 .build();
         effect.start();
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+
+        CharacterGui gui = new CharacterGui(player);
+        Gui.registerGui(gui, KingdomWars.getInstance());
+        gui.open();
     }
 
     @EventHandler

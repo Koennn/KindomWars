@@ -6,12 +6,11 @@ import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.ItemHelper;
 import me.koenn.core.misc.LoreHelper;
 import me.koenn.core.player.CPlayerRegistry;
-import me.koenn.kingdomwars.util.Messager;
-import me.koenn.kingdomwars.util.References;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class CharacterGui extends Gui {
 
@@ -23,15 +22,48 @@ public class CharacterGui extends Gui {
             ItemStack icon = ItemHelper.makeItemStack(
                     raw.getType(), raw.getAmount(), raw.getDurability(),
                     ColorHelper.readColor("&e&l" + character.getName()),
-                    LoreHelper.makeLore(String.format(ChatColor.RESET + "Click to select %s!", character.getName()))
+                    LoreHelper.makeLore(
+                            String.format(ChatColor.RESET + "Click to select %s!", character.getName()),
+                            wrapString(character.getDescription(), 30)
+                    )
             );
-            icon.getItemMeta().addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            ItemMeta meta = icon.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            icon.setItemMeta(meta);
 
             this.addOption(new Option(icon, () -> {
                 CPlayerRegistry.getCPlayer(player.getUniqueId()).set("character", character.getName());
                 player.closeInventory();
-                Messager.playerMessage(player, References.SAVED_PREFERENCE);
             }));
         });
+    }
+
+    public static String wrapString(String string, int charWrap) {
+        int lastBreak = 0;
+        int nextBreak = charWrap;
+        if (string.length() > charWrap) {
+            StringBuilder setString = new StringBuilder();
+            setString.append("\n");
+            do {
+                while (string.charAt(nextBreak) != ' ' && nextBreak > lastBreak) {
+                    nextBreak--;
+                }
+                if (nextBreak == lastBreak) {
+                    nextBreak = lastBreak + charWrap;
+                }
+                setString
+                        .append(ChatColor.GRAY)
+                        .append(ChatColor.ITALIC)
+                        .append(string.substring(lastBreak, nextBreak).trim())
+                        .append("\n");
+                lastBreak = nextBreak;
+                nextBreak += charWrap;
+
+            } while (nextBreak < string.length());
+            setString.append(string.substring(lastBreak).trim());
+            return setString.toString();
+        } else {
+            return string;
+        }
     }
 }

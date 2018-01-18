@@ -97,7 +97,7 @@ public final class DeployableLoader {
         return JSReader.read(NBTUtil.getChildTag(deployable.getDeployableInfo().getValue(), "script", StringTag.class).getValue(),
                 Entity.class, Location.class, World.class, Effect.class, Deployable.class, Timer.class, KingdomWars.class, Runnable.class, List.class,
                 Vector.class, PlayerHelper.class, Team.class, Messager.class, References.class, ActionBar.class, Damageable.class, ParticleRenderer.class,
-                ParticleEffect.class
+                ParticleEffect.class, GameMode.class
         );
     }
 }

@@ -9,13 +9,13 @@ function onConstruct(deployable, placer, location) {
     game = PlayerHelper.getGame(placer);
     team = PlayerHelper.getTeam(placer);
     if (game == null || team == null) {
-        Messager.playerMessage(placer, References.NOT_IN_GAME);
+        Messager.playerMessage(owner, References.NOT_IN_GAME);
     }
 }
 
 function onConstructComplete(deployable) {
     if (owner != null) {
-        Messager.playerMessage(placer, References.TURRET_COMPLETE);
+        Messager.playerMessage(owner, References.BUILDING_COMPLETE);
     }
 }
 
@@ -46,7 +46,9 @@ function onTick(deployable) {
     if (lockedOn != null) {
         var loc2 = deployable.getLocation().clone().add(0.5, 2.5, 0.5);
         var loc1 = lockedOn.getLocation().clone().add(0.0, 1.0 + (lockedOn.getLocation().distance(deployable.getLocation()) / 8), 0.0);
-        loc2.getWorld().spawnArrow(loc2, new Vector(loc1.getX()-loc2.getX(), loc1.getY()-loc2.getY(), loc1.getZ()-loc2.getZ()), 1.5, 0);
+        var arrow = loc2.getWorld().spawnArrow(loc2, new Vector(loc1.getX()-loc2.getX(), loc1.getY()-loc2.getY(), loc1.getZ()-loc2.getZ()), 1.5, 0);
+        arrow.setCustomName(owner.getName() + "'s Turret");
+        arrow.setCustomNameVisible(false);
         cooldown = 12;
     }
 }
@@ -60,7 +62,7 @@ function onDestroy(deployable) {
 }
 
 function isInRange(player, deployable) {
-    if (player.getLocation().distance(deployable.getLocation()) < 10) {
+    if (player.getGameMode().equals(GameMode.SURVIVAL) && player.getLocation().distance(deployable.getLocation()) < 10) {
         return true;
     }
     return false;

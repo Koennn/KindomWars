@@ -37,6 +37,7 @@ public class MapTool implements Listener {
 
     private final Player player;
     private final JSONObject json;
+    private JSONArray medkits = new JSONArray();
 
     private long lastUse = System.currentTimeMillis();
 
@@ -156,11 +157,15 @@ public class MapTool implements Listener {
                                 .replace("%coords%", corner)
                 );
                 break;
+
+            case Medkit:
+                medkits.add(LocationHelper.getString(event.getSelected()));
+                System.out.println(medkits.toJSONString());
         }
     }
 
     public enum Mode {
-        Spawn, Door, Point;
+        Spawn, Door, Point, Medkit;
 
         Mode getNextMode() {
             switch (this) {
@@ -169,6 +174,8 @@ public class MapTool implements Listener {
                 case Door:
                     return Mode.Point;
                 case Point:
+                    return Mode.Medkit;
+                case Medkit:
                     return Mode.Spawn;
                 default:
                     return Mode.Spawn;

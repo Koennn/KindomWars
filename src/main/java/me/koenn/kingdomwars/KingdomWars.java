@@ -67,9 +67,8 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             command = new KingdomWarsCommand();
             CommandAPI.registerCommand(command, this);
             CommandAPI.registerSubCommand(command, new HelpCommand(), this);
-            CommandAPI.registerSubCommand(command, new SelectClassCommand(), this);
+            CommandAPI.registerSubCommand(command, new CharacterCommand(), this);
             CommandAPI.registerSubCommand(command, new EditGameCommand(), this);
-            CommandAPI.registerSubCommand(command, new StatsCommand(), this);
             CommandAPI.registerSubCommand(command, new MapCommand(), this);
 
             this.getLogger().info("Registering custom items...");
@@ -149,6 +148,4 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
         this.getLogger().info("+=========== Successfully disabled! ===========+");
     }
-
-
 }

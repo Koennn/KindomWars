@@ -23,6 +23,10 @@ public class EditGameCommand extends Command {
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
+        if (!cPlayer.getPlayer().isOp()) {
+            return true;
+        }
+
         Game game = PlayerHelper.getGame(cPlayer.getPlayer());
         if (game == null) {
             return false;

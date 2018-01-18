@@ -13,9 +13,9 @@ import me.koenn.kingdomwars.characters.CharacterGui;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public class SelectClassCommand extends Command {
+public class CharacterCommand extends Command {
 
-    public SelectClassCommand() {
+    public CharacterCommand() {
         super("character", "/kingdomwars character");
     }
 

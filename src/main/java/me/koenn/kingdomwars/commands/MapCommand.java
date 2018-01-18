@@ -12,6 +12,10 @@ public class MapCommand extends Command {
 
     @Override
     public boolean execute(CPlayer cPlayer, String[] strings) {
+        if (!cPlayer.getPlayer().isOp()) {
+            return true;
+        }
+
         new MapTool(cPlayer.getPlayer());
         return true;
     }

@@ -11,8 +11,10 @@ import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
+import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -46,7 +48,7 @@ public class GameCreator implements Runnable {
             Game game = this.games.get(sign);
             int maxplayers = Math.toIntExact((long) game.getMap().getProperty("maxplayers"));
             sign.setLine(3, ColorHelper.readColor(References.SIGN_3
-                    .replace("%color%", (game.getPlayers().size() == maxplayers ? ChatColor.RED : ChatColor.GREEN).toString())
+                    .replace("%color%", (game.isFull() || game.getCurrentPhase().equals(GamePhase.STARTED) ? ChatColor.RED : ChatColor.GREEN).toString())
                     .replace("%pcount%", String.valueOf(game.getPlayers().size()))
                     .replace("%maxp%", String.valueOf(maxplayers))
             ));
@@ -58,9 +60,7 @@ public class GameCreator implements Runnable {
                 sign.setLine(2, "");
             }
             if (game.getCurrentPhase().equals(GamePhase.STARTING) || game.getCurrentPhase().equals(GamePhase.STARTED)) {
-                for (int i = 0; i < 3; i++) {
-                    sign.setLine(i, ChatColor.STRIKETHROUGH + sign.getLine(i));
-                }
+                sign.setLine(2, ColorHelper.readColor(References.FULL));
             }
             sign.update();
         });
@@ -91,10 +91,17 @@ public class GameCreator implements Runnable {
         this.saveSigns();
     }
 
-    public void signClick(Sign sign, Player player) {
+    public boolean signClick(Sign sign, Player player) {
         Game game = this.games.get(sign);
+        if (game.getCurrentPhase().equals(GamePhase.STARTED) || game.getCurrentPhase().equals(GamePhase.STARTING)) {
+            player.teleport(game.getMap().getSpawn(Team.RED));
+            Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.setGameMode(GameMode.SPECTATOR), 20);
+            game.getPlayers().add(player);
+            return false;
+        }
+
         if (game == null || game.isFull() || PlayerHelper.isInGame(player)) {
-            return;
+            return false;
         }
 
         game.getPlayers().add(player);
@@ -104,6 +111,7 @@ public class GameCreator implements Runnable {
         if (game.isFull()) {
             game.load();
         }
+        return true;
     }
 
     public void saveSigns() {

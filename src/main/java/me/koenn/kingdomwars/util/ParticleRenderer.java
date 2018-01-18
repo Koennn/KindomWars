@@ -15,20 +15,20 @@ import org.bukkit.Location;
 public final class ParticleRenderer {
 
     public static void renderLine(Location pos1, Location pos2) {
-        renderLine(ParticleEffect.FLAME, pos1, pos2);
+        renderLine(ParticleEffect.FLAME, 30, pos1, pos2);
     }
 
-    public static void renderLine(ParticleEffect effect, Location pos1, Location pos2) {
-        createLineEffect(effect, pos1, pos2);
+    public static void renderLine(ParticleEffect effect, int particles, Location pos1, Location pos2) {
+        createLineEffect(effect, particles, pos1, pos2);
     }
 
-    private static void createLineEffect(ParticleEffect particleEffect, Location pos1, Location pos2) {
+    private static void createLineEffect(ParticleEffect particleEffect, int particles, Location pos1, Location pos2) {
         final LineEffect lineEffect = new LineEffect(new EffectManager(KingdomWars.getInstance()));
         lineEffect.particle = particleEffect;
         lineEffect.setDynamicOrigin(new DynamicLocation(pos1));
         lineEffect.setDynamicTarget(new DynamicLocation(pos2));
         lineEffect.iterations = 1;
-        lineEffect.particles = 30;
+        lineEffect.particles = particles;
         lineEffect.duration = 2;
         lineEffect.start();
     }

@@ -9,9 +9,11 @@ import me.koenn.kingdomwars.game.events.GameLoadEvent;
 import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
+import me.koenn.kingdomwars.game.map.MedKit;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.tracker.GameTracker;
+import me.koenn.kingdomwars.traits.Trait;
 import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,6 +36,8 @@ public class Game {
     public static final Random random = ThreadLocalRandom.current();
 
     public final TeamInfo[] teams = new TeamInfo[2];
+    public final List<Trait> activeTraits = new ArrayList<>();
+
     private final List<Player> players = new ArrayList<>();
     private final List<Player>[] rawTeams = new List[2];
     private final List<Deployable> deployables = new ArrayList<>();
@@ -89,6 +93,8 @@ public class Game {
 
             //Load the players.
             GameHelper.loadPlayers(this);
+
+            this.map.getMedkits().forEach(MedKit::enable);
 
             //Start the game prepare timer.
             new PrepareCounter(this.debug, this).start(this::start);
@@ -158,6 +164,7 @@ public class Game {
                                     .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
                                     .replace("%bluepoints%", String.valueOf(this.points[team.getIndex()]))
                                     .replace("%redpoints%", String.valueOf(this.points[team.getOpponent().getIndex()]))
+                                    .replace("&l", !player.getMetadata("electric").isEmpty() ? "&l&k" : "&l")
                     ));
         }
 
@@ -248,6 +255,9 @@ public class Game {
             this.rawTeams[i] = new ArrayList<>();
         }
         this.debug = false;
+        this.activeTraits.forEach(Trait::stop);
+        this.map.getMedkits().forEach(MedKit::disable);
+
         EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), "[]"}));
         EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{"[]", "[]"}));
     }
@@ -280,6 +290,10 @@ public class Game {
         this.debug = true;
     }
 
+    public GameTracker getTracker() {
+        return tracker;
+    }
+
     @SuppressWarnings("unused")
     public void disableDebugMode() {
         this.debug = false;
@@ -308,7 +322,7 @@ public class Game {
     }
 
     public void removeDeployable(Deployable deployable) {
-        this.deployables.remove(deployable);
+        deployable.remove();
     }
 
     public List<Deployable> getDeployables() {

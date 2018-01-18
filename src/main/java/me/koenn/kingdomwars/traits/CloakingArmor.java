@@ -1,8 +1,10 @@
-package me.koenn.kingdomwars.gadgets;
+package me.koenn.kingdomwars.traits;
 
 import me.koenn.core.misc.ItemHelper;
 import me.koenn.core.misc.LoreHelper;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.util.Messager;
+import me.koenn.kingdomwars.util.PlayerHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -28,15 +30,17 @@ public class CloakingArmor extends Trait {
      * Maximum cloaking time in ticks.
      */
     public static final int MAX_CLOAK_TIME = 240;
+    public static final int LONG_COOLDOWN = 100;
+    public static final int SHORT_COOLDOWN = 50;
 
     /**
      * The leather 'Cloaking Armor'
      */
     public static final ItemStack[] CLOAKING_ARMOR = new ItemStack[]{
-            ItemHelper.makeItemStack(Material.LEATHER_HELMET, 1, (short) 0, "Cloaking Helmet", null),
-            ItemHelper.makeItemStack(Material.LEATHER_CHESTPLATE, 1, (short) 0, "Cloaking Chestplate", null),
+            ItemHelper.makeItemStack(Material.LEATHER_BOOTS, 1, (short) 0, "Cloaking Boots", null),
             ItemHelper.makeItemStack(Material.LEATHER_LEGGINGS, 1, (short) 0, "Cloaking Leggings", null),
-            ItemHelper.makeItemStack(Material.LEATHER_BOOTS, 1, (short) 0, "Cloaking Boots", null)
+            ItemHelper.makeItemStack(Material.LEATHER_CHESTPLATE, 1, (short) 0, "Cloaking Chestplate", null),
+            ItemHelper.makeItemStack(Material.LEATHER_HELMET, 1, (short) 0, "Cloaking Helmet", null),
     };
 
     /**
@@ -63,6 +67,8 @@ public class CloakingArmor extends Trait {
      * Time indicating how long the cloak has been active in ticks.
      */
     private int cloakTime;
+
+    private int cooldown;
 
     /**
      * Constructor to create a new CloakingArmor object.
@@ -98,6 +104,11 @@ public class CloakingArmor extends Trait {
      * Turn the cloak on.
      */
     public void cloak() {
+        if (this.cooldown > 0) {
+            Messager.playerMessage(this.player, String.format("&cYour cloak is on cooldown for %ss", Math.round(this.cooldown / 20.0 * 10.0) / 10.0));
+            return;
+        }
+
         //Enable the cloak.
         this.cloaked = true;
 
@@ -117,6 +128,10 @@ public class CloakingArmor extends Trait {
 
         //Reset the cloakTime to 0.
         this.cloakTime = 0;
+
+        if (this.cooldown <= 0) {
+            this.cooldown = SHORT_COOLDOWN;
+        }
     }
 
     /**
@@ -176,7 +191,7 @@ public class CloakingArmor extends Trait {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEvent event) {
         //Check if the player who clicked is the player in the event.
         if (this.isPlayer(event.getPlayer())) {
@@ -202,8 +217,21 @@ public class CloakingArmor extends Trait {
 
     @Override
     public void run() {
+        if (this.cooldown > 0) {
+            this.cooldown -= 5;
+        }
+
         //Check if the player is cloaked.
         if (this.cloaked) {
+
+            //Check if the player is capturing a point.
+            if (PlayerHelper.isCapturing(this.player, PlayerHelper.getGame(this.player))) {
+
+                //Decloak the player.
+                this.deCloak();
+
+                return;
+            }
 
             //Give the player the invisibility effect.
             this.player.addPotionEffect(
@@ -218,6 +246,8 @@ public class CloakingArmor extends Trait {
 
                 //Decloak the player.
                 this.deCloak();
+
+                this.cooldown = LONG_COOLDOWN;
             }
         }
     }

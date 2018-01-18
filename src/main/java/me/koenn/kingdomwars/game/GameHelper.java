@@ -1,11 +1,14 @@
 package me.koenn.kingdomwars.game;
 
+import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.characters.Character;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
+import me.koenn.kingdomwars.traits.CloakingArmor;
+import me.koenn.kingdomwars.traits.ElectricBow;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
@@ -48,18 +51,28 @@ public final class GameHelper implements Listener {
                     Messager.clickableMessage(player,
                             line.replace("%clickable%", ""),
                             "Click to open the map lore page",
-                            "http://blockgaming.org/staff/forums/index.php?forums/maplore/"
+                            "http://kingdomwarsmc.net/"
                     );
                 } else {
                     Messager.playerMessage(player, line
                             .replace("%map%", game.getMap().getName())
                             .replace("%desc%", "-- DESCRIPTION COMING SOON --")
                             .replace("%class%", character.getName())
+                            .replace("%color%", team.equals(Team.RED) ? "&c" : "&9")
+                            .replace("%team%", new FancyString(team.name()).toString())
                     );
                 }
             }
 
             PlayerHelper.giveKit(player, character.getKit());
+
+            if (character.getTrait() != null) {
+                if (character.getTrait().equals(CloakingArmor.class)) {
+                    game.activeTraits.add(new CloakingArmor(player));
+                } else if (character.getTrait().equals(ElectricBow.class)) {
+                    game.activeTraits.add(new ElectricBow(player));
+                }
+            }
         }
 
         teleportPlayers(game);

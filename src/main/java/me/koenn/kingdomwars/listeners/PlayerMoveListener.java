@@ -2,8 +2,6 @@ package me.koenn.kingdomwars.listeners;
 
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
-import me.koenn.kingdomwars.stats.PlayerStats;
-import me.koenn.kingdomwars.stats.StatsManager;
 import me.koenn.kingdomwars.game.map.Door;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import net.minecraft.server.v1_12_R1.EnumParticle;
@@ -12,8 +10,8 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 /**
  * <p>
@@ -36,20 +34,19 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        if (!game.getCurrentPhase().equals(GamePhase.STARTING)) {
+        Door door;
+        if (game.getCurrentPhase().equals(GamePhase.STARTING)) {
+            door = game.getMap().getDoor(PlayerHelper.getTeam(player));
+        } else {
+            //door = game.getMap().getDoor(PlayerHelper.getTeam(player).getOpponent());
             return;
         }
 
-        final Door door = game.getMap().getDoor(PlayerHelper.getTeam(player));
         final double currentLocation = door.getType() == Door.DoorType.X ? Math.round(event.getTo().getX()) : Math.round(event.getTo().getZ());
         if (currentLocation == Math.round(door.getLocation())) {
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutWorldParticles(EnumParticle.BARRIER, true, (float) event.getFrom().getX(), (float) event.getFrom().getY() + 1.8F, (float) event.getFrom().getZ(), 0, 0, 0, 0, 1));
+            Vector position = event.getFrom().toVector().add(player.getLocation().getDirection().normalize());
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutWorldParticles(EnumParticle.BARRIER, true, (float) position.getX(), (float) position.getY() + 1.8F, (float) position.getZ(), 0, 0, 0, 0, 1));
             event.setTo(event.getFrom());
         }
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        StatsManager.stats.put(event.getPlayer().getUniqueId(), new PlayerStats(event.getPlayer().getUniqueId()));
     }
 }

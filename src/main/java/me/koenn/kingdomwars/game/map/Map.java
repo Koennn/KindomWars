@@ -12,16 +12,20 @@ import me.koenn.kingdomwars.util.ParticleRenderer;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.event.Listener;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>
  * Copyright (C) Koenn - All Rights Reserved Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential Written by Koen Willemse, April 2017
  */
-public class Map {
+public class Map implements Listener {
 
     public static final Registry<Map> maps = new Registry<>(Map::getName);
 
@@ -30,6 +34,7 @@ public class Map {
     private final Location[] spawns = new Location[2];
     private final Door[] doors = new Door[2];
     private final ControlPoint[] points = new ControlPoint[2];
+    private List<MedKit> medkits = new ArrayList<>();
     private int renderTask;
 
     public Map(JSONObject json) {
@@ -42,6 +47,11 @@ public class Map {
             this.spawns[team.getIndex()] = LocationHelper.fromString((String) ((JSONObject) mapJson.get("spawns")).get(team.name()));
             this.doors[team.getIndex()] = new Door((JSONObject) ((JSONObject) mapJson.get("doors")).get(team.name()));
             this.points[team.getIndex()] = new ControlPoint((JSONObject) ((JSONObject) mapJson.get("points")).get(team.name()));
+        }
+
+        if (mapJson.containsKey("medkits")) {
+            JSONArray medkits = (JSONArray) mapJson.get("medkits");
+            medkits.forEach(medKit -> this.medkits.add(new MedKit(LocationHelper.fromString(String.valueOf(medKit)))));
         }
     }
 
@@ -108,6 +118,10 @@ public class Map {
 
     public Object getProperty(String name) {
         return this.properties.get(name);
+    }
+
+    public List<MedKit> getMedkits() {
+        return medkits;
     }
 
     @Override

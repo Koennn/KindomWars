@@ -1,4 +1,4 @@
-package me.koenn.kingdomwars.gadgets;
+package me.koenn.kingdomwars.traits;
 
 import me.koenn.kingdomwars.KingdomWars;
 import org.bukkit.Bukkit;

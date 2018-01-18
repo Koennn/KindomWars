@@ -3,18 +3,18 @@ package me.koenn.kingdomwars.deployables;
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.BleedEffect;
 import de.slikey.effectlib.util.DynamicLocation;
+import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.js.ScriptHelper;
-import me.koenn.kingdomwars.util.DeployableHelper;
-import me.koenn.kingdomwars.util.NBTUtil;
+import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.jnbt.CompoundTag;
-import org.jnbt.IntTag;
-import org.jnbt.ListTag;
-import org.jnbt.Tag;
+import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.jnbt.*;
 
 import javax.script.ScriptEngine;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.List;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
-public class Deployable {
+public class Deployable implements Listener, Runnable {
 
     private final Location location;
     private final DeployableExecutor executor;
@@ -38,6 +38,7 @@ public class Deployable {
     private final List<Location> deployableBlocks = new ArrayList<>();
 
     private int health;
+    private int dmgCooldown;
 
     public Deployable(final Location location, CompoundTag deployableInfo) {
         this.instance = this;
@@ -47,6 +48,8 @@ public class Deployable {
         this.health = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "properties", CompoundTag.class).getValue(), "health", IntTag.class).getValue();
 
         this.executor = new DeployableExecutor() {
+            private final List<DeployableBlock> oldBlocks = new ArrayList<>();
+
             private boolean constructed = false;
             private Player owner;
             private int task;
@@ -74,9 +77,13 @@ public class Deployable {
                             continue;
                         }
 
-                        if (!location.clone().add(block.getOffset()).getBlock().getType().equals(Material.AIR)) {
+                        Block replace = location.clone().add(block.getOffset()).getBlock();
+                        if (!replace.getType().equals(Material.AIR) && !replace.getType().equals(Material.LONG_GRASS)) {
+                            this.oldBlocks.clear();
                             return false;
                         }
+
+                        this.oldBlocks.add(new DeployableBlock(replace));
                     }
                 }
 
@@ -104,7 +111,7 @@ public class Deployable {
             @Override
             public void constructComplete() {
                 this.constructed = true;
-                this.task = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this::tick, 0, 1);
+                this.task = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), instance, 0, 1);
                 ScriptHelper.invokeFunction(this.script, "onConstructComplete", instance);
             }
 
@@ -126,23 +133,64 @@ public class Deployable {
                 Bukkit.getScheduler().cancelTask(this.task);
                 ScriptHelper.invokeFunction(this.script, "onDestroy", instance);
                 deployableBlocks.forEach(block -> block.getBlock().setType(Material.AIR));
+                this.oldBlocks.forEach(DeployableBlock::replace);
                 deployableBlocks.clear();
+            }
+
+            @Override
+            public Team getTeam() {
+                return PlayerHelper.getTeam(this.owner);
+            }
+
+            @Override
+            public Player getOwner() {
+                return this.owner;
             }
         };
     }
 
-    public void damage(int amount, Player damager) {
-        this.executor.damage(amount, damager);
 
-        BleedEffect effect = new BleedEffect(new EffectManager(KingdomWars.getInstance()));
-        effect.setDynamicOrigin(new DynamicLocation(this.location));
-        effect.setDynamicTarget(new DynamicLocation(this.location));
-        effect.start();
+    public void damage(int amount, Player damager) {
+        if (PlayerHelper.getTeam(damager).equals(this.executor.getTeam())) {
+            return;
+        }
+
+        if (this.dmgCooldown > 0) {
+            return;
+        }
+
+        this.executor.damage(amount, damager);
+        this.dmgCooldown = 10;
+        this.bleed();
 
         this.health -= amount;
         if (this.health <= 0) {
-            this.remove();
+            this.health = Integer.MAX_VALUE;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+                this.remove();
+
+                for (int i = 0; i < 5; i++) {
+                    this.bleed();
+                }
+
+                final Player owner = this.executor.getOwner();
+                Messager.gameMessage(PlayerHelper.getGame(damager), String.format("%s's Turret was destroyed by %s", owner.getName(), damager.getName()));
+
+                final String itemName = ((StringTag) NBTUtil.getChildTag(this.getDeployableInfo().getValue(), "properties", CompoundTag.class).getValue().get("name")).getValue();
+                final ItemStack item = CGiveAPI.getCItem(itemName).getItem();
+
+                Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> owner.getInventory().addItem(item), 1000);
+            });
         }
+    }
+
+    private void bleed() {
+        BleedEffect effect = new BleedEffect(new EffectManager(KingdomWars.getInstance()));
+        effect.setDynamicOrigin(new DynamicLocation(this.location));
+        effect.setDynamicTarget(new DynamicLocation(this.location));
+        effect.iterations = 1;
+        effect.height = 1.0;
+        effect.start();
     }
 
     public boolean construct(Player constructor) {
@@ -163,5 +211,14 @@ public class Deployable {
 
     public List<Location> getDeployableBlocks() {
         return deployableBlocks;
+    }
+
+    @Override
+    public void run() {
+        this.executor.tick();
+
+        if (this.dmgCooldown > 0) {
+            this.dmgCooldown--;
+        }
     }
 }

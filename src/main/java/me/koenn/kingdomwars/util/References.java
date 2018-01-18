@@ -44,14 +44,9 @@ public final class References {
     public static final String SET_SPAWN = GAME_PREFIX + "&7Set the spawn for team %team% to %coords%!";
     public static final String SET_DOOR = GAME_PREFIX + "&7Set the door for team %team% to %coords%!";
     public static final String ADD_CORNER = GAME_PREFIX + "&7Added corner %coords% to the capture point for team %team%!";
-    public static final String SET_POS1 = GAME_PREFIX + "&7Set pos1 to %coords%.";
-    public static final String LOADED_BLOCKS = GAME_PREFIX + "&7Successfully loaded all colored blocks!";
     public static final String SAVE_SUCCESSFUL = GAME_PREFIX + "&7Successfully saved your map!";
     public static final String SAVE_ERROR = GAME_PREFIX + "&4It looks like you made a mistake while setting the areas, please try again!";
     public static final String MAPS_RELOADED = GAME_PREFIX + "&7Reloaded all maps!";
-
-
-    public static final String SAVED_PREFERENCE = GAME_PREFIX + "&7Successfully saved your preference!";
 
     public static final String SIGN_PREFIX = "KingdomWars";
     public static final String SIGN_0 = "&1[KingdomWars]";
@@ -64,6 +59,7 @@ public final class References {
     public static final String[] GAME_JOIN_MESSAGE = new String[]{
             "&b&m+===============================================+",
             "&3&lGame: &eKingdomWars",
+            "%color%&lTeam: %team%",
             "&3&lMap: &e%map%",
             "&3&lCharacter: &e%class%",
             "&a %desc%",
@@ -71,25 +67,13 @@ public final class References {
             "&b&m+===============================================+"
     };
 
-    public static final String[] STATS_MESSAGE = new String[]{
-            "&b&m+===============================================+",
-            "&3&lAttacker: &eLevel: %attackerLevel% Exp: %attackerExp%/%attackerNeededExp%",
-            "&3&lDefender: &eLevel: %defenderLevel% Exp: %defenderExp%/%defenderNeededExp%",
-            "&3&lSkirmisher: &eLevel: %skirmisherLevel% Exp: %skirmisherExp%/%skirmisherNeededExp%",
-            "&3&lBuilder: &eLevel: %builderLevel% Exp: %builderExp%/%builderNeededExp%",
-            "&a--------------------------------------------------",
-            "&3&lGames Played: &e%gamesPlayed%",
-            "&b&m+===============================================+"
-    };
-
     public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your turret will not work!";
-    public static final String TURRET_COMPLETE = GAME_PREFIX + "&a&lTurret construction complete!";
+    public static final String BUILDING_COMPLETE = GAME_PREFIX + "&a&lBuilding construction complete!";
 
     public static final String DEPLOYABLE_FOLDER = "deployables";
 
-    public static final int GAME_START_DELAY = 10;
-    public static final int RESPAWN_COOLDOWN = 10;
-    public static final int UPDATE_RATE = 3;
+    public static final int RESPAWN_COOLDOWN = 15;
+    public static final int UPDATE_RATE = 2;
     public static final int WINNING_POINTS = 3;
 
     public static final CItem MAPSTAFF = new CItem() {

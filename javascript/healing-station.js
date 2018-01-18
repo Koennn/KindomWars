@@ -15,7 +15,7 @@ function onConstruct(deployable, placer, location) {
 
 function onConstructComplete(deployable) {
     if (owner != null) {
-        Messager.playerMessage(placer, References.TURRET_COMPLETE);
+        Messager.playerMessage(owner, References.BUILDING_COMPLETE);
     }
 }
 
@@ -37,7 +37,7 @@ function onTick(deployable) {
             if (PlayerHelper.getTeam(player) != team) {
                 continue;
             }
-            if (isInRange(player, deployable)) {
+            if (isInRange(player, deployable) && player.getHealth() < player.getMaxHealth()) {
                 lockedOn = player;
             }
         }
@@ -45,10 +45,15 @@ function onTick(deployable) {
 
     if (lockedOn != null) {
         var loc2 = deployable.getLocation().clone().add(0.5, 1, 0.5);
-        var loc1 = lockedOn.getLocation().clone().add(0.0, 1.0, 0.0);
-        ParticleRenderer.renderLine(ParticleEffect.HEART, loc1, loc2);
-        lockedOn.setHealth(lockedOn.getHealth() + 0.5);
-        cooldown = 5;
+        var loc1 = lockedOn.getLocation().clone().add(0.0, 0.5, 0.0);
+        ParticleRenderer.renderLine(ParticleEffect.HEART, 5, loc1, loc2);
+        if (lockedOn.getHealth() + 1.0 < lockedOn.getMaxHealth()) {
+            lockedOn.setHealth(lockedOn.getHealth() + 1.0);
+        } else {
+            lockedOn.setHealth(lockedOn.getMaxHealth());
+            lockedOn = null;
+        }
+        cooldown = 10;
     }
 }
 
@@ -61,7 +66,7 @@ function onDestroy(deployable) {
 }
 
 function isInRange(player, deployable) {
-    if (player.getLocation().distance(deployable.getLocation()) < 3) {
+    if (player.getLocation().distance(deployable.getLocation()) < 4) {
         return true;
     }
     return false;
