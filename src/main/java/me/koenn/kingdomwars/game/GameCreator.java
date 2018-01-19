@@ -149,13 +149,19 @@ public class GameCreator implements Runnable {
         }
 
         signs.forEach(sign -> {
-            JSONObject signObject = (JSONObject) sign;
-            String map = (String) signObject.get("map");
-            Location location = LocationHelper.fromString((String) signObject.get("location"));
-            Sign signBlock = (Sign) location.getWorld().getBlockAt(location).getState();
-            Game game = new Game(Map.getMap(map));
-            EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
-            this.games.put(signBlock, game);
+            try {
+                JSONObject signObject = (JSONObject) sign;
+                String map = (String) signObject.get("map");
+                Location location = LocationHelper.fromString((String) signObject.get("location"));
+                Sign signBlock = (Sign) location.getWorld().getBlockAt(location).getState();
+                Game game = new Game(Map.getMap(map));
+                EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
+                this.games.put(signBlock, game);
+            } catch (Exception ex) {
+                KingdomWars.getInstance().getLogger().severe(
+                        String.format("Sign %s doesn't exist in the world anymore!", ((JSONObject) sign).toJSONString())
+                );
+            }
         });
     }
 }
