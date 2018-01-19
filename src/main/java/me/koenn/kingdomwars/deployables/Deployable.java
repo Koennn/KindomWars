@@ -1,10 +1,12 @@
 package me.koenn.kingdomwars.deployables;
 
+import de.slikey.effectlib.Effect;
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.BleedEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.effect.DisabledEffect;
 import me.koenn.kingdomwars.js.ScriptHelper;
 import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
@@ -39,6 +41,8 @@ public class Deployable implements Listener, Runnable {
 
     private int health;
     private int dmgCooldown;
+    private boolean disabled;
+    private Effect disabledEffect;
 
     public Deployable(final Location location, CompoundTag deployableInfo) {
         this.instance = this;
@@ -97,8 +101,13 @@ public class Deployable implements Listener, Runnable {
 
                     Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
                         Location place = location.clone().add(block.getOffset());
+                        byte oldData = place.getBlock().getData();
                         place.getBlock().setType(block.getType());
-                        place.getBlock().setData(block.getData());
+                        if (block.getData() == -1) {
+                            place.getBlock().setData(oldData);
+                        } else {
+                            place.getBlock().setData(block.getData());
+                        }
                         deployableBlocks.add(place);
                     }, delay);
                 }
@@ -184,6 +193,25 @@ public class Deployable implements Listener, Runnable {
         }
     }
 
+    public void disable(Player damager) {
+        this.damage(10, damager);
+
+        if (this.disabled) {
+            return;
+        }
+        this.disabled = true;
+
+        this.disabledEffect = new DisabledEffect();
+        this.disabledEffect.setDynamicOrigin(new DynamicLocation(this.location.clone().add(0.5, 0.0, 0.5)));
+        this.disabledEffect.infinite();
+        this.disabledEffect.start();
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+            this.disabled = false;
+            this.disabledEffect.cancel();
+        }, 300);
+    }
+
     private void bleed() {
         BleedEffect effect = new BleedEffect(new EffectManager(KingdomWars.getInstance()));
         effect.setDynamicOrigin(new DynamicLocation(this.location));
@@ -199,6 +227,10 @@ public class Deployable implements Listener, Runnable {
 
     public void remove() {
         this.executor.destroy();
+
+        if (this.disabledEffect != null && !this.disabledEffect.isDone()) {
+            this.disabledEffect.cancel();
+        }
     }
 
     public Location getLocation() {
@@ -213,9 +245,15 @@ public class Deployable implements Listener, Runnable {
         return deployableBlocks;
     }
 
+    public Team getTeam() {
+        return this.executor.getTeam();
+    }
+
     @Override
     public void run() {
-        this.executor.tick();
+        if (!this.disabled) {
+            this.executor.tick();
+        }
 
         if (this.dmgCooldown > 0) {
             this.dmgCooldown--;

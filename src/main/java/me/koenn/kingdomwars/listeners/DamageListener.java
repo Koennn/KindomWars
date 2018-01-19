@@ -13,6 +13,7 @@ import me.koenn.kingdomwars.game.events.GameKillEvent;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
+import me.koenn.kingdomwars.util.SoundSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -90,7 +91,7 @@ public class DamageListener implements Listener {
         Messager.playerTitle(References.DEATH_TITLE, "", killed);
 
         killed.setGameMode(GameMode.SPECTATOR);
-        killed.playSound(killed.getLocation(), Sound.ENTITY_ENDERDRAGON_GROWL, 0.8F, 1.0F);
+        SoundSystem.locationSound(killed.getLocation(), Sound.ENTITY_ENDERDRAGON_GROWL, 0.8F, 1.0F);
         Effect effect = new EffectBuilder(AnimatedBallEffect.class, KingdomWars.getInstance())
                 .particleEffect(ParticleEffect.FLAME)
                 .iterations(5)

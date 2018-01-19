@@ -10,12 +10,14 @@ import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.game.map.MedKit;
+import me.koenn.kingdomwars.grenade.Grenade;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.tracker.GameTracker;
 import me.koenn.kingdomwars.traits.Trait;
 import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -30,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Proprietary and confidential
  * Written by Koen Willemse, April 2017
  */
+//TODO: This file is a giant mess, and I should slap myself for writing it...
 public class Game {
 
     public static final List<Game> gameRegistry = new ArrayList<>();
@@ -37,6 +40,7 @@ public class Game {
 
     public final TeamInfo[] teams = new TeamInfo[2];
     public final List<Trait> activeTraits = new ArrayList<>();
+    public final List<Grenade> grenades = new ArrayList<>();
 
     private final List<Player> players = new ArrayList<>();
     private final List<Player>[] rawTeams = new List[2];
@@ -89,12 +93,13 @@ public class Game {
 
             //Send game starting message.
             Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
-            this.players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 1.0F));
+            SoundSystem.gameSound(this, Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 1.0F);
 
             //Load the players.
             GameHelper.loadPlayers(this);
 
-            this.map.getMedkits().forEach(MedKit::enable);
+            this.map.getSpawn(Team.RED).getWorld().setDifficulty(Difficulty.NORMAL);
+            this.map.getSpawn(Team.RED).getWorld().setGameRuleValue("doMobSpawning", "false");
 
             //Start the game prepare timer.
             new PrepareCounter(this.debug, this).start(this::start);
@@ -123,7 +128,9 @@ public class Game {
         Messager.gameMessage(this, References.GAME_STARTED);
 
         //Play game started sound.
-        players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F));
+        SoundSystem.gameSound(this, Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F);
+
+        this.map.getMedkits().forEach(MedKit::enable);
 
         //Call the GameStartEvent.
         Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
@@ -193,7 +200,7 @@ public class Game {
         this.players.forEach(player -> {
 
             //Play the finish sound.
-            player.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
+            SoundSystem.playerSound(player, Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
 
             //Launch fireworks at all winners.
             if (PlayerHelper.getTeam(player).equals(winner)) {
@@ -256,6 +263,7 @@ public class Game {
         }
         this.debug = false;
         this.activeTraits.forEach(Trait::stop);
+        this.grenades.forEach(Grenade::remove);
         this.map.getMedkits().forEach(MedKit::disable);
 
         EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), "[]"}));
@@ -303,6 +311,10 @@ public class Game {
     public void loadInDebugMode() {
         this.enableDebugMode();
         this.load();
+    }
+
+    public void regenerateMedkits() {
+        this.map.getMedkits().forEach(MedKit::regen);
     }
 
     public void freezePoints() {

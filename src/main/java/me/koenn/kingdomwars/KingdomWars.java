@@ -12,8 +12,6 @@ import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.game.MapLoader;
 import me.koenn.kingdomwars.game.map.Map;
-import me.koenn.kingdomwars.grenade.GrenadeListener;
-import me.koenn.kingdomwars.grenade.GrenadeLoader;
 import me.koenn.kingdomwars.listeners.*;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.util.References;
@@ -60,7 +58,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), this);
             Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
             Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
-            Bukkit.getPluginManager().registerEvents(new GrenadeListener(), this);
             Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
 
             this.getLogger().info("Registering commands...");
@@ -79,9 +76,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
             this.getLogger().info("Loading deployables...");
             DeployableLoader.load();
-
-            this.getLogger().info("Loading grenades...");
-            GrenadeLoader.load();
 
             this.getLogger().info("Loading characters...");
             CharacterLoader.load();

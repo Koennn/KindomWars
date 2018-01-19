@@ -7,18 +7,19 @@ import me.koenn.kingdomwars.characters.Character;
 import me.koenn.kingdomwars.game.events.GamePointCapEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
+import me.koenn.kingdomwars.grenade.EMPGrenade;
+import me.koenn.kingdomwars.grenade.Grenade;
 import me.koenn.kingdomwars.traits.CloakingArmor;
 import me.koenn.kingdomwars.traits.ElectricBow;
-import me.koenn.kingdomwars.util.Messager;
-import me.koenn.kingdomwars.util.PlayerHelper;
-import me.koenn.kingdomwars.util.References;
-import me.koenn.kingdomwars.util.Team;
+import me.koenn.kingdomwars.traits.Robot;
+import me.koenn.kingdomwars.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -66,11 +67,24 @@ public final class GameHelper implements Listener {
 
             PlayerHelper.giveKit(player, character.getKit());
 
+            //TODO: FSS KOENN THIS IS SO MESSY AND DUMB...
             if (character.getTrait() != null) {
                 if (character.getTrait().equals(CloakingArmor.class)) {
                     game.activeTraits.add(new CloakingArmor(player));
                 } else if (character.getTrait().equals(ElectricBow.class)) {
                     game.activeTraits.add(new ElectricBow(player));
+                } else if (character.getTrait().equals(Robot.class)) {
+                    game.activeTraits.add(new Robot(player));
+                }
+            }
+
+            if (character.getGrenade() != null) {
+                if (character.getGrenade().equals("GRENADE_EMP")) {
+                    Grenade grenade = new EMPGrenade();
+                    game.grenades.add(grenade);
+                    ItemStack item = grenade.getItem();
+                    item.setAmount(3);
+                    player.getInventory().addItem(item);
                 }
             }
         }
@@ -86,7 +100,7 @@ public final class GameHelper implements Listener {
 
         Messager.teamTitle(References.CAPTURE_WIN_TITLE, References.CAPTURE_WIN_SUBTITLE, won, game);
         Messager.teamTitle(References.CAPTURE_LOSS_TITLE, References.CAPTURE_LOSS_SUBTITLE, lost, game);
-        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.5F, 0.5F));
+        SoundSystem.gameSound(game, Sound.ENTITY_PLAYER_LEVELUP, 1.5F, 0.5F);
 
         game.getMap().renderCapture(lost);
 

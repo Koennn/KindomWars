@@ -11,6 +11,7 @@ import me.koenn.kingdomwars.characters.CharacterGui;
 import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
+import me.koenn.kingdomwars.util.SoundSystem;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -64,7 +65,7 @@ public class SignListener implements Listener {
                 .location(new DynamicLocation(player))
                 .build();
         effect.start();
-        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+        SoundSystem.playerSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
 
         CharacterGui gui = new CharacterGui(player);
         Gui.registerGui(gui, KingdomWars.getInstance());

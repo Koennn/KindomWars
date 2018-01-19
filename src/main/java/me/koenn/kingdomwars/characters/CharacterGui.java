@@ -4,13 +4,16 @@ import me.koenn.core.gui.Gui;
 import me.koenn.core.gui.Option;
 import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.ItemHelper;
-import me.koenn.core.misc.LoreHelper;
 import me.koenn.core.player.CPlayerRegistry;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class CharacterGui extends Gui {
 
@@ -19,14 +22,17 @@ public class CharacterGui extends Gui {
 
         CharacterLoader.CHARACTER_REGISTRY.getRegisteredObjects().forEach(character -> {
             ItemStack raw = character.getIcon();
+
+            List<String> lore = new ArrayList<>();
+            lore.add(String.format(ChatColor.RESET + "Click to select %s!", character.getName()));
+            Collections.addAll(lore, wrapString(character.getDescription(), 30).split("\n"));
+
             ItemStack icon = ItemHelper.makeItemStack(
                     raw.getType(), raw.getAmount(), raw.getDurability(),
                     ColorHelper.readColor("&e&l" + character.getName()),
-                    LoreHelper.makeLore(
-                            String.format(ChatColor.RESET + "Click to select %s!", character.getName()),
-                            wrapString(character.getDescription(), 30)
-                    )
+                    lore
             );
+
             ItemMeta meta = icon.getItemMeta();
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             icon.setItemMeta(meta);
@@ -55,7 +61,9 @@ public class CharacterGui extends Gui {
                         .append(ChatColor.GRAY)
                         .append(ChatColor.ITALIC)
                         .append(string.substring(lastBreak, nextBreak).trim())
-                        .append("\n");
+                        .append("\n")
+                        .append(ChatColor.GRAY)
+                        .append(ChatColor.ITALIC);
                 lastBreak = nextBreak;
                 nextBreak += charWrap;
 

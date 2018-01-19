@@ -5,6 +5,7 @@ import me.koenn.core.misc.Counter;
 import me.koenn.core.misc.ProgressBar;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.util.SoundSystem;
 import org.bukkit.Sound;
 
 public class PrepareCounter extends Counter {
@@ -31,7 +32,7 @@ public class PrepareCounter extends Counter {
             actionBar.send(player);
 
             if (this.cooldown == 0) {
-                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
+                SoundSystem.playerSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
             }
 
             if (this.cooldown > 0) {

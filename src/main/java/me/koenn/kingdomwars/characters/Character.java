@@ -13,6 +13,7 @@ public class Character {
     private final ItemStack icon;
     private final CharacterKit kit;
     private Class<? extends Trait> trait;
+    private String grenade;
 
     public Character(JSONObject json) {
         this.name = (String) json.get("name");
@@ -21,6 +22,9 @@ public class Character {
         this.kit = new CharacterKit((JSONObject) json.get("kit"));
         if (json.containsKey("trait")) {
             this.trait = ReflectionHelper.getClass("me.koenn.kingdomwars.traits." + json.get("trait"));
+        }
+        if (json.containsKey("grenade")) {
+            this.grenade = (String) json.get("grenade");
         }
     }
 
@@ -42,5 +46,9 @@ public class Character {
 
     public Class<? extends Trait> getTrait() {
         return trait;
+    }
+
+    public String getGrenade() {
+        return grenade;
     }
 }

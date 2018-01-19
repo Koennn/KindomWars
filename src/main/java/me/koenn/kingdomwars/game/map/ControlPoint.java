@@ -8,6 +8,7 @@ import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.tracker.PointTracker;
 import me.koenn.kingdomwars.util.JSONSerializable;
 import me.koenn.kingdomwars.util.PlayerHelper;
+import me.koenn.kingdomwars.util.SoundSystem;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -89,7 +90,7 @@ public class ControlPoint implements JSONSerializable {
             game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
                 actionBar.send(player);
                 if (this.cooldown == 0) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
+                    SoundSystem.playerSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
                 }
             });
         }
