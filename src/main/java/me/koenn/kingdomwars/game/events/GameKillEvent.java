@@ -23,7 +23,7 @@ public class GameKillEvent extends GameEvent {
         this.killed = killed;
 
         Map map = game.getMap();
-        Team team = PlayerHelper.getTeam(killer);
+        Team team = PlayerHelper.getTeam(killer.getUniqueId());
         Location location = killer.getLocation();
         Location allyPoint = map.getPoints()[team.getIndex()].corners[0];
         Location enemyPoint = map.getPoints()[team.getOpponent().getIndex()].corners[0];
@@ -59,6 +59,12 @@ public class GameKillEvent extends GameEvent {
     }
 
     public enum KillType {
-        ATTACKING, DEFENDING, ROAMING
+        ATTACKING(0), DEFENDING(1), ROAMING(2);
+
+        public final int index;
+
+        KillType(int index) {
+            this.index = index;
+        }
     }
 }

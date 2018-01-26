@@ -1,8 +1,21 @@
 package me.koenn.kingdomwars.listeners;
 
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.AnimatedBallEffect;
+import de.slikey.effectlib.util.DynamicLocation;
+import de.slikey.effectlib.util.ParticleEffect;
+import me.koenn.core.player.CPlayer;
+import me.koenn.core.player.CPlayerRegistry;
+import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.discord.DiscordBot;
 import me.koenn.kingdomwars.game.Game;
+import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
+import me.koenn.kingdomwars.util.References;
+import me.koenn.kingdomwars.util.SoundSystem;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,9 +23,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 
 import java.util.Objects;
 
@@ -36,7 +47,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        final Game game = PlayerHelper.getGame(player);
+        final Game game = PlayerHelper.getGame(player.getUniqueId());
         final Block clicked = event.getClickedBlock();
         game.getDeployables().stream()
                 .filter(Objects::nonNull)
@@ -62,9 +73,13 @@ public class PlayerListener implements Listener {
             damage *= 2;
         }
 
-        final int finalDamage = damage;
-        final Game game = PlayerHelper.getGame(player);
         final Block hit = event.getHitBlock();
+        if (hit == null) {
+            return;
+        }
+
+        final int finalDamage = damage;
+        final Game game = PlayerHelper.getGame(player.getUniqueId());
         game.getDeployables().stream()
                 .filter(Objects::nonNull)
                 .forEach(deployable -> deployable.getDeployableBlocks().stream()
@@ -83,7 +98,55 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (!PlayerHelper.isInGame(player.getUniqueId()) || !player.getGameMode().equals(GameMode.SURVIVAL)) {
+            return;
+        }
+
+        player.damage(Integer.MAX_VALUE);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        event.getPlayer().teleport(Bukkit.getWorlds().get(0).getSpawnLocation().clone().add(0.5, 0, 0.5));
+        Player player = event.getPlayer();
+
+        if (PlayerHelper.isInGame(player.getUniqueId())) {
+            if (player.isDead()) {
+                Messager.playerMessage(player, References.DEATH);
+            }
+            return;
+        }
+
+        player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation().clone().add(0.5, 0, 0.5));
+
+        SoundSystem.playerSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+
+        AnimatedBallEffect effect = new AnimatedBallEffect(new EffectManager(KingdomWars.getInstance()));
+        effect.particle = ParticleEffect.VILLAGER_HAPPY;
+        effect.iterations = 50;
+        effect.yOffset = -1.0F;
+        effect.setDynamicOrigin(new DynamicLocation(player));
+        effect.start();
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
+            Messager.clearChat(player);
+            for (String line : References.SERVER_JOIN_MESSAGE) {
+                Messager.playerMessage(player, line);
+            }
+        }, 10);
+
+        CPlayer cPlayer = CPlayerRegistry.getCPlayer(player.getUniqueId());
+        String discordId = cPlayer.get("discord_id");
+        if (discordId != null) {
+            DiscordBot.LINKS.put(player.getUniqueId(), DiscordBot.getUser(discordId).getIdLong());
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        if (PlayerHelper.isInGame(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
     }
 }

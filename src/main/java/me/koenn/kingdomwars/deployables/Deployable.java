@@ -1,262 +1,227 @@
 package me.koenn.kingdomwars.deployables;
 
-import de.slikey.effectlib.Effect;
-import de.slikey.effectlib.EffectManager;
-import de.slikey.effectlib.effect.BleedEffect;
-import de.slikey.effectlib.util.DynamicLocation;
-import me.koenn.core.cgive.CGiveAPI;
+import me.koenn.core.misc.ReflectionHelper;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.effect.DisabledEffect;
-import me.koenn.kingdomwars.js.ScriptHelper;
-import me.koenn.kingdomwars.util.*;
+import me.koenn.kingdomwars.deployables_OLD.DeployableBlock;
+import me.koenn.kingdomwars.util.DeployableHelper;
+import me.koenn.kingdomwars.util.NBTUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.jnbt.*;
+import org.bukkit.util.Vector;
+import org.jnbt.CompoundTag;
+import org.jnbt.IntTag;
+import org.jnbt.ListTag;
+import org.jnbt.Tag;
 
-import javax.script.ScriptEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * <p>
- * Copyright (C) Koenn - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Koen Willemse, April 2017
- */
-public class Deployable implements Listener, Runnable {
+import static me.koenn.kingdomwars.util.NBTUtil.getChildTag;
 
-    private final Location location;
-    private final DeployableExecutor executor;
-    private final CompoundTag deployableInfo;
-    private final ListTag phases;
-    private final Deployable instance;
+@SuppressWarnings("deprecation")
+public class Deployable {
+
+    /**
+     * The blocks that the deployable will replace.
+     */
+    private final List<DeployableBlock> oldBlocks = new ArrayList<>();
+
+    /**
+     * The blocks that make up the deployable.
+     */
     private final List<Location> deployableBlocks = new ArrayList<>();
 
-    private int health;
-    private int dmgCooldown;
-    private boolean disabled;
-    private Effect disabledEffect;
+    /**
+     * The location of the deployable.
+     */
+    private final Location location;
 
-    public Deployable(final Location location, CompoundTag deployableInfo) {
-        this.instance = this;
+    /**
+     * The owner of the deployable.
+     */
+    private final Player owner;
+
+    /**
+     * The type of deployable.
+     */
+    private final DeployableType type;
+
+    /**
+     * The executor to handle the logic of the deployable.
+     */
+    private final DeployableExecutor executor;
+
+    /**
+     * The id of the repeating update task.
+     */
+    private int taskId;
+
+    /**
+     * Constructor to create a new deployable at a set location.
+     *
+     * @param location Location to put it at
+     * @param owner    Owner of the deployable
+     * @param type     Type of deployable
+     */
+    public Deployable(Location location, Player owner, DeployableType type) {
         this.location = location;
-        this.deployableInfo = deployableInfo;
-        this.phases = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "construction", CompoundTag.class).getValue(), "phases", ListTag.class);
-        this.health = NBTUtil.getChildTag(NBTUtil.getChildTag(this.deployableInfo.getValue(), "properties", CompoundTag.class).getValue(), "health", IntTag.class).getValue();
-
-        this.executor = new DeployableExecutor() {
-            private final List<DeployableBlock> oldBlocks = new ArrayList<>();
-
-            private boolean constructed = false;
-            private Player owner;
-            private int task;
-            private ScriptEngine script;
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean construct(Player player) {
-                this.owner = player;
-
-                HashMap<DeployableBlock, Integer> blocks = new HashMap<>();
-
-                for (Tag phase : phases.getValue()) {
-                    CompoundTag phaseTag = (CompoundTag) phase;
-                    ListTag blockTags = NBTUtil.getChildTag(phaseTag.getValue(), "blocks", ListTag.class);
-
-                    boolean skip = true;
-                    for (Tag blockTag : blockTags.getValue()) {
-                        DeployableBlock block = NBTUtil.getBlock((CompoundTag) blockTag);
-                        block.setOffset(DeployableHelper.rotateOffsetTowards(block.getOffset(), DeployableHelper.getPlayerDirection(player)));
-                        blocks.put(block, NBTUtil.getChildTag(phaseTag.getValue(), "delay", IntTag.class).getValue());
-
-                        if (skip) {
-                            skip = false;
-                            continue;
-                        }
-
-                        Block replace = location.clone().add(block.getOffset()).getBlock();
-                        if (!replace.getType().equals(Material.AIR) && !replace.getType().equals(Material.LONG_GRASS)) {
-                            this.oldBlocks.clear();
-                            return false;
-                        }
-
-                        this.oldBlocks.add(new DeployableBlock(replace));
-                    }
-                }
-
-                this.script = DeployableLoader.loadDeployableScript(instance);
-                ScriptHelper.invokeFunction(this.script, "onConstruct", instance, this.owner, location);
-
-                int highestDelay = 0;
-                for (DeployableBlock block : blocks.keySet()) {
-                    int delay = blocks.get(block);
-                    highestDelay = delay > highestDelay ? delay : highestDelay;
-
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-                        Location place = location.clone().add(block.getOffset());
-                        byte oldData = place.getBlock().getData();
-                        place.getBlock().setType(block.getType());
-                        if (block.getData() == -1) {
-                            place.getBlock().setData(oldData);
-                        } else {
-                            place.getBlock().setData(block.getData());
-                        }
-                        deployableBlocks.add(place);
-                    }, delay);
-                }
-
-                Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), this::constructComplete, highestDelay);
-
-                return true;
-            }
-
-            @Override
-            public void constructComplete() {
-                this.constructed = true;
-                this.task = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), instance, 0, 1);
-                ScriptHelper.invokeFunction(this.script, "onConstructComplete", instance);
-            }
-
-            @Override
-            public void tick() {
-                if (this.constructed) {
-                    ScriptHelper.invokeFunction(this.script, "onTick", instance, new ArrayList<>(Bukkit.getOnlinePlayers()));
-                }
-            }
-
-            @Override
-            public void damage(int amount, Player damager) {
-                ScriptHelper.invokeFunction(this.script, "onDamageTake", instance, amount, damager);
-            }
-
-            @Override
-            public void destroy() {
-                this.constructed = false;
-                Bukkit.getScheduler().cancelTask(this.task);
-                ScriptHelper.invokeFunction(this.script, "onDestroy", instance);
-                deployableBlocks.forEach(block -> block.getBlock().setType(Material.AIR));
-                this.oldBlocks.forEach(DeployableBlock::replace);
-                deployableBlocks.clear();
-            }
-
-            @Override
-            public Team getTeam() {
-                return PlayerHelper.getTeam(this.owner);
-            }
-
-            @Override
-            public Player getOwner() {
-                return this.owner;
-            }
-        };
+        this.owner = owner;
+        this.type = type;
+        this.executor = (DeployableExecutor) ReflectionHelper.newInstance(type.getExecutor(), null);
     }
 
-
-    public void damage(int amount, Player damager) {
-        if (PlayerHelper.getTeam(damager).equals(this.executor.getTeam())) {
-            return;
+    /**
+     * Construct the deployable at it's location.
+     *
+     * @return true if the construction was successful.
+     */
+    public boolean construct() {
+        //Load the blocks from the NBT tag.
+        HashMap<DeployableBlock, Integer> blocks = this.loadBlocks();
+        if (blocks == null) {
+            return false;
         }
 
-        if (this.dmgCooldown > 0) {
-            return;
-        }
+        int highestDelay = 0;
 
-        this.executor.damage(amount, damager);
-        this.dmgCooldown = 10;
-        this.bleed();
+        //Loop over all blocks.
+        for (DeployableBlock block : blocks.keySet()) {
+            //Get the placement delay for that block.
+            int delay = blocks.get(block);
 
-        this.health -= amount;
-        if (this.health <= 0) {
-            this.health = Integer.MAX_VALUE;
+            //Calculate if it's the highest delay.
+            highestDelay = delay > highestDelay ? delay : highestDelay;
+
+            //Schedule the place task with the block's delay.
             Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-                this.remove();
 
-                for (int i = 0; i < 5; i++) {
-                    this.bleed();
+                //Get the block's offset.
+                Location place = location.clone().add(block.getOffset());
+
+                //Get the block's old data byte.
+                byte oldData = place.getBlock().getData();
+
+                //Set the block to the new type.
+                place.getBlock().setType(block.getType());
+
+                //Check if the data is real.
+                if (block.getData() == -1) {
+
+                    //If not, set the block to it's old data.
+                    place.getBlock().setData(oldData);
+                } else {
+
+                    //If so, set the blocks to it's new data.
+                    place.getBlock().setData(block.getData());
                 }
 
-                final Player owner = this.executor.getOwner();
-                Messager.gameMessage(PlayerHelper.getGame(damager), String.format("%s's Turret was destroyed by %s", owner.getName(), damager.getName()));
+                //Add the block to the list of blocks.
+                this.deployableBlocks.add(place);
 
-                final String itemName = ((StringTag) NBTUtil.getChildTag(this.getDeployableInfo().getValue(), "properties", CompoundTag.class).getValue().get("name")).getValue();
-                final ItemStack item = CGiveAPI.getCItem(itemName).getItem();
-
-                Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> owner.getInventory().addItem(item), 1000);
-            });
+            }, delay);
         }
+
+        //Schedule the init method with the highest delay.
+        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), this::init, highestDelay);
+        return true;
     }
 
-    public void disable(Player damager) {
-        this.damage(10, damager);
+    /**
+     * Initialize the deployable, must be called after construction has completed.
+     */
+    private void init() {
+        //Call the executor's init method.
+        this.executor.init(this.owner, this);
 
-        if (this.disabled) {
-            return;
+        //Schedule a repeating task to call the executor's update method.
+        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this.executor::update, 0, 5);
+    }
+
+    /**
+     * Load all the blocks from NBT into a HashMap.
+     *
+     * @return HashMap with all blocks making up the deployable
+     */
+    private HashMap<DeployableBlock, Integer> loadBlocks() {
+        //Create the HashMap.
+        HashMap<DeployableBlock, Integer> result = new HashMap<>();
+
+        //Get the CompoundTag.
+        CompoundTag construction = this.type.getConstruction();
+
+        //Get the list of build phases.
+        List<Tag> phases = getChildTag(construction, "phases", ListTag.class).getValue();
+
+        //Loop over the phases.
+        for (Tag phaseTag : phases) {
+
+            //Get the delay for this phase.
+            int delay = getChildTag((CompoundTag) phaseTag, "delay", IntTag.class).getValue();
+
+            //Get the list of blocks in this phase.
+            List<Tag> blocks = getChildTag((CompoundTag) phaseTag, "blocks", ListTag.class).getValue();
+
+            //Loop over the blocks.
+            for (Tag blockTag : blocks) {
+
+                //Create the DeployableBlock out of the data.
+                DeployableBlock block = NBTUtil.getBlock((CompoundTag) blockTag);
+
+                //Calculate the block's offset.
+                Vector offset = DeployableHelper.rotateOffsetTowards(block.getOffset(), DeployableHelper.getPlayerDirection(this.owner));
+
+                //Set the offset in the DeployableBlock.
+                block.setOffset(offset);
+
+                //Check if the block can be placed.
+                if (!this.testBlockPlace(offset)) {
+
+                    //If not, terminate this method and return null.
+                    return null;
+                }
+
+                //Put the resulting DeployableBlock with it's delay in the HashMap.
+                result.put(block, delay);
+            }
         }
-        this.disabled = true;
 
-        this.disabledEffect = new DisabledEffect();
-        this.disabledEffect.setDynamicOrigin(new DynamicLocation(this.location.clone().add(0.5, 0.0, 0.5)));
-        this.disabledEffect.infinite();
-        this.disabledEffect.start();
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-            this.disabled = false;
-            this.disabledEffect.cancel();
-        }, 300);
+        //Return the resulting HashMap.
+        return result;
     }
 
-    private void bleed() {
-        BleedEffect effect = new BleedEffect(new EffectManager(KingdomWars.getInstance()));
-        effect.setDynamicOrigin(new DynamicLocation(this.location));
-        effect.setDynamicTarget(new DynamicLocation(this.location));
-        effect.iterations = 1;
-        effect.height = 1.0;
-        effect.start();
-    }
+    /**
+     * Test whether it's possible to place a block at a certain offset.
+     *
+     * @param offset Offset to place at
+     * @return true if the block can be placed
+     */
+    private boolean testBlockPlace(Vector offset) {
+        //Get the block that is currently at this offset.
+        Block replace = location.clone().add(offset).getBlock();
 
-    public boolean construct(Player constructor) {
-        return this.executor.construct(constructor);
-    }
+        //Check if it's air or tallgrass.
+        if (!replace.getType().equals(Material.AIR) && !replace.getType().equals(Material.LONG_GRASS)) {
 
-    public void remove() {
-        this.executor.destroy();
-
-        if (this.disabledEffect != null && !this.disabledEffect.isDone()) {
-            this.disabledEffect.cancel();
+            //Clear the oldBlocks and return false.
+            this.oldBlocks.clear();
+            return false;
         }
+
+        //Add the block to the oldBlocks and return true.
+        this.oldBlocks.add(new DeployableBlock(replace));
+        return true;
     }
 
+    /**
+     * Get the deployable's location.
+     *
+     * @return deployable's location
+     */
     public Location getLocation() {
         return location;
-    }
-
-    public CompoundTag getDeployableInfo() {
-        return deployableInfo;
-    }
-
-    public List<Location> getDeployableBlocks() {
-        return deployableBlocks;
-    }
-
-    public Team getTeam() {
-        return this.executor.getTeam();
-    }
-
-    @Override
-    public void run() {
-        if (!this.disabled) {
-            this.executor.tick();
-        }
-
-        if (this.dmgCooldown > 0) {
-            this.dmgCooldown--;
-        }
     }
 }

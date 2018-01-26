@@ -1,8 +1,8 @@
 package me.koenn.kingdomwars.listeners;
 
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.deployables.Deployable;
-import me.koenn.kingdomwars.deployables.DeployableLoader;
+import me.koenn.kingdomwars.deployables_OLD.Deployable;
+import me.koenn.kingdomwars.deployables_OLD.DeployableLoader;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.game.GamePhase;
 import me.koenn.kingdomwars.util.Messager;
@@ -26,7 +26,7 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (!PlayerHelper.isInGame(event.getPlayer())) {
+        if (!PlayerHelper.isInGame(event.getPlayer().getUniqueId())) {
             return;
         }
 

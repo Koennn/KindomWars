@@ -5,6 +5,7 @@ import me.koenn.core.misc.ColorHelper;
 import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.discord.DiscordBot;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
@@ -39,7 +40,7 @@ public class GameCreator implements Runnable {
     private final HashMap<Sign, Game> games = new HashMap<>();
 
     private GameCreator() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, 5);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(KingdomWars.getInstance(), this, 0, 10);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class GameCreator implements Runnable {
                 sign.setLine(2, "");
             }
             if (game.getCurrentPhase().equals(GamePhase.STARTING) || game.getCurrentPhase().equals(GamePhase.STARTED)) {
-                sign.setLine(2, ColorHelper.readColor(References.FULL));
+                sign.setLine(2, ColorHelper.readColor(References.SPECTATE));
             }
             sign.update();
         });
@@ -93,18 +94,22 @@ public class GameCreator implements Runnable {
 
     public boolean signClick(Sign sign, Player player) {
         Game game = this.games.get(sign);
+        System.out.println(game);
         if (game.getCurrentPhase().equals(GamePhase.STARTED) || game.getCurrentPhase().equals(GamePhase.STARTING)) {
             player.teleport(game.getMap().getSpawn(Team.RED));
             Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.setGameMode(GameMode.SPECTATOR), 20);
-            game.getPlayers().add(player);
+            game.getPlayers().add(player.getUniqueId());
             return false;
         }
 
-        if (game == null || game.isFull() || PlayerHelper.isInGame(player)) {
+        if (game == null || game.isFull() || PlayerHelper.isInGame(player.getUniqueId())) {
             return false;
         }
 
-        game.getPlayers().add(player);
+        game.addPlayer(player.getUniqueId());
+
+        DiscordBot.attemptMovePlayer(player, game.getLobby().getLobbyId());
+
         EventLogger.log(new Message("info", "Player " + player.getName() + " joined game " + Integer.toHexString(game.hashCode())));
         Messager.playerMessage(player, References.JOIN_MESSAGE);
 
@@ -161,6 +166,7 @@ public class GameCreator implements Runnable {
                 KingdomWars.getInstance().getLogger().severe(
                         String.format("Sign %s doesn't exist in the world anymore!", ((JSONObject) sign).toJSONString())
                 );
+                ex.printStackTrace();
             }
         });
     }

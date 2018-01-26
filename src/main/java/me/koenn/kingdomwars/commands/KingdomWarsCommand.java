@@ -3,8 +3,7 @@ package me.koenn.kingdomwars.commands;
 import me.koenn.core.command.Command;
 import me.koenn.core.player.CPlayer;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.grenade.EMPGrenade;
-import me.koenn.kingdomwars.grenade.Grenade;
+import me.koenn.kingdomwars.traits.SwordTeleport;
 import me.koenn.kingdomwars.util.References;
 
 import java.util.Arrays;
@@ -33,8 +32,7 @@ public class KingdomWarsCommand extends Command {
             return true;
         }
 
-        Grenade grenade = new EMPGrenade();
-        cPlayer.getPlayer().getInventory().addItem(grenade.getItem());
+        new SwordTeleport(cPlayer.getUUID());
         return true;
     }
 }

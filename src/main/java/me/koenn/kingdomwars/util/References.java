@@ -26,7 +26,8 @@ public final class References {
     public static final String DONT_HURT_ALLY = GAME_PREFIX + "&cPlease don't attempt to hurt your allies.";
     public static final String KILL = "&2+1 Kill!";
     public static final String JOIN_MESSAGE = "&7You joined a game, please wait until it starts.";
-    public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 5 seconds.";
+    public static final String SELECTED = "&7You selected &e&l%s!";
+    public static final String DEATH = GAME_PREFIX + "&4You died! Please wait 10 seconds.";
     public static final String DEATH_TITLE = "&c&lYou died!";
     public static final String RESPAWN = GAME_PREFIX + "&2You respawned! Try not to die this time.";
     public static final String CAPTURE_LOSS_TITLE = "&c&lPoint lost!";
@@ -55,6 +56,7 @@ public final class References {
     public static final String SIGN_3 = "%color%%pcount%/%maxp%";
     public static final String LAST_SPOT = "&4&lONE SPOT LEFT!";
     public static final String FULL = "&4&lGAME FULL!";
+    public static final String SPECTATE = "&a&lCLICK TO WATCH!";
 
     public static final String[] GAME_JOIN_MESSAGE = new String[]{
             "&b&m+===============================================+",
@@ -67,13 +69,24 @@ public final class References {
             "&b&m+===============================================+"
     };
 
-    public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your turret will not work!";
+    public static final String[] SERVER_JOIN_MESSAGE = new String[]{
+            "&b&m+===============================================+",
+            "",
+            "&6&lWelcome to the KingdomWars Server!",
+            "",
+            "&3&lDiscord: &7https://discord.gg/hJAxEnP",
+            "&3&lWebsite: &7http://kingdomwarsmc.net",
+            "",
+            "&b&m+===============================================+"
+    };
+
+    public static final String NOT_IN_GAME = GAME_PREFIX + "&4You're not in a game, so your building will not work!";
     public static final String BUILDING_COMPLETE = GAME_PREFIX + "&a&lBuilding construction complete!";
 
-    public static final String DEPLOYABLE_FOLDER = "deployables";
+    public static final String DEPLOYABLE_FOLDER = "deployables_OLD";
 
-    public static final int RESPAWN_COOLDOWN = 15;
-    public static final int UPDATE_RATE = 2;
+    public static final int RESPAWN_COOLDOWN = 20;
+    public static final int UPDATE_RATE = 3;
     public static final int WINNING_POINTS = 3;
 
     public static final CItem MAPSTAFF = new CItem() {

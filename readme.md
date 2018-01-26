@@ -46,7 +46,7 @@ Turrets are defensive area-denial buildings, that will shoot enemies. There are 
 Healing stations are supportive buildings that can heal teammates. There are a few different types available (eg. AOE heal, single target, etc.).
 Shields are supportive wall-like structures that can provide great cover to teammates. There are different shapes and sizes of shields available.
 After being placed, a building slowly constructs itself, and has 50% reduced health while constructing.
-To kill a building, simply hit it like you would hit a player. Buildings can also be disabled (disabled is not destroyed) for a certain amount of time if they get hit by an EMP-grenade.
+To kill a building, simply hit it like you would hit a uuid. Buildings can also be disabled (disabled is not destroyed) for a certain amount of time if they get hit by an EMP-grenade.
 
 **Grenades**
 

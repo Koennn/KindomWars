@@ -5,14 +5,17 @@ import de.slikey.effectlib.effect.WarpEffect;
 import de.slikey.effectlib.util.DynamicLocation;
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.kingdomwars.KingdomWars;
+import me.koenn.kingdomwars.util.SoundSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -103,10 +106,12 @@ public class MedKit implements Listener {
             this.item = null;
 
             if (event.getEntity().getHealth() == event.getEntity().getMaxHealth()) {
-                event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, 0, true, true));
+                event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 1200, 0, true, true), true);
             } else {
                 event.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 2, false, true));
             }
+
+            SoundSystem.locationSound(event.getItem().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1.0F, 2.0F);
 
             WarpEffect effect = new WarpEffect(new EffectManager(KingdomWars.getInstance()));
             effect.particle = ParticleEffect.HEART;
@@ -118,6 +123,17 @@ public class MedKit implements Listener {
             effect.start();
 
             this.taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), this::regen, 600);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onItemDespawn(ItemDespawnEvent event) {
+        if (event.getEntity() == null || this.item == null) {
+            return;
+        }
+
+        if (event.getEntity().getUniqueId().equals(this.item.getUniqueId())) {
+            event.setCancelled(true);
         }
     }
 }

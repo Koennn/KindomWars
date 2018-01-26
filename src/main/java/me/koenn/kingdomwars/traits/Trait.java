@@ -20,6 +20,11 @@ public abstract class Trait implements Runnable, Listener {
         Bukkit.getScheduler().cancelTask(this.taskId);
         HandlerList.unregisterAll(this);
 
-        this.disable();
+        try {
+            this.disable();
+        } catch (Exception ex) {
+            System.out.println("Error while disabling trait: " + ex);
+            ex.printStackTrace();
+        }
     }
 }

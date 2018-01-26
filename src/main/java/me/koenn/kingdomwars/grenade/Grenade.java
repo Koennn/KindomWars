@@ -104,11 +104,20 @@ public abstract class Grenade implements Listener, CItem {
         this.executors.put(grenade.getUniqueId(), executor);
 
         //Create a task that gives the grenade back to the player after 800 ticks.
+        this.giveGrenade(grenade, player.getUniqueId());
+    }
+
+    private void giveGrenade(Projectile grenade, UUID uuid) {
         this.tasks.put(
                 grenade.getUniqueId(),
                 Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> {
-                    player.getInventory().addItem(this.getItem());
                     this.tasks.remove(grenade.getUniqueId());
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player == null) {
+                        this.giveGrenade(grenade, uuid);
+                        return;
+                    }
+                    player.getInventory().addItem(this.getItem());
                 }, 800)
         );
     }

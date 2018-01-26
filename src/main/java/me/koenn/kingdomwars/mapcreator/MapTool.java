@@ -13,6 +13,7 @@ import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -161,11 +162,17 @@ public class MapTool implements Listener {
             case Medkit:
                 medkits.add(LocationHelper.getString(event.getSelected()));
                 System.out.println(medkits.toJSONString());
+                break;
+
+            case Data:
+                Block block = event.getSelected().getBlock();
+                player.sendMessage(block.getType().name() + " " + block.getData());
+                break;
         }
     }
 
     public enum Mode {
-        Spawn, Door, Point, Medkit;
+        Spawn, Door, Point, Medkit, Data;
 
         Mode getNextMode() {
             switch (this) {
@@ -176,6 +183,8 @@ public class MapTool implements Listener {
                 case Point:
                     return Mode.Medkit;
                 case Medkit:
+                    return Mode.Data;
+                case Data:
                     return Mode.Spawn;
                 default:
                     return Mode.Spawn;

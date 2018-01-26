@@ -5,6 +5,7 @@ import me.koenn.core.misc.LoreHelper;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -21,6 +22,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.UUID;
+
 /**
  * Class for armor that can make you invisible.
  */
@@ -29,9 +32,9 @@ public class CloakingArmor extends Trait {
     /**
      * Maximum cloaking time in ticks.
      */
-    public static final int MAX_CLOAK_TIME = 240;
+    public static final int MAX_CLOAK_TIME = 1200;
     public static final int LONG_COOLDOWN = 100;
-    public static final int SHORT_COOLDOWN = 50;
+    public static final int SHORT_COOLDOWN = 40;
 
     /**
      * The leather 'Cloaking Armor'
@@ -54,12 +57,12 @@ public class CloakingArmor extends Trait {
     );
 
     /**
-     * The player using the armor.
+     * The uuid using the armor.
      */
-    private final Player player;
+    private final UUID uuid;
 
     /**
-     * Current cloak status, true if the player is cloaked.
+     * Current cloak status, true if the uuid is cloaked.
      */
     private boolean cloaked;
 
@@ -73,29 +76,34 @@ public class CloakingArmor extends Trait {
     /**
      * Constructor to create a new CloakingArmor object.
      *
-     * @param player player who uses the armor
+     * @param uuid uuid who uses the armor
      */
-    public CloakingArmor(Player player) {
-        //Set the player variable.
-        this.player = player;
+    public CloakingArmor(UUID uuid) {
+        //Set the uuid variable.
+        this.uuid = uuid;
 
-        //Give the player the cloaking armor and device.
-        this.player.getInventory().setArmorContents(CLOAKING_ARMOR);
-        this.player.getInventory().addItem(CLOAKING_DEVICE);
+        //Give the uuid the cloaking armor and device.
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+
+        player.getInventory().setArmorContents(CLOAKING_ARMOR);
+        player.getInventory().addItem(CLOAKING_DEVICE);
     }
 
     /**
      * Toggle the cloak on or off.
      */
     public void toggleCloak() {
-        //Check if the player is cloaked.
+        //Check if the uuid is cloaked.
         if (this.cloaked) {
 
-            //If so, decloak the player.
+            //If so, decloak the uuid.
             this.deCloak();
         } else {
 
-            //Otherwise, cloak the player.
+            //Otherwise, cloak the uuid.
             this.cloak();
         }
     }
@@ -104,27 +112,43 @@ public class CloakingArmor extends Trait {
      * Turn the cloak on.
      */
     public void cloak() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+
+        //Check if the uuid is electrified.
+        if (!player.getMetadata("electric").isEmpty()) {
+            Messager.playerMessage(player, "&cYou cloak device is disabled!");
+            return;
+        }
+
         if (this.cooldown > 0) {
-            Messager.playerMessage(this.player, String.format("&cYour cloak is on cooldown for %ss", Math.round(this.cooldown / 20.0 * 10.0) / 10.0));
+            Messager.playerMessage(player, String.format("&cYour cloak is on cooldown for %ss", Math.round(this.cooldown / 20.0 * 10.0) / 10.0));
             return;
         }
 
         //Enable the cloak.
         this.cloaked = true;
 
-        //Remove the armor from the player.
-        this.player.getInventory().setArmorContents(new ItemStack[4]);
+        //Remove the armor from the uuid.
+        player.getInventory().setArmorContents(new ItemStack[4]);
     }
 
     /**
      * Turn the cloak off.
      */
     public void deCloak() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+
         //Disable the cloak.
         this.cloaked = false;
 
-        //Give the armor back to the player.
-        this.player.getInventory().setArmorContents(CLOAKING_ARMOR);
+        //Give the armor back to the uuid.
+        player.getInventory().setArmorContents(CLOAKING_ARMOR);
 
         //Reset the cloakTime to 0.
         this.cloakTime = 0;
@@ -136,50 +160,55 @@ public class CloakingArmor extends Trait {
 
     /**
      * Disable and unregister the cloak.
-     * Makes the player visible again.
+     * Makes the uuid visible again.
      */
     @Override
     protected void disable() {
-        //Decloak the player.
+        //Decloak the uuid.
         this.deCloak();
 
-        //Remove the armor from the player.
-        this.player.getInventory().setArmorContents(new ItemStack[4]);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+
+        //Remove the armor from the uuid.
+        player.getInventory().setArmorContents(new ItemStack[4]);
     }
 
     /**
-     * Check if an entity is the player using this armor.
+     * Check if an entity is the uuid using this armor.
      *
      * @param entity entity to check
      * @return isPlayer
      */
     private boolean isPlayer(Entity entity) {
-        return entity instanceof Player && this.player.equals(entity);
+        return entity instanceof Player && this.uuid.equals(entity.getUniqueId());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamage(EntityDamageEvent event) {
-        //Check if the player who took damage is the player in the event and if he's cloaked.
+        //Check if the uuid who took damage is the uuid in the event and if he's cloaked.
         if (this.isPlayer(event.getEntity()) && this.cloaked) {
 
-            //Decloak the player.
+            //Decloak the uuid.
             this.deCloak();
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        //Check if the player who dealt damage is the player in the event and if he's cloaked.
+        //Check if the uuid who dealt damage is the uuid in the event and if he's cloaked.
         if (this.isPlayer(event.getDamager()) && this.cloaked) {
 
-            //Decloak the player.
+            //Decloak the uuid.
             this.deCloak();
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        //Check if the player who clocked is the player in the event.
+        //Check if the uuid who clocked is the uuid in the event.
         if (this.isPlayer(event.getWhoClicked())) {
 
             //Check if the clicked slot is an armor slot.
@@ -193,7 +222,7 @@ public class CloakingArmor extends Trait {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        //Check if the player who clicked is the player in the event.
+        //Check if the uuid who clicked is the uuid in the event.
         if (this.isPlayer(event.getPlayer())) {
 
             //Check if the clicked item is the cloaking device.
@@ -221,20 +250,33 @@ public class CloakingArmor extends Trait {
             this.cooldown -= 5;
         }
 
-        //Check if the player is cloaked.
+        //Check if the uuid is cloaked.
         if (this.cloaked) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null) {
+                return;
+            }
 
-            //Check if the player is capturing a point.
-            if (PlayerHelper.isCapturing(this.player, PlayerHelper.getGame(this.player))) {
+            //Check if the uuid is capturing a point.
+            if (PlayerHelper.isCapturing(this.uuid, PlayerHelper.getGame(this.uuid))) {
 
-                //Decloak the player.
+                //Decloak the uuid.
                 this.deCloak();
 
                 return;
             }
 
-            //Give the player the invisibility effect.
-            this.player.addPotionEffect(
+            //Check if the uuid is electrified.
+            if (!player.getMetadata("electric").isEmpty()) {
+
+                //Decloak the uuid.
+                this.deCloak();
+
+                return;
+            }
+
+            //Give the uuid the invisibility effect.
+            player.addPotionEffect(
                     new PotionEffect(PotionEffectType.INVISIBILITY, 10, 1, true, true), true
             );
 
@@ -244,7 +286,7 @@ public class CloakingArmor extends Trait {
             //Check if the cloakTime is more than the maximum.
             if (this.cloakTime > MAX_CLOAK_TIME) {
 
-                //Decloak the player.
+                //Decloak the uuid.
                 this.deCloak();
 
                 this.cooldown = LONG_COOLDOWN;

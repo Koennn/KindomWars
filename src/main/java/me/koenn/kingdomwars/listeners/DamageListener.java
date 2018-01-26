@@ -14,9 +14,13 @@ import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
 import me.koenn.kingdomwars.util.SoundSystem;
+import net.minecraft.server.v1_12_R1.DataWatcherObject;
+import net.minecraft.server.v1_12_R1.DataWatcherRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,6 +31,7 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * <p>
@@ -37,41 +42,73 @@ import java.util.HashMap;
  */
 public class DamageListener implements Listener {
 
-    private static final HashMap<Player, Integer> respawnCooldown = new HashMap<>();
+    private static final HashMap<UUID, Integer> respawnCooldown = new HashMap<>();
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player)) {
             return;
         }
 
-        final Player damager = (Player) event.getDamager();
+        if (!(event.getDamager() instanceof Player) && !(event.getDamager() instanceof Arrow)) {
+            return;
+        }
+
+        Player damager;
+        if (event.getDamager() instanceof Arrow) {
+            if (!(((Arrow) event.getDamager()).getShooter() instanceof Player)) {
+                return;
+            }
+
+            damager = (Player) ((Arrow) event.getDamager()).getShooter();
+        } else {
+            damager = (Player) event.getDamager();
+        }
+
         final Player damaged = (Player) event.getEntity();
+
+        ((CraftPlayer) damaged).getHandle().getDataWatcher().set(new DataWatcherObject<>(10, DataWatcherRegistry.b), -1);
 
         if (!PlayerHelper.isInGame(damager) || !PlayerHelper.isInGame(damaged)) {
             return;
         }
 
-        final Game damagedGame = PlayerHelper.getGame(damaged);
-        if (damagedGame == null || damagedGame == null || damagedGame != PlayerHelper.getGame(damager)) {
+        final Game game = PlayerHelper.getGame(damaged);
+        if (game == null || game == null || game != PlayerHelper.getGame(damager)) {
             return;
         }
 
-        if (damagedGame.getCurrentPhase() != GamePhase.STARTED) {
+        if (game.getCurrentPhase() != GamePhase.STARTED) {
             event.setCancelled(true);
             return;
         }
 
-        if (!PlayerHelper.canDamage(damager, damaged)) {
+        if (!PlayerHelper.canDamage(damager.getUniqueId(), damaged.getUniqueId())) {
             event.setCancelled(true);
             Messager.playerMessage(damager, References.DONT_HURT_ALLY);
         }
     }
 
+    private void respawn(UUID uuid, Game game) {
+        new Timer(References.RESPAWN_COOLDOWN * 20, KingdomWars.getInstance()).start(() -> {
+            Player killed = Bukkit.getPlayer(uuid);
+            if (killed == null || !killed.isOnline()) {
+                this.respawn(uuid, game);
+                return;
+            }
+
+            respawnCooldown.put(killed.getUniqueId(), 0);
+            killed.setGameMode(GameMode.SURVIVAL);
+            killed.teleport(game.getMap().getSpawn(PlayerHelper.getTeam(uuid)));
+            Messager.playerMessage(killed, References.RESPAWN);
+        });
+    }
+
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         final Player killed = event.getEntity();
-        final Game game = PlayerHelper.getGame(killed);
+        final Game game = PlayerHelper.getGame(killed.getUniqueId());
 
         if (!PlayerHelper.isInGame(killed) || game == null) {
             return;
@@ -79,13 +116,8 @@ public class DamageListener implements Listener {
 
         event.setKeepInventory(true);
 
-        respawnCooldown.put(killed, References.RESPAWN_COOLDOWN);
-        new Timer(References.RESPAWN_COOLDOWN * 20, KingdomWars.getInstance()).start(() -> {
-            respawnCooldown.put(killed, 0);
-            killed.setGameMode(GameMode.SURVIVAL);
-            killed.teleport(game.getMap().getSpawn(PlayerHelper.getTeam(killed)));
-            Messager.playerMessage(killed, References.RESPAWN);
-        });
+        respawnCooldown.put(killed.getUniqueId(), References.RESPAWN_COOLDOWN);
+        this.respawn(killed.getUniqueId(), game);
 
         Messager.playerMessage(killed, References.DEATH);
         Messager.playerTitle(References.DEATH_TITLE, "", killed);
@@ -123,7 +155,7 @@ public class DamageListener implements Listener {
             return;
         }
 
-        if (respawnCooldown.get(player) != 0) {
+        if (respawnCooldown.get(player.getUniqueId()) != 0) {
             player.setGameMode(GameMode.SPECTATOR);
 
             final Player killer = player.getKiller();

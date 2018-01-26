@@ -1,6 +1,6 @@
 package me.koenn.kingdomwars.util;
 
-import me.koenn.kingdomwars.deployables.DeployableBlock;
+import me.koenn.kingdomwars.deployables_OLD.DeployableBlock;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
 import org.jnbt.*;
@@ -18,6 +18,18 @@ import java.util.Map;
 public final class NBTUtil {
 
     public static <T extends Tag> T getChildTag(Map<String, Tag> items, String key, Class<T> expected) throws IllegalArgumentException {
+        if (!items.containsKey(key)) {
+            throw new IllegalArgumentException("Deployable file is missing a \"" + key + "\" tag");
+        }
+        Tag tag = items.get(key);
+        if (!expected.isInstance(tag)) {
+            throw new IllegalArgumentException(key + " tag is not of tag type " + expected.getName());
+        }
+        return expected.cast(tag);
+    }
+
+    public static <T extends Tag> T getChildTag(CompoundTag compound, String key, Class<T> expected) throws IllegalArgumentException {
+        Map<String, Tag> items = compound.getValue();
         if (!items.containsKey(key)) {
             throw new IllegalArgumentException("Deployable file is missing a \"" + key + "\" tag");
         }

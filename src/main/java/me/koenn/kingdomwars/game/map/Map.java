@@ -35,6 +35,8 @@ public class Map implements Listener {
     private final Door[] doors = new Door[2];
     private final ControlPoint[] points = new ControlPoint[2];
     private List<MedKit> medkits = new ArrayList<>();
+    private List<SpeedPack> speedPacks = new ArrayList<>();
+    private List<JumpPad> jumpPads = new ArrayList<>();
     private int renderTask;
 
     public Map(JSONObject json) {
@@ -52,6 +54,16 @@ public class Map implements Listener {
         if (mapJson.containsKey("medkits")) {
             JSONArray medkits = (JSONArray) mapJson.get("medkits");
             medkits.forEach(medKit -> this.medkits.add(new MedKit(LocationHelper.fromString(String.valueOf(medKit)))));
+        }
+
+        if (mapJson.containsKey("speedPacks")) {
+            JSONArray speedPacks = (JSONArray) mapJson.get("speedPacks");
+            speedPacks.forEach(speedPack -> this.speedPacks.add(new SpeedPack(LocationHelper.fromString(String.valueOf(speedPack)))));
+        }
+
+        if (mapJson.containsKey("jumpPads")) {
+            JSONArray jumpPads = (JSONArray) mapJson.get("jumpPads");
+            jumpPads.forEach(jumpPad -> this.jumpPads.add(new JumpPad(LocationHelper.fromString(String.valueOf(jumpPad)))));
         }
     }
 
@@ -101,6 +113,9 @@ public class Map implements Listener {
     }
 
     public Location getSpawn(Team team) {
+        if (team == null) {
+            return this.spawns[Team.RED.getIndex()];
+        }
         return this.spawns[team.getIndex()];
     }
 
@@ -122,6 +137,10 @@ public class Map implements Listener {
 
     public List<MedKit> getMedkits() {
         return medkits;
+    }
+
+    public List<SpeedPack> getSpeedPacks() {
+        return speedPacks;
     }
 
     @Override

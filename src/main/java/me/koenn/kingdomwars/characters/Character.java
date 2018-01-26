@@ -12,6 +12,7 @@ public class Character {
     private final String description;
     private final ItemStack icon;
     private final CharacterKit kit;
+    private final boolean partyOnly;
     private Class<? extends Trait> trait;
     private String grenade;
 
@@ -26,6 +27,7 @@ public class Character {
         if (json.containsKey("grenade")) {
             this.grenade = (String) json.get("grenade");
         }
+        this.partyOnly = json.containsKey("partyOnly");
     }
 
     public String getName() {
@@ -42,6 +44,10 @@ public class Character {
 
     public CharacterKit getKit() {
         return kit;
+    }
+
+    public boolean isPartyOnly() {
+        return partyOnly;
     }
 
     public Class<? extends Trait> getTrait() {

@@ -9,13 +9,13 @@ function onConstruct(deployable, placer, location) {
     game = PlayerHelper.getGame(placer);
     team = PlayerHelper.getTeam(placer);
     if (game == null || team == null) {
-        Messager.playerMessage(placer, References.NOT_IN_GAME);
+        Messager.playerMessage(Bukkit.getPlayer(placer), References.NOT_IN_GAME);
     }
 }
 
 function onConstructComplete(deployable) {
     if (owner != null) {
-        Messager.playerMessage(owner, References.BUILDING_COMPLETE);
+        Messager.playerMessage(Bukkit.getPlayer(owner), References.BUILDING_COMPLETE);
     }
 }
 
@@ -37,8 +37,9 @@ function onTick(deployable) {
             if (PlayerHelper.getTeam(player) != team) {
                 continue;
             }
-            if (isInRange(player, deployable) && player.getHealth() < player.getMaxHealth()) {
-                lockedOn = player;
+            var p = Bukkit.getPlayer(player);
+            if (isInRange(p, deployable) && p.getHealth() < p.getMaxHealth()) {
+                lockedOn = p;
             }
         }
     }
@@ -53,7 +54,7 @@ function onTick(deployable) {
             lockedOn.setHealth(lockedOn.getMaxHealth());
             lockedOn = null;
         }
-        cooldown = 10;
+        cooldown = 5;
     }
 }
 

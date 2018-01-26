@@ -16,9 +16,13 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.Objects;
 
 /**
- * A grenade that damages and temporarily disables enemy deployables.
+ * A grenade that damages and temporarily disables enemy deployables_OLD.
  */
 public class EMPGrenade extends Grenade {
 
@@ -77,16 +81,21 @@ public class EMPGrenade extends Grenade {
                 //Get the current team instance.
                 Team team = PlayerHelper.getTeam(this.thrower);
 
-                //Disable all deployables within 6.5 blocks of the impact.
+                //Disable all deployables_OLD within 6.5 blocks of the impact.
                 game.getDeployables().stream()
+                        .filter(Objects::nonNull)
                         .filter(deployable -> deployable.getLocation().distance(impact) <= 6.5)
+                        .filter(deployable -> deployable.getTeam() != null)
                         .filter(deployable -> !deployable.getTeam().equals(team))
                         .forEach(deployable -> deployable.disable(this.thrower));
 
                 //'Electrify' all players within 6.5 blocks of the impact.
                 game.getTeam(team.getOpponent()).stream()
+                        .map(Bukkit::getPlayer)
                         .filter(player -> player.getLocation().distance(impact) <= 6.5)
                         .forEach(player -> {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0, true, true), true);
+
                             player.setMetadata("electric", new ElectricMeta());
                             Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () ->
                                     player.removeMetadata("electric", KingdomWars.getInstance()), 300

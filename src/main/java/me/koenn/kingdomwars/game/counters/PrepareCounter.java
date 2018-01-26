@@ -6,7 +6,9 @@ import me.koenn.core.misc.ProgressBar;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import me.koenn.kingdomwars.util.SoundSystem;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 public class PrepareCounter extends Counter {
 
@@ -28,7 +30,8 @@ public class PrepareCounter extends Counter {
         float pitch = calculateScaledProgress(scaledTime, 1.0F);
         ActionBar actionBar = new ActionBar(this.progressBar.get(Math.round(((float) time / PREPARE_TIME) * 100.0F)), KingdomWars.getInstance()).setStay(1);
 
-        this.game.getPlayers().forEach(player -> {
+        this.game.getPlayers().forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
             actionBar.send(player);
 
             if (this.cooldown == 0) {

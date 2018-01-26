@@ -2,7 +2,10 @@ package me.koenn.kingdomwars.game;
 
 import me.koenn.core.misc.Timer;
 import me.koenn.kingdomwars.KingdomWars;
-import me.koenn.kingdomwars.deployables.Deployable;
+import me.koenn.kingdomwars.deployables_OLD.Deployable;
+import me.koenn.kingdomwars.discord.ChannelManager;
+import me.koenn.kingdomwars.discord.DiscordBot;
+import me.koenn.kingdomwars.discord.Lobby;
 import me.koenn.kingdomwars.game.counters.PrepareCounter;
 import me.koenn.kingdomwars.game.events.GameFinishEvent;
 import me.koenn.kingdomwars.game.events.GameLoadEvent;
@@ -10,9 +13,11 @@ import me.koenn.kingdomwars.game.events.GameStartEvent;
 import me.koenn.kingdomwars.game.map.ControlPoint;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.game.map.MedKit;
+import me.koenn.kingdomwars.game.map.SpeedPack;
 import me.koenn.kingdomwars.grenade.Grenade;
 import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.logger.Message;
+import me.koenn.kingdomwars.party.Party;
 import me.koenn.kingdomwars.tracker.GameTracker;
 import me.koenn.kingdomwars.traits.Trait;
 import me.koenn.kingdomwars.util.*;
@@ -21,9 +26,12 @@ import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -42,11 +50,12 @@ public class Game {
     public final List<Trait> activeTraits = new ArrayList<>();
     public final List<Grenade> grenades = new ArrayList<>();
 
-    private final List<Player> players = new ArrayList<>();
-    private final List<Player>[] rawTeams = new List[2];
+    private final List<UUID> players = new ArrayList<>();
+    private final List<UUID>[] rawTeams = new List[2];
     private final List<Deployable> deployables = new ArrayList<>();
     private final Map map;
     private final GameTracker tracker;
+    private final Lobby lobby;
 
     private boolean debug;
     private int[] points = new int[2];
@@ -67,6 +76,9 @@ public class Game {
         for (int i = 0; i < 2; i++) {
             this.rawTeams[i] = new ArrayList<>();
         }
+
+        ChannelManager.registerGame(this);
+        this.lobby = ChannelManager.gameLobbies.get(this);
 
         this.tracker = new GameTracker(this);
     }
@@ -90,6 +102,13 @@ public class Game {
                     Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.RED.getIndex()].getPlayers())),
                     Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.BLUE.getIndex()].getPlayers()))
             }));
+
+            this.players.stream()
+                    .filter(player -> Bukkit.getPlayer(player) != null)
+                    .forEach(player -> {
+                        Team team = PlayerHelper.getTeam(player);
+                        DiscordBot.attemptMovePlayer(Bukkit.getPlayer(player), team == Team.RED ? this.lobby.getRedId() : this.lobby.getBlueId());
+                    });
 
             //Send game starting message.
             Messager.gameMessage(this, References.GAME_ABOUT_TO_START);
@@ -131,6 +150,11 @@ public class Game {
         SoundSystem.gameSound(this, Sound.ENTITY_WITHER_SPAWN, 1.0F, 1.0F);
 
         this.map.getMedkits().forEach(MedKit::enable);
+        this.map.getSpeedPacks().forEach(SpeedPack::enable);
+
+        this.players.stream()
+                .filter(player -> Bukkit.getPlayer(player) != null)
+                .forEach(player -> Bukkit.getPlayer(player).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1, true, true)));
 
         //Call the GameStartEvent.
         Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
@@ -162,16 +186,16 @@ public class Game {
         final int blueProgress = this.map.getPoints()[Team.BLUE.getIndex()].captureProgress;
         final int redProgress = this.map.getPoints()[Team.RED.getIndex()].captureProgress;
         for (int i = 0; i < 2; i++) {
-            final Team team = Team.getTeam(i);
             this.teams[i].getPlayers().stream()
                     .filter(player -> !PlayerHelper.isCapturing(player, this))
-                    .forEach(player -> Messager.playerActionBar(player,
+                    .filter(player -> Bukkit.getPlayer(player) != null)
+                    .forEach(player -> Messager.playerActionBar(Bukkit.getPlayer(player),
                             References.CAPTURE_PROGRESS_LAYOUT
-                                    .replace("%blue%", String.valueOf(team == Team.BLUE ? blueProgress : redProgress))
-                                    .replace("%red%", String.valueOf(team == Team.BLUE ? redProgress : blueProgress))
-                                    .replace("%bluepoints%", String.valueOf(this.points[team.getIndex()]))
-                                    .replace("%redpoints%", String.valueOf(this.points[team.getOpponent().getIndex()]))
-                                    .replace("&l", !player.getMetadata("electric").isEmpty() ? "&l&k" : "&l")
+                                    .replace("%blue%", String.valueOf(blueProgress))
+                                    .replace("%red%", String.valueOf(redProgress))
+                                    .replace("%bluepoints%", String.valueOf(this.points[Team.BLUE.getIndex()]))
+                                    .replace("%redpoints%", String.valueOf(this.points[Team.RED.getIndex()]))
+                                    .replace("&l", !Bukkit.getPlayer(player).getMetadata("electric").isEmpty() ? "&l&k" : "&l")
                     ));
         }
 
@@ -197,14 +221,14 @@ public class Game {
         Bukkit.getPluginManager().callEvent(new GameFinishEvent(this, winner));
 
         //Loop over all players.
-        this.players.forEach(player -> {
+        this.players.stream().filter(player -> Bukkit.getPlayer(player) != null).forEach(player -> {
 
             //Play the finish sound.
-            SoundSystem.playerSound(player, Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
+            SoundSystem.playerSound(Bukkit.getPlayer(player), Sound.ENTITY_WITHER_DEATH, 1.0F, 1.5F);
 
             //Launch fireworks at all winners.
             if (PlayerHelper.getTeam(player).equals(winner)) {
-                FireworkHelper.endGameFireworks(player);
+                FireworkHelper.endGameFireworks(Bukkit.getPlayer(player));
             }
         });
 
@@ -217,8 +241,32 @@ public class Game {
             this.rawTeams[i] = new ArrayList<>();
         }
 
-        for (int i = 0; i < this.players.size(); i++) {
-            this.rawTeams[i % 2 == 0 ? 0 : 1].add(this.players.get(i));
+        Collections.shuffle(this.players, ThreadLocalRandom.current());
+
+        Party party = null;
+        if (!Party.REGISTRY.getRegisteredObjects().isEmpty()) {
+            party = Party.REGISTRY.getRandom();
+        }
+
+        if (party == null) {
+            for (int i = 0; i < this.players.size(); i++) {
+                this.rawTeams[i % 2 == 0 ? 0 : 1].add(this.players.get(i));
+            }
+        } else {
+            int partySize = party.getMembers().size();
+            for (int i = 0; i < this.players.size(); i++) {
+                UUID player = this.players.get(i);
+                if (party.getMembers().contains(player)) {
+                    this.rawTeams[Team.BLUE.getIndex()].add(player);
+                } else {
+                    if (partySize > 0) {
+                        this.rawTeams[Team.RED.getIndex()].add(player);
+                        partySize--;
+                    } else {
+                        this.rawTeams[i % 2 == 0 ? 1 : 0].add(player);
+                    }
+                }
+            }
         }
 
         for (int i = 0; i < 2; i++) {
@@ -232,17 +280,27 @@ public class Game {
     public void stop() {
         EventLogger.log(new Message("info", "Stopping game " + Integer.toHexString(this.hashCode())));
 
-        this.tracker.disable();
+        if (this.tracker != null) {
+            this.tracker.disable();
+        }
 
         final Location spawn = Bukkit.getWorlds().get(0).getSpawnLocation();
-        this.players.forEach(player -> {
-            try {
-                player.teleport(spawn);
-                player.getInventory().clear();
-                player.getInventory().setArmorContents(null);
-                player.setBedSpawnLocation(spawn, true);
-            } catch (Exception ex) {
-                KingdomWars.getInstance().getLogger().severe("Error while resetting players " + ex);
+        this.players.forEach(p -> {
+            Player player = Bukkit.getPlayer(p);
+            if (player != null) {
+                try {
+                    player.teleport(spawn);
+                    player.getInventory().clear();
+                    player.getInventory().setArmorContents(null);
+                    player.setBedSpawnLocation(spawn, true);
+
+                    Bukkit.getScoreboardManager().getMainScoreboard().getTeam(PlayerHelper.getTeam(p).name()).removeEntry(player.getName());
+
+                    DiscordBot.attemptMovePlayer(player, "403635307481923606");
+                } catch (Exception ex) {
+                    KingdomWars.getInstance().getLogger().severe("Error while resetting players " + ex);
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -265,13 +323,18 @@ public class Game {
         this.activeTraits.forEach(Trait::stop);
         this.grenades.forEach(Grenade::remove);
         this.map.getMedkits().forEach(MedKit::disable);
+        this.map.getSpeedPacks().forEach(SpeedPack::disable);
 
         EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), "[]"}));
         EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{"[]", "[]"}));
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public List<UUID> getPlayers() {
+        return this.players.stream().filter(player -> Bukkit.getPlayer(player) != null).collect(Collectors.toList());
+    }
+
+    public void addPlayer(UUID uuid) {
+        this.players.add(uuid);
     }
 
     public GamePhase getCurrentPhase() {
@@ -286,8 +349,8 @@ public class Game {
         return players.size() == Math.toIntExact((long) this.map.getProperty("maxplayers"));
     }
 
-    public List<Player> getTeam(Team team) {
-        return this.teams[team.getIndex()].getPlayers();
+    public List<UUID> getTeam(Team team) {
+        return this.teams[team.getIndex()].getPlayers().stream().filter(player -> Bukkit.getPlayer(player) != null).collect(Collectors.toList());
     }
 
     public boolean isAlmostOverFor(Team team) {
@@ -302,6 +365,10 @@ public class Game {
         return tracker;
     }
 
+    public Lobby getLobby() {
+        return lobby;
+    }
+
     @SuppressWarnings("unused")
     public void disableDebugMode() {
         this.debug = false;
@@ -313,8 +380,9 @@ public class Game {
         this.load();
     }
 
-    public void regenerateMedkits() {
+    public void regenerateBoosts() {
         this.map.getMedkits().forEach(MedKit::regen);
+        this.map.getSpeedPacks().forEach(SpeedPack::regen);
     }
 
     public void freezePoints() {

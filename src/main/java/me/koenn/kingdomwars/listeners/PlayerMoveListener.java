@@ -29,7 +29,7 @@ public class PlayerMoveListener implements Listener {
             return;
         }
 
-        final Game game = PlayerHelper.getGame(player);
+        final Game game = PlayerHelper.getGame(player.getUniqueId());
         if (game == null) {
             return;
         }
@@ -38,7 +38,6 @@ public class PlayerMoveListener implements Listener {
         if (game.getCurrentPhase().equals(GamePhase.STARTING)) {
             door = game.getMap().getDoor(PlayerHelper.getTeam(player));
         } else {
-            //door = game.getMap().getDoor(PlayerHelper.getTeam(player).getOpponent());
             return;
         }
 

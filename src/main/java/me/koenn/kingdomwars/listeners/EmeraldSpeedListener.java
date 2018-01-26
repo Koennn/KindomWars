@@ -1,13 +1,10 @@
 package me.koenn.kingdomwars.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 /**
  * <p>
@@ -23,10 +20,10 @@ public class EmeraldSpeedListener implements Listener {
         final Player player = event.getPlayer();
         final Location location = player.getLocation();
 
-        if (location.clone().add(0, -1, 0).getBlock().getType().equals(Material.EMERALD_BLOCK) || location.clone().add(0, -2, 0).getBlock().getType().equals(Material.EMERALD_BLOCK)) {
+        /*if (location.clone().add(0, -1, 0).getBlock().getType().equals(Material.EMERALD_BLOCK) || location.clone().add(0, -2, 0).getBlock().getType().equals(Material.EMERALD_BLOCK)) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, true, false));
         } else if (player.hasPotionEffect(PotionEffectType.SPEED)) {
             player.removePotionEffect(PotionEffectType.SPEED);
-        }
+        }*/
     }
 }

@@ -1,4 +1,4 @@
-package me.koenn.kingdomwars.deployables;
+package me.koenn.kingdomwars.deployables_OLD;
 
 import de.slikey.effectlib.util.ParticleEffect;
 import me.koenn.core.cgive.CGiveAPI;
@@ -97,7 +97,7 @@ public final class DeployableLoader {
         return JSReader.read(NBTUtil.getChildTag(deployable.getDeployableInfo().getValue(), "script", StringTag.class).getValue(),
                 Entity.class, Location.class, World.class, Effect.class, Deployable.class, Timer.class, KingdomWars.class, Runnable.class, List.class,
                 Vector.class, PlayerHelper.class, Team.class, Messager.class, References.class, ActionBar.class, Damageable.class, ParticleRenderer.class,
-                ParticleEffect.class, GameMode.class
+                ParticleEffect.class, GameMode.class, Bukkit.class, OfflinePlayer.class
         );
     }
 }

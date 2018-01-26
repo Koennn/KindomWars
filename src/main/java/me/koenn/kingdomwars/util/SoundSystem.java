@@ -1,9 +1,12 @@
 package me.koenn.kingdomwars.util;
 
 import me.koenn.kingdomwars.game.Game;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.Objects;
 
 /**
  * Helper class for playing sounds.
@@ -19,7 +22,7 @@ public final class SoundSystem {
      * @param pitch  Pitch to play at
      */
     public static void gameSound(Game game, Sound sound, float volume, float pitch) {
-        game.getPlayers().forEach(player -> player.playSound(player.getLocation(), sound, volume, pitch));
+        game.getPlayers().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> player.playSound(player.getLocation(), sound, volume, pitch));
     }
 
     /**

@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>
@@ -85,12 +86,12 @@ public class ControlPoint implements JSONSerializable {
         final float pitch = calculateScaledProgress(this.captureProgress, 1.0F) + 0.5F;
 
         if (this.frozen) {
-            game.getPlayers().stream().filter(this::isInRange).forEach(actionBar::send);
+            game.getPlayers().stream().filter(this::isInRange).map(Bukkit::getPlayer).forEach(actionBar::send);
         } else {
             game.getPlayers().stream().filter(this::isInRange).forEach(player -> {
-                actionBar.send(player);
+                actionBar.send(Bukkit.getPlayer(player));
                 if (this.cooldown == 0) {
-                    SoundSystem.playerSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
+                    SoundSystem.playerSound(Bukkit.getPlayer(player), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, pitch);
                 }
             });
         }
@@ -108,7 +109,7 @@ public class ControlPoint implements JSONSerializable {
 
     public Team getCurrentlyCapturing(Game game) {
         int owningTeam = 0, opposingTeam = 0;
-        for (Player player : game.getPlayers()) {
+        for (UUID player : game.getPlayers()) {
             if (isInRange(player)) {
                 if (PlayerHelper.getTeam(player) == this.owningTeam) {
                     owningTeam++;
@@ -122,7 +123,7 @@ public class ControlPoint implements JSONSerializable {
 
     public boolean isNeutral(Game game) {
         int owningTeam = 0, opposingTeam = 0;
-        for (Player player : game.getPlayers()) {
+        for (UUID player : game.getPlayers()) {
             if (isInRange(player)) {
                 if (PlayerHelper.getTeam(player) == this.owningTeam) {
                     owningTeam++;
@@ -135,7 +136,7 @@ public class ControlPoint implements JSONSerializable {
     }
 
     public boolean isEmpty(Game game) {
-        for (Player player : game.getPlayers()) {
+        for (UUID player : game.getPlayers()) {
             if (isInRange(player)) {
                 return false;
             }
@@ -143,7 +144,11 @@ public class ControlPoint implements JSONSerializable {
         return true;
     }
 
-    public boolean isInRange(Player player) {
+    public boolean isInRange(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return false;
+        }
         final Location location = player.getLocation();
         return isInRange(location.getX(), min.getX(), max.getX()) &&
                 isInRange(location.getZ(), min.getZ(), max.getZ()) &&
@@ -151,11 +156,11 @@ public class ControlPoint implements JSONSerializable {
                 player.getGameMode().equals(GameMode.SURVIVAL);
     }
 
-    public List<Player>[] getPlayersOnPoint(Game game) {
-        List<Player>[] players = new List[2];
+    public List<UUID>[] getPlayersOnPoint(Game game) {
+        List<UUID>[] players = new List[2];
         for (Team team : Team.values()) {
             players[team.getIndex()] = new ArrayList<>();
-            game.getTeam(team).stream().filter(this::isInRange).filter(player -> player.getGameMode().equals(GameMode.SURVIVAL)).forEach(player -> players[team.getIndex()].add(player));
+            game.getTeam(team).stream().filter(this::isInRange).filter(player -> Bukkit.getPlayer(player).getGameMode().equals(GameMode.SURVIVAL)).forEach(player -> players[team.getIndex()].add(player));
         }
         return players;
     }

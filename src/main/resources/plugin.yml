@@ -1,4 +1,4 @@
-name: KindomWars
+name: KingdomWars
 main: me.koenn.kingdomwars.KingdomWars
 version: 2.0-ALPHA
 prefix: KingdomWars
@@ -10,3 +10,5 @@ commands:
   kingdomwars:
     usage: /kingdomwars [subcommand]
     description: Main KingdomWars command.
+  party:
+    usage: /party [subcommand]

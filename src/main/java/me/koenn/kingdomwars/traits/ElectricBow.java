@@ -6,11 +6,11 @@ import me.koenn.core.misc.ItemHelper;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.effect.SparkEffect;
 import me.koenn.kingdomwars.util.ElectricMeta;
+import me.koenn.kingdomwars.util.PlayerHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,10 +18,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.UUID;
 
 public class ElectricBow extends Trait {
 
@@ -39,23 +41,25 @@ public class ElectricBow extends Trait {
             null
     );
 
-    private final Player player;
+    private final UUID uuid;
 
-    public ElectricBow(Player player) {
-        this.player = player;
+    public ElectricBow(UUID uuid) {
+        this.uuid = uuid;
 
-        ItemMeta meta = ELECTRIC_BOW.getItemMeta();
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, false);
-        ELECTRIC_BOW.setItemMeta(meta);
-
+        Player player = Bukkit.getPlayer(uuid);
         player.getInventory().addItem(ELECTRIC_BOW);
-        player.getInventory().addItem(ELECTRIC_ARROW);
+        for (int i = 0; i < 10; i++) {
+            player.getInventory().addItem(ELECTRIC_ARROW);
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityShootBow(EntityShootBowEvent event) {
-        if (event.getBow().isSimilar(ELECTRIC_BOW) && event.getEntity().equals(this.player)) {
+        if (event.getBow().isSimilar(ELECTRIC_BOW) && event.getEntity().equals(Bukkit.getPlayer(this.uuid))) {
             event.getProjectile().setMetadata("electric", new ElectricMeta());
+
+            Player player = (Player) event.getEntity();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () -> player.getInventory().addItem(ELECTRIC_ARROW), 200);
         }
     }
 
@@ -88,6 +92,13 @@ public class ElectricBow extends Trait {
         }
     }
 
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+        if (PlayerHelper.isInGame(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+
     @Override
     protected void disable() {
 
@@ -95,6 +106,17 @@ public class ElectricBow extends Trait {
 
     @Override
     public void run() {
+        Player player = Bukkit.getPlayer(this.uuid);
+        if (player == null) {
+            return;
+        }
 
+        if (player.getInventory().contains(Material.ARROW)) {
+            for (ItemStack item : player.getInventory()) {
+                if (item != null && item.getType().equals(Material.ARROW) && item.getAmount() > 10) {
+                    item.setAmount(10);
+                }
+            }
+        }
     }
 }

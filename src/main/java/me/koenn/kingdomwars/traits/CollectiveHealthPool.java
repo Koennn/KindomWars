@@ -186,7 +186,7 @@ public class CollectiveHealthPool extends Trait {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onEntityRegainHealth(EntityRegainHealthEvent event) {
         //Check if the health pool contains the player.
-        if (this.containsPlayer(event)) {
+        if (this.containsPlayer(event) && !event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.CUSTOM)) {
 
             //Cancel the event.
             event.setCancelled(true);

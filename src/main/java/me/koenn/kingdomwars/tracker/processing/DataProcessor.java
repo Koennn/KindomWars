@@ -8,7 +8,6 @@ import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.Team;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,6 +17,7 @@ import org.json.simple.JSONArray;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public final class DataProcessor implements Listener {
 
@@ -36,7 +36,7 @@ public final class DataProcessor implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onGameStart(GameStartEvent event) {
-        event.getGame().getPlayers().stream().filter(player -> this.playerData.get(player.getUniqueId().toString()) == null).forEach(player -> this.playerData.register(new PlayerData(player.getUniqueId())));
+        event.getGame().getPlayers().stream().filter(player -> this.playerData.get(player.toString()) == null).forEach(player -> this.playerData.register(new PlayerData(player)));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -50,9 +50,9 @@ public final class DataProcessor implements Listener {
         MapData map = this.mapData.get(event.getGame().getMap().getName());
         map.totalCaptures[event.getCaptured().getIndex()]++;
 
-        List<Player>[] onPoint = event.getOnPoint();
+        List<UUID>[] onPoint = event.getOnPoint();
         for (Team team : Team.values()) {
-            onPoint[team.getIndex()].forEach(player -> this.playerData.get(player.getUniqueId().toString()).totalCaptures++);
+            onPoint[team.getIndex()].forEach(player -> this.playerData.get(player.toString()).totalCaptures++);
         }
     }
 
@@ -76,9 +76,9 @@ public final class DataProcessor implements Listener {
         for (Team team : Team.values()) {
             event.getGame().getTeam(team).forEach(player -> {
                 if (team.equals(event.getWinner())) {
-                    this.playerData.get(player.getUniqueId().toString()).totalWins++;
+                    this.playerData.get(player.toString()).totalWins++;
                 } else {
-                    this.playerData.get(player.getUniqueId().toString()).totalLosses++;
+                    this.playerData.get(player.toString()).totalLosses++;
                 }
             });
         }

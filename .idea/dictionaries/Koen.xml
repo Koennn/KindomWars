@@ -13,6 +13,7 @@
       <w>deployable</w>
       <w>deployables</w>
       <w>depoyable</w>
+      <w>despawn</w>
       <w>doctype</w>
       <w>dont</w>
       <w>doorx</w>
@@ -24,7 +25,9 @@
       <w>forcestop</w>
       <w>gamemodes</w>
       <w>kingdomwars</w>
+      <w>kingdomwarsmc</w>
       <w>kwclass</w>
+      <w>lifesteal</w>
       <w>maplore</w>
       <w>mapname</w>
       <w>mapstaff</w>
@@ -39,6 +42,7 @@
       <w>redpoints</w>
       <w>respawned</w>
       <w>subcommand</w>
+      <w>tallgrass</w>
       <w>teambalance</w>
       <w>teleport</w>
       <w>testmap</w>

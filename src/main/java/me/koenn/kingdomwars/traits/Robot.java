@@ -1,16 +1,19 @@
 package me.koenn.kingdomwars.traits;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.UUID;
+
 public class Robot extends Trait {
 
-    private final Player player;
+    private final UUID uuid;
     private boolean enabled;
 
-    public Robot(Player player) {
-        this.player = player;
+    public Robot(UUID uuid) {
+        this.uuid = uuid;
         this.enabled = true;
     }
 
@@ -22,10 +25,15 @@ public class Robot extends Trait {
     @Override
     public void run() {
         if (this.enabled) {
-            this.player.addPotionEffect(
-                    new PotionEffect(PotionEffectType.SLOW, 10, 1, true, false), true
+            Player player = Bukkit.getPlayer(this.uuid);
+            if (player == null) {
+                return;
+            }
+
+            player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.SLOW, 10, 0, true, false), true
             );
-            this.player.addPotionEffect(
+            player.addPotionEffect(
                     new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10, 0, true, false), true
             );
         }

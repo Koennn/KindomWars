@@ -6,7 +6,10 @@ import me.koenn.core.misc.Title;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.game.Game;
 import mkremins.fanciful.FancyMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.Objects;
 
 /**
  * Helper class for sending messages, titles, ect.
@@ -20,7 +23,7 @@ public final class Messager {
      * @param message Message to send
      */
     public static void gameMessage(Game game, String message) {
-        game.getPlayers().forEach(player -> player.sendMessage(ColorHelper.readColor(message)));
+        game.getPlayers().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> player.sendMessage(ColorHelper.readColor(message)));
     }
 
     /**
@@ -55,7 +58,7 @@ public final class Messager {
      */
     public static void teamTitle(String title, String subtitle, Team team, Game game) {
         final Title titleObj = new Title(title, subtitle).setFade(1);
-        game.getTeam(team).forEach(titleObj::send);
+        game.getTeam(team).stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(titleObj::send);
     }
 
     /**

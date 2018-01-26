@@ -2,11 +2,11 @@ package me.koenn.kingdomwars.game;
 
 import me.koenn.kingdomwars.characters.Character;
 import me.koenn.kingdomwars.util.PlayerHelper;
-import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -18,17 +18,17 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class TeamBalancer {
 
-    private final HashMap<Player, Character> balancedTeam = new HashMap<>();
-    private final List<Player> players;
+    private final HashMap<UUID, Character> balancedTeam = new HashMap<>();
+    private final List<UUID> players;
 
-    public TeamBalancer(List<Player> players) {
+    public TeamBalancer(List<UUID> players) {
         this.players = players;
     }
 
     public void balance() {
         Collections.shuffle(this.players, ThreadLocalRandom.current());
 
-        for (Player player : this.players) {
+        for (UUID player : this.players) {
             this.balancedTeam.put(player, PlayerHelper.getSelectedCharacter(player));
         }
     }

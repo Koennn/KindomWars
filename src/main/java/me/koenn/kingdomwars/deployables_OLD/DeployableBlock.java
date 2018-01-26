@@ -1,4 +1,4 @@
-package me.koenn.kingdomwars.deployables;
+package me.koenn.kingdomwars.deployables_OLD;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
