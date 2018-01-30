@@ -7,8 +7,6 @@ import me.koenn.core.misc.LocationHelper;
 import me.koenn.kingdomwars.KingdomWars;
 import me.koenn.kingdomwars.discord.DiscordBot;
 import me.koenn.kingdomwars.game.map.Map;
-import me.koenn.kingdomwars.logger.EventLogger;
-import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.util.Messager;
 import me.koenn.kingdomwars.util.PlayerHelper;
 import me.koenn.kingdomwars.util.References;
@@ -88,7 +86,6 @@ public class GameCreator implements Runnable {
 
         Game game = new Game(map);
         this.games.put(sign, game);
-        EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
         this.saveSigns();
     }
 
@@ -110,7 +107,6 @@ public class GameCreator implements Runnable {
 
         DiscordBot.attemptMovePlayer(player, game.getLobby().getLobbyId());
 
-        EventLogger.log(new Message("info", "Player " + player.getName() + " joined game " + Integer.toHexString(game.hashCode())));
         Messager.playerMessage(player, References.JOIN_MESSAGE);
 
         if (game.isFull()) {
@@ -160,7 +156,6 @@ public class GameCreator implements Runnable {
                 Location location = LocationHelper.fromString((String) signObject.get("location"));
                 Sign signBlock = (Sign) location.getWorld().getBlockAt(location).getState();
                 Game game = new Game(Map.getMap(map));
-                EventLogger.log(new Message("info", "Created game " + Integer.toHexString(game.hashCode())));
                 this.games.put(signBlock, game);
             } catch (Exception ex) {
                 KingdomWars.getInstance().getLogger().severe(

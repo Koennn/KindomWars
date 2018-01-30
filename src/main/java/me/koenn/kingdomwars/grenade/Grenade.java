@@ -1,5 +1,6 @@
 package me.koenn.kingdomwars.grenade;
 
+import me.koenn.core.cgive.CGiveAPI;
 import me.koenn.core.cgive.CItem;
 import me.koenn.core.misc.FancyString;
 import me.koenn.core.misc.ItemHelper;
@@ -57,6 +58,7 @@ public abstract class Grenade implements Listener, CItem {
         this.uuid = UUID.randomUUID();
 
         Bukkit.getPluginManager().registerEvents(this, KingdomWars.getInstance());
+        CGiveAPI.registerCItem(this, KingdomWars.getInstance());
     }
 
     /**

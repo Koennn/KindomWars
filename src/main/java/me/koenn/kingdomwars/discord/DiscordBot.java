@@ -82,17 +82,22 @@ public class DiscordBot extends ListenerAdapter {
             return;
         }
 
+        TextChannel channel = event.getTextChannel();
         String[] split = event.getMessage().getContent().split(" ");
         if (split.length < 2) {
+            channel.sendMessage(new MessageBuilder().append("Command usage: `!verify <minecraft-username>`").build()).queue();
             return;
         }
 
-        TextChannel channel = event.getTextChannel();
         User author = event.getAuthor();
         String username = split[1];
         Player player = Bukkit.getPlayerExact(username);
         if (player == null) {
-            channel.sendMessage(new MessageBuilder().append(String.format("Player %s is not online!", username)).build()).queue();
+            channel.sendMessage(
+                    new MessageBuilder()
+                            .append(String.format("Player *%s* is not online!", username))
+                            .build()
+            ).queue();
             return;
         }
 
@@ -112,7 +117,12 @@ public class DiscordBot extends ListenerAdapter {
         }
         VERIFICATION.get(player.getUniqueId()).add(author);
 
-        channel.sendMessage(new MessageBuilder().append("Please verify this request in Minecraft!").build()).queue();
+        channel.sendMessage(
+                new MessageBuilder()
+                        .append(author.getAsMention())
+                        .append(" please verify this request in Minecraft!")
+                        .build()
+        ).queue();
 
         String text = "Click this message to link your Minecraft account to Discord user " + author.getName();
         FancyMessage message = new FancyMessage(text)

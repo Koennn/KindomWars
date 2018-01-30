@@ -15,8 +15,6 @@ import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.game.map.MedKit;
 import me.koenn.kingdomwars.game.map.SpeedPack;
 import me.koenn.kingdomwars.grenade.Grenade;
-import me.koenn.kingdomwars.logger.EventLogger;
-import me.koenn.kingdomwars.logger.Message;
 import me.koenn.kingdomwars.party.Party;
 import me.koenn.kingdomwars.tracker.GameTracker;
 import me.koenn.kingdomwars.traits.Trait;
@@ -87,8 +85,6 @@ public class Game {
         try {
             //Set current phase and log messages.
             this.currentPhase = GamePhase.STARTING;
-            EventLogger.log(new Message("info", "Loading game " + Integer.toHexString(this.hashCode())));
-            EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), Arrays.toString(PlayerHelper.usernameArray(this.players))}));
 
             this.tracker.enable();
             this.map.load(this);
@@ -96,12 +92,6 @@ public class Game {
             //Shuffle and balance teams.
             Collections.shuffle(this.players, random);
             this.balanceTeams();
-
-            //Log teams.
-            EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{
-                    Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.RED.getIndex()].getPlayers())),
-                    Arrays.toString(PlayerHelper.usernameArray(this.teams[Team.BLUE.getIndex()].getPlayers()))
-            }));
 
             this.players.stream()
                     .filter(player -> Bukkit.getPlayer(player) != null)
@@ -126,7 +116,7 @@ public class Game {
             //Call the GameLoadEvent.
             Bukkit.getPluginManager().callEvent(new GameLoadEvent(this));
         } catch (Exception ex) {
-            EventLogger.log(this, new Message("error", ex.toString()));
+            KingdomWars.getInstance().getLogger().severe("Error while loading game: " + ex);
             ex.printStackTrace();
         }
     }
@@ -134,7 +124,6 @@ public class Game {
     private void start() {
         //Set the current phase and log messages.
         this.currentPhase = GamePhase.STARTED;
-        EventLogger.log(this, new Message("phase", this.currentPhase.name()));
 
         //Start rendering the control points.
         this.map.startRendering();
@@ -154,7 +143,9 @@ public class Game {
 
         this.players.stream()
                 .filter(player -> Bukkit.getPlayer(player) != null)
-                .forEach(player -> Bukkit.getPlayer(player).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1, true, true)));
+                .forEach(player -> Bukkit.getPlayer(player).addPotionEffect(
+                        new PotionEffect(PotionEffectType.SPEED, 200, 1, true, true)
+                ));
 
         //Call the GameStartEvent.
         Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
@@ -278,8 +269,6 @@ public class Game {
     }
 
     public void stop() {
-        EventLogger.log(new Message("info", "Stopping game " + Integer.toHexString(this.hashCode())));
-
         if (this.tracker != null) {
             this.tracker.disable();
         }
@@ -324,9 +313,6 @@ public class Game {
         this.grenades.forEach(Grenade::remove);
         this.map.getMedkits().forEach(MedKit::disable);
         this.map.getSpeedPacks().forEach(SpeedPack::disable);
-
-        EventLogger.log(this, new Message(new String[]{"phase", "players"}, new String[]{this.currentPhase.name(), "[]"}));
-        EventLogger.log(this, new Message(new String[]{"teamBlue", "teamRed"}, new String[]{"[]", "[]"}));
     }
 
     public List<UUID> getPlayers() {

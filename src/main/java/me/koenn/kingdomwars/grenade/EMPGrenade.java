@@ -22,7 +22,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Objects;
 
 /**
- * A grenade that damages and temporarily disables enemy deployables_OLD.
+ * A grenade that damages and temporarily disables enemy deployables.
  */
 public class EMPGrenade extends Grenade {
 
@@ -71,7 +71,7 @@ public class EMPGrenade extends Grenade {
                 SoundSystem.locationSound(impact, Sound.ENTITY_GENERIC_EXPLODE, 1.0F, 1.5F);
 
                 //Get the current game instance.
-                Game game = PlayerHelper.getGame(this.thrower);
+                Game game = PlayerHelper.getGame(this.thrower.getUniqueId());
 
                 //Make sure we're in a game.
                 if (game == null) {
@@ -79,9 +79,9 @@ public class EMPGrenade extends Grenade {
                 }
 
                 //Get the current team instance.
-                Team team = PlayerHelper.getTeam(this.thrower);
+                Team team = PlayerHelper.getTeam(this.thrower.getUniqueId());
 
-                //Disable all deployables_OLD within 6.5 blocks of the impact.
+                //Disable all deployables within 6.5 blocks of the impact.
                 game.getDeployables().stream()
                         .filter(Objects::nonNull)
                         .filter(deployable -> deployable.getLocation().distance(impact) <= 6.5)
@@ -94,7 +94,9 @@ public class EMPGrenade extends Grenade {
                         .map(Bukkit::getPlayer)
                         .filter(player -> player.getLocation().distance(impact) <= 6.5)
                         .forEach(player -> {
-                            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0, true, true), true);
+                            player.addPotionEffect(
+                                    new PotionEffect(PotionEffectType.CONFUSION, 250, 0, true, true), true
+                            );
 
                             player.setMetadata("electric", new ElectricMeta());
                             Bukkit.getScheduler().scheduleSyncDelayedTask(KingdomWars.getInstance(), () ->

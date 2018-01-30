@@ -28,10 +28,14 @@ public final class FireworkHelper {
                 FireworkMeta meta = firework.getFireworkMeta();
                 meta.addEffect(FireworkEffect.builder()
                         .with(FireworkEffect.Type.values()[random.nextInt(FireworkEffect.Type.values().length)])
-                        .withColor(Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
+                        .withColor(Color.fromRGB(
+                                random.nextInt(255),
+                                random.nextInt(255),
+                                random.nextInt(255)
+                        ))
                         .build()
                 );
-                firework.setVelocity(new Vector(0, 0.5, 0));
+                firework.setVelocity(new Vector(0, 0.4, 0));
                 firework.setFireworkMeta(meta);
             });
         }

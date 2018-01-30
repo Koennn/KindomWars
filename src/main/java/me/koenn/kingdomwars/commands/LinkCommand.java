@@ -31,11 +31,11 @@ public class LinkCommand extends Command {
                 cPlayer.sendMessage(String.format("&a&lSuccessfully linked Discord user %s to you!", user.getName()));
 
                 cPlayer.set("discord_id", user.getId());
+
+                DiscordBot.VERIFICATION.get(cPlayer.getUUID()).clear();
+                DiscordBot.VERIFICATION.remove(cPlayer.getUUID());
             }
         });
-
-        DiscordBot.VERIFICATION.get(cPlayer.getUUID()).clear();
-        DiscordBot.VERIFICATION.remove(cPlayer.getUUID());
 
         return true;
     }

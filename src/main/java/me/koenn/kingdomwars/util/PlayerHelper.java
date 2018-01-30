@@ -6,11 +6,11 @@ import me.koenn.kingdomwars.characters.Character;
 import me.koenn.kingdomwars.characters.CharacterKit;
 import me.koenn.kingdomwars.characters.CharacterLoader;
 import me.koenn.kingdomwars.game.Game;
-import me.koenn.kingdomwars.game.map.ControlPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,12 +56,17 @@ public final class PlayerHelper {
         return getTeam(player1) != getTeam(player2);
     }
 
+    @Deprecated
     public static boolean isInGame(Player player) {
         return isInGame(player.getUniqueId());
     }
 
     public static boolean isInGame(UUID player) {
         return getGame(player) != null;
+    }
+
+    public static boolean isInGame(UUID player, Game game) {
+        return getGame(player) == game;
     }
 
     public static Character getSelectedCharacter(UUID player) {
@@ -91,11 +96,6 @@ public final class PlayerHelper {
     }
 
     public static boolean isCapturing(UUID player, Game game) {
-        for (ControlPoint controlPoint : game.getMap().getPoints()) {
-            if (controlPoint.isInRange(player)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(game.getMap().getPoints()).anyMatch(controlPoint -> controlPoint.isInRange(player));
     }
 }

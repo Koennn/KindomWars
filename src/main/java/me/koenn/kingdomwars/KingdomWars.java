@@ -15,7 +15,6 @@ import me.koenn.kingdomwars.game.GameCreator;
 import me.koenn.kingdomwars.game.MapLoader;
 import me.koenn.kingdomwars.game.map.Map;
 import me.koenn.kingdomwars.listeners.*;
-import me.koenn.kingdomwars.logger.EventLogger;
 import me.koenn.kingdomwars.party.PartyCommand;
 import me.koenn.kingdomwars.party.PartyCreateCommand;
 import me.koenn.kingdomwars.party.PartyInviteCommand;
@@ -39,7 +38,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
 
     public static Command command;
     private static KingdomWars instance;
-    private static EventLogger eventLogger;
     private static DiscordBot discord;
     private static boolean enabled = false;
 
@@ -56,9 +54,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
         try {
             KoennCore.requireVersion(1.7, this);
 
-            this.getLogger().info("Setting up event logger...");
-            eventLogger = new EventLogger();
-
             this.getLogger().info("Registering plugin to KoennCore...");
             PluginManager.registerPlugin(this);
 
@@ -67,7 +62,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().registerEvents(new SignListener(), this);
             Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), this);
             Bukkit.getPluginManager().registerEvents(new BlockListener(), this);
-            Bukkit.getPluginManager().registerEvents(new EmeraldSpeedListener(), this);
             Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
 
             this.getLogger().info("Registering commands...");
@@ -163,11 +157,6 @@ public final class KingdomWars extends JavaPlugin implements Listener {
                 this.getLogger().info("+=========== Disabled with errors! ===========+");
             }
             return;
-        } finally {
-            if (eventLogger != null) {
-                this.getLogger().info("Disabling event logger...");
-                eventLogger.disable();
-            }
         }
 
         this.getLogger().info("+=========== Successfully disabled! ===========+");

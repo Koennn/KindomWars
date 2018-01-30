@@ -250,6 +250,8 @@ public class Deployable implements Listener, Runnable {
         this.executor.destroy();
         this.alive = false;
 
+        PlayerHelper.getGame(this.executor.getOwner()).removeDeployable(this);
+
         if (this.disabledEffect != null && !this.disabledEffect.isDone()) {
             this.disabledEffect.cancel();
         }
